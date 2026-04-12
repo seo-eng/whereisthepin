@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a1f14">
+<title>Where is the Pin?</title>
+<style>
+:root {
+  --brand-dark: #0A1F14;
+  --brand-surface: #142E1F;
+  --brand-card: #1A3D28;
+  --brand-border: #3A7D5C;
+  --text-primary: #FFFFFF;
+  --text-secondary: #C8E6C0;
+  --text-muted: #7DBB9A;
+  --text-dim: rgba(255,255,255,0.50);
+  --accent-gold: #E6C84A;
+  --accent-red: #CC3333;
+  --green-fill: #2D6A3E;
+  --green-stroke: #4A9E5E;
+  --badge-gold-bg: #E6C84A;
+  --badge-gold-text: #0A1F14;
+  --pill-bg: rgba(255,255,255,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--brand-dark); color: var(--text-primary);
+  min-height:100vh; display:flex; justify-content:center;
+}
+.app { width:100%; max-width:430px; min-height:100vh; }
+
+/* HEADER - removed, logo moves to footer */
+
+.proshop-btn {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:20px;
+  cursor:pointer; border:1px solid rgba(138,172,200,0.25); font-family:inherit;
+}
+.proshop-btn span { font-size:13px; color:#fff; font-weight:600; white-space:nowrap; }
+.proshop-btn:active { background:rgba(255,255,255,0.2); }
+
+/* CLUB BANNER — always visible, prominent */
+.club-banner-inner {
+  background:#0C2340; border-radius:12px;
+  padding:14px 18px; display:flex; align-items:center; justify-content:space-between;
+  border:1px solid rgba(138,172,200,0.2);
+}
+
+/* DATE BAR — distinct color, top of page */
+.date-bar {
+  margin:8px 14px 6px; background:var(--brand-card); border-radius:10px;
+  padding:10px 18px; display:flex; justify-content:space-between; align-items:center;
+  border:1px solid rgba(255,255,255,0.08);
+}
+.date-bar-item { display:flex; flex-direction:column; }
+.date-bar-label { font-size:10px; color:var(--text-muted); letter-spacing:1px; font-weight:500; text-transform:uppercase; }
+.date-bar-value { font-size:17px; color:#fff; font-weight:600; margin-top:1px; }
+.date-bar-value.date-gold { color:var(--accent-gold); }
+.date-bar-value.date-small { font-size:13px; font-weight:500; }
+
+/* NOTIFICATION — CTA that demands attention */
+.notification-bar {
+  display:none; margin:8px 14px 0;
+  border-radius:12px;
+  position:relative;
+  overflow:hidden;
+}
+.notification-bar.cta {
+  background:linear-gradient(135deg, #E6C84A 0%, #D4A820 100%);
+  padding:16px 16px;
+  border:2px solid #c99a10;
+}
+.notification-bar.thankyou {
+  background:#0C2340;
+  padding:14px 16px;
+  border:1px solid rgba(138,172,200,0.2);
+}
+.notif-close {
+  position:absolute; top:8px; right:8px;
+  width:26px; height:26px; border-radius:50%; background:rgba(0,0,0,0.15);
+  border:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.notif-close:active { background:rgba(0,0,0,0.25); }
+.notif-cta-headline {
+  font-size:18px; font-weight:700; color:#0A1F14; line-height:1.2; margin-bottom:8px;
+  padding-right:30px;
+}
+.notif-cta-sub {
+  font-size:13px; color:rgba(10,31,20,0.7); font-weight:500; margin-bottom:12px;
+}
+.notif-cta-btn {
+  display:inline-flex; align-items:center; gap:8px;
+  background:#0A1F14; color:#E6C84A; font-size:16px; font-weight:700;
+  padding:12px 24px; border-radius:30px; border:none; cursor:pointer;
+  font-family:inherit; text-decoration:none;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+.notif-cta-btn:active { background:#142E1F; }
+.notif-thankyou {
+  text-align:center; font-size:14px; color:rgba(255,255,255,0.7); font-weight:500;
+}
+.notif-thankyou strong { color:#fff; }
+
+/* HOLE NAV */
+.hole-nav {
+  padding:16px 22px 12px; display:flex; align-items:center; justify-content:space-between;
+}
+.nav-btn {
+  width:50px; height:50px; border-radius:12px;
+  border:2px solid #5AA87A; background:rgba(255,255,255,0.08);
+  cursor:pointer; display:flex; align-items:center; justify-content:center;
+}
+.nav-btn:active { background:rgba(255,255,255,0.15); }
+.hole-display { text-align:center; }
+.hole-label {
+  display:inline-flex; align-items:center; justify-content:center;
+  background:var(--accent-gold);
+  padding:5px 14px; border-radius:16px; margin-bottom:4px;
+  line-height:1;
+}
+.hole-label span { font-size:11px; color:var(--badge-gold-text); letter-spacing:2px; font-weight:700; line-height:1; }
+.hole-number { font-size:80px; font-weight:600; color:#fff; line-height:1; letter-spacing:-3px; }
+.hole-meta { display:flex; gap:8px; justify-content:center; align-items:center; margin-top:6px; }
+.hole-pill {
+  font-size:14px; color:#fff; font-weight:500;
+  background:rgba(255,255,255,0.1); padding:5px 14px; border-radius:20px;
+  border:1px solid rgba(255,255,255,0.15);
+}
+
+/* TEE DROPDOWN — small, labeled */
+.tee-select {
+  font-size:13px; font-family:inherit; font-weight:500;
+  background:rgba(255,255,255,0.12); color:#fff;
+  border:1px solid rgba(255,255,255,0.25); border-radius:12px;
+  padding:4px 8px; cursor:pointer; appearance:auto;
+  -webkit-appearance:auto;
+}
+.tee-select:focus { outline:1px solid var(--accent-gold); }
+
+/* GREEN CARD — T-SHAPED PIN SHEET */
+.green-card {
+  background:var(--brand-surface); margin:0 14px; border-radius:16px; padding:10px;
+  border:1px solid rgba(255,255,255,0.1);
+}
+.green-svg { display:flex; justify-content:center; }
+
+/* DEPTH LABEL */
+.depth-row {
+  display:flex; justify-content:center; margin-top:6px;
+}
+.depth-label {
+  font-size:11px; color:var(--text-muted); letter-spacing:1px;
+}
+.depth-value {
+  font-size:13px; color:var(--text-secondary); font-weight:500; margin-left:4px;
+}
+
+/* METRICS */
+.metrics {
+  display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 14px 0;
+}
+.metric-card {
+  background:var(--brand-card); border-radius:12px; padding:16px; text-align:center;
+}
+.metric-label { font-size:11px; color:var(--text-muted); letter-spacing:1px; margin-bottom:6px; }
+.metric-value { font-size:30px; font-weight:500; color:var(--accent-gold); letter-spacing:-1px; }
+
+/* HOLE GRID — two rows of 9 (front nine / back nine) */
+.hole-grid {
+  display:grid; grid-template-columns:repeat(9, 1fr); gap:5px;
+  padding:16px 10px 20px;
+}
+.hole-dot {
+  width:100%; aspect-ratio:1; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:14px; font-weight:600; cursor:pointer; border:none;
+}
+.hole-dot.active { background:var(--accent-gold); color:var(--brand-dark); }
+.hole-dot.inactive { background:rgba(255,255,255,0.08); color:var(--text-dim); }
+
+/* LOGO TEXT */
+.logo-text { font-size:17px; color:#fff; letter-spacing:-0.3px; }
+.logo-text .pin { color:var(--accent-gold); font-weight:500; }
+.logo-text .q { color:var(--accent-red); font-size:20px; }
+
+/* BRANDING FOOTER */
+.brand-footer {
+  padding:8px 14px 20px;
+}
+.brand-footer-inner {
+  display:flex; align-items:center; justify-content:center; gap:16px;
+}
+.brand-footer-url {
+  font-size:13px; color:var(--text-muted); font-weight:400; letter-spacing:0.3px;
+}
+
+/* ==========================================================
+   PRO SHOP PANEL — Navy blue, club branded
+   ========================================================== */
+.club-menu { display:none; margin:0 14px 8px; }
+.club-panel {
+  background:#0C2340; border-radius:0 0 14px 14px; overflow:hidden;
+  border:1px solid rgba(138,172,200,0.2); border-top:none;
+  margin-top:-9px;
+}
+.club-header-left { display:flex; align-items:center; gap:12px; }
+.club-header-name { font-size:16px; font-weight:700; color:#fff; letter-spacing:0.2px; white-space:nowrap; }
+.club-header-city { font-size:12px; color:rgba(255,255,255,0.55); margin-top:1px; }
+.club-grid {
+  display:grid; grid-template-columns:1fr 1fr; gap:0;
+}
+.club-tile {
+  padding:20px 16px; cursor:pointer; text-align:center;
+  background:rgba(138,172,200,0.12); font-family:inherit;
+  border:none;
+  border-right:1px solid rgba(138,172,200,0.12);
+  border-bottom:1px solid rgba(138,172,200,0.12);
+  transition:background 0.15s;
+}
+.club-tile:nth-child(2n) { border-right:none; }
+.club-tile:nth-child(n+3) { border-bottom:none; }
+.club-tile:active { background:rgba(0,0,0,0.2); }
+.club-tile-label { font-size:13px; font-weight:500; color:#fff; }
+.club-tile-sub { font-size:11px; color:rgba(255,255,255,0.5); margin-top:2px; }
+.club-tile-icon { margin-bottom:8px; }
+
+/* SCORECARD INSIDE PRO SHOP */
+.scorecard-panel { display:none; padding:0 12px 12px; }
+.scorecard-tee-row {
+  display:flex; gap:6px; padding:8px 0; justify-content:center;
+}
+.sc-tee-btn {
+  font-size:11px; font-weight:600; padding:4px 10px; border-radius:10px;
+  cursor:pointer; border:2px solid; background:transparent; font-family:inherit;
+  color:rgba(255,255,255,0.6);
+}
+.sc-tee-btn.active { color:#0C2340; }
+.sc-tee-btn.blue { border-color:#4A90D9; }
+.sc-tee-btn.blue.active { background:#4A90D9; }
+.sc-tee-btn.white { border-color:rgba(255,255,255,0.5); }
+.sc-tee-btn.white.active { background:rgba(255,255,255,0.85); color:#0C2340; }
+.sc-tee-btn.whitegold { border-color:#C0A030; }
+.sc-tee-btn.whitegold.active { background:#C0A030; }
+.sc-tee-btn.gold { border-color:#E6C84A; }
+.sc-tee-btn.gold.active { background:#E6C84A; }
+
+.sc-table {
+  width:100%; border-collapse:collapse; margin-top:6px;
+}
+.sc-table th, .sc-table td {
+  font-size:10px; padding:4px 2px; text-align:center; color:rgba(255,255,255,0.7);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.sc-table th { color:rgba(255,255,255,0.4); font-weight:500; letter-spacing:0.5px; }
+.sc-table .par-row td { color:var(--accent-gold); font-weight:500; }
+.sc-table .yds-row td { color:#fff; font-weight:500; }
+.sc-table .out-col, .sc-table .in-col, .sc-table .total-col {
+  font-weight:600; color:#fff;
+}
+.sc-nine-header { font-size:10px; color:rgba(255,255,255,0.3); text-align:center; padding:6px 0 2px; letter-spacing:1px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- DATE BAR — top of page -->
+  <div class="date-bar">
+    <div class="date-bar-item">
+      <span class="date-bar-label">Date</span>
+      <span class="date-bar-value date-gold" id="course-date">Apr 12, 2026</span>
+    </div>
+    <div class="date-bar-item" style="text-align:right;">
+      <span class="date-bar-label">Last updated</span>
+      <span class="date-bar-value date-small" id="last-updated">Apr 12, 2026 — 6:15 AM</span>
+    </div>
+  </div>
+
+  <!-- CLUB BANNER — below date bar -->
+  <div class="club-banner" style="margin:0 14px 0;">
+    <div class="club-banner-inner">
+      <div class="club-header-left">
+        <svg width="32" height="32" viewBox="0 0 32 32">
+          <rect x="1" y="1" width="30" height="30" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+          <text x="16" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Georgia,serif">ICC</text>
+          <text x="16" y="26" text-anchor="middle" font-size="6" fill="rgba(255,255,255,0.5)" font-family="Georgia,serif">1973</text>
+        </svg>
+        <div>
+          <div class="club-header-name">Inverness Country Club</div>
+          <div class="club-header-city">Birmingham, AL</div>
+        </div>
+      </div>
+      <button class="proshop-btn" onclick="toggleMenu()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path d="M2 4.5h14M2 9h14M2 13.5h14" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span>Pro shop</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- PRO SHOP PANEL -->
+  <div class="club-menu" id="club-menu">
+    <div class="club-panel">
+      <div class="club-grid">
+        <button class="club-tile" onclick="window.location.href='tel:2059918608'">
+          <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><path d="M4 8h18v2H4zM6 12h14v2H6zM8 16h10v2H8zM10 20h6v2H10z" fill="#e6c84a"/></svg></div>
+          <div class="club-tile-label">Call grill</div>
+          <div class="club-tile-sub">(205) 991-8608</div>
+        </button>
+        <button class="club-tile" onclick="toggleScorecard()">
+          <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="4" y="5" width="18" height="16" rx="2" fill="none" stroke="#e6c84a" stroke-width="1.5"/><line x1="4" y1="11" x2="22" y2="11" stroke="#e6c84a" stroke-width="1.5"/><line x1="10" y1="5" x2="10" y2="21" stroke="#e6c84a" stroke-width="1"/><line x1="16" y1="5" x2="16" y2="21" stroke="#e6c84a" stroke-width="1"/></svg></div>
+          <div class="club-tile-label">Scorecard</div>
+          <div class="club-tile-sub">View card</div>
+        </button>
+        <button class="club-tile" onclick="window.location.href='tel:2059918608'">
+          <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="5" y="4" width="16" height="18" rx="2" fill="none" stroke="#4a9e6e" stroke-width="1.5"/><circle cx="13" cy="10" r="3" fill="none" stroke="#4a9e6e" stroke-width="1.2"/><path d="M8 19c0-2.5 2.2-4 5-4s5 1.5 5 4" fill="none" stroke="#4a9e6e" stroke-width="1.2"/></svg></div>
+          <div class="club-tile-label">Call pro shop</div>
+          <div class="club-tile-sub">(205) 991-8608</div>
+        </button>
+        <button class="club-tile" onclick="window.open('https://iccalabama.com','_blank')">
+          <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><circle cx="13" cy="13" r="9" fill="none" stroke="#4a9e6e" stroke-width="1.5"/><path d="M13 4c4 3 4 9 0 9s-4-6 0-9" fill="none" stroke="#4a9e6e" stroke-width="1"/><line x1="4" y1="13" x2="22" y2="13" stroke="#4a9e6e" stroke-width="1"/></svg></div>
+          <div class="club-tile-label">Club website</div>
+          <div class="club-tile-sub">iccalabama.com</div>
+        </button>
+      </div>
+      <!-- SCORECARD -->
+      <div class="scorecard-panel" id="scorecard-panel">
+        <div class="scorecard-tee-row">
+          <button class="sc-tee-btn blue active" onclick="setScTee('blue')">Blue</button>
+          <button class="sc-tee-btn white" onclick="setScTee('white')">White</button>
+          <button class="sc-tee-btn whitegold" onclick="setScTee('whitegold')">W/G</button>
+          <button class="sc-tee-btn gold" onclick="setScTee('gold')">Gold</button>
+        </div>
+        <div class="sc-nine-header">FRONT NINE</div>
+        <table class="sc-table">
+          <tr><th>Hole</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th class="out-col">OUT</th></tr>
+          <tr class="par-row"><td>Par</td><td>4</td><td>5</td><td>3</td><td>5</td><td>4</td><td>4</td><td>3</td><td>4</td><td>5</td><td class="out-col" id="par-out">37</td></tr>
+          <tr class="yds-row" id="yds-front"><td>Yds</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="out-col"></td></tr>
+        </table>
+        <div class="sc-nine-header" style="margin-top:4px;">BACK NINE</div>
+        <table class="sc-table">
+          <tr><th>Hole</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th class="in-col">IN</th><th class="total-col">TOT</th></tr>
+          <tr class="par-row"><td>Par</td><td>4</td><td>3</td><td>4</td><td>4</td><td>4</td><td>3</td><td>5</td><td>4</td><td>5</td><td class="in-col" id="par-in">36</td><td class="total-col">73</td></tr>
+          <tr class="yds-row" id="yds-back"><td>Yds</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="in-col"></td><td class="total-col"></td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION — club branded CTA -->
+  <div class="notification-bar" id="notification"></div>
+
+  <!-- HOLE NAV -->
+  <div class="hole-nav">
+    <button class="nav-btn" onclick="nav(-1)">
+      <svg width="22" height="22" viewBox="0 0 22 22"><path d="M13 5 L7 11 L13 17" fill="none" stroke="#A0D8B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="hole-display">
+      <div class="hole-label"><span>HOLE</span></div>
+      <div class="hole-number" id="hole-number">1</div>
+      <div class="hole-meta">
+        <span class="hole-pill" id="hole-par">PAR 4</span>
+        <span class="hole-pill" id="hole-yds">392 YDS</span>
+        <select class="tee-select" id="tee-select" onchange="setTee(this.value)">
+          <option value="blue">Blue tees</option>
+          <option value="white">White tees</option>
+          <option value="whitegold">W/G tees</option>
+          <option value="gold">Gold tees</option>
+        </select>
+      </div>
+    </div>
+    <button class="nav-btn" onclick="nav(1)">
+      <svg width="22" height="22" viewBox="0 0 22 22"><path d="M9 5 L15 11 L9 17" fill="none" stroke="#A0D8B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+  </div>
+
+  <!-- GREEN — T-SHAPED PIN SHEET -->
+  <div class="green-card">
+    <div class="green-svg">
+      <svg id="green-svg" width="300" height="300" viewBox="0 0 300 300"></svg>
+    </div>
+  </div>
+
+  <!-- METRICS -->
+  <div class="metrics">
+    <div class="metric-card">
+      <div class="metric-label">FROM FRONT</div>
+      <div class="metric-value" id="metric-front">18'</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-label" id="metric-side-label">FROM LEFT</div>
+      <div class="metric-value" id="metric-side">5'</div>
+    </div>
+  </div>
+
+  <!-- HOLE GRID -->
+  <div class="hole-grid" id="hole-grid"></div>
+
+  <!-- BRANDING FOOTER -->
+  <div class="brand-footer">
+    <div class="brand-footer-inner">
+      <div class="logo-text">
+        <span style="font-weight:400;">where is the </span><span class="pin">pin</span><span class="q">?</span>
+      </div>
+      <span class="brand-footer-url">whereisthepin.com</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// =============================================================
+// INVERNESS COUNTRY CLUB DATA
+// =============================================================
+var teeData = {
+  blue:      [392,562,219,420,440,413,452,201,454, 399,211,422,418,422,215,625,384,408],
+  white:     [370,540,200,400,420,395,430,185,435, 380,195,405,400,405,200,600,365,390],
+  whitegold: [350,515,185,380,400,375,410,170,415, 360,180,385,380,385,185,575,345,370],
+  gold:      [325,490,165,355,375,350,385,155,395, 335,165,365,355,365,170,550,325,350]
+};
+var pars = [4,5,3,5,4,4,3,4,5, 4,3,4,4,4,3,5,4,5];
+
+// Green depth per hole (paces, from pin sheet)
+var depths = [30,41,40,35,35,37,40,36,38, 50,30,40,35,37,40,36,38,50];
+
+// Pin positions — from_front + from_left OR from_right (EDGE, not center)
+var pinData = [
+  { front:19, side:6,  dir:'L', depth:30 },
+  { front:8,  side:6,  dir:'L', depth:41 },
+  { front:10, side:9,  dir:'R', depth:40 },
+  { front:12, side:11, dir:'L', depth:35 },
+  { front:11, side:5,  dir:'L', depth:35 },
+  { front:11, side:8,  dir:'L', depth:37 },
+  { front:25, side:6,  dir:'R', depth:40 },
+  { front:22, side:9,  dir:'L', depth:36 },
+  { front:9,  side:5,  dir:'L', depth:38 },
+  { front:38, side:8,  dir:'R', depth:50 },
+  { front:16, side:5,  dir:'R', depth:30 },
+  { front:8,  side:11, dir:'L', depth:40 },
+  { front:10, side:7,  dir:'R', depth:35 },
+  { front:24, side:2,  dir:'L', depth:37 },
+  { front:18, side:11, dir:'R', depth:40 },
+  { front:28, side:4,  dir:'L', depth:36 },
+  { front:14, side:6,  dir:'R', depth:38 },
+  { front:22, side:8,  dir:'L', depth:50 }
+];
+
+var notifications = {
+  8: "grill"
+};
+
+// =============================================================
+// STATE
+// =============================================================
+var cur = 0;
+var curTee = 'blue';
+var menuOpen = false;
+var scorecardOpen = false;
+
+// =============================================================
+// T-SHAPED PIN SHEET RENDERING
+// Like a real pin sheet: circle, horizontal line through middle,
+// vertical line from center to bottom. Numbers placed on lines.
+// No scaling, no dot plotting. Just a T with numbers.
+// =============================================================
+function renderGreen(pin) {
+  var svg = document.getElementById('green-svg');
+  var cx = 150, cy = 150, r = 130;
+
+  // Side number position: on the correct half of horizontal line
+  var sideX = pin.dir === 'L' ? cx - r/2 : cx + r/2;
+
+  // Front number: on the vertical stem, between center and bottom
+  var frontY = cy + r/2;
+
+  // DEPTH bar: across the top of the green, reads "DEPTH - 30'"
+  var depthBarW = 120;
+  var depthBarH = 28;
+  var depthBarY = cy - r/2 - depthBarH/2 - 4;
+  var depthStr = 'DEPTH \u2014 ' + pin.depth + "'";
+
+  // Side/front gold pill sizing
+  var sideStr = pin.side + "'";
+  var frontStr = pin.front + "'";
+  var sidePillW = sideStr.length * 12 + 18;
+  var frontPillW = frontStr.length * 12 + 18;
+  var pillH = 28;
+
+  svg.innerHTML =
+    // Green circle — BRIGHT border
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#2D6A3E" stroke="#6BC48A" stroke-width="2.5"/>' +
+
+    // Horizontal line — BRIGHT
+    '<line x1="'+(cx-r)+'" y1="'+cy+'" x2="'+(cx+r)+'" y2="'+cy+'" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>' +
+
+    // Vertical line — BRIGHT, center to bottom
+    '<line x1="'+cx+'" y1="'+cy+'" x2="'+cx+'" y2="'+(cy+r)+'" stroke="rgba(255,255,255,0.6)" stroke-width="2"/>' +
+
+    // FRONT label at very bottom outside circle — BOLD
+    '<text x="'+cx+'" y="'+(cy+r+18)+'" text-anchor="middle" font-size="12" fill="rgba(255,255,255,0.7)" font-family="inherit" font-weight="700" letter-spacing="1.5">FRONT</text>' +
+
+    // DEPTH bar — across the top of the green, "DEPTH — 30'"
+    '<rect x="'+(cx - depthBarW/2)+'" y="'+depthBarY+'" width="'+depthBarW+'" height="'+depthBarH+'" rx="6" fill="rgba(0,0,0,0.3)" stroke="rgba(255,255,255,0.35)" stroke-width="1.5"/>' +
+    '<text x="'+cx+'" y="'+(depthBarY + 19)+'" text-anchor="middle" font-size="14" font-weight="700" fill="#fff" font-family="inherit">'+depthStr+'</text>' +
+
+    // SIDE number — gold pill on the correct half of horizontal line
+    '<rect x="'+(sideX - sidePillW/2)+'" y="'+(cy - pillH/2 + 2)+'" width="'+sidePillW+'" height="'+pillH+'" rx="'+pillH/2+'" fill="#E6C84A"/>' +
+    '<text x="'+sideX+'" y="'+(cy + 9)+'" text-anchor="middle" font-size="18" font-weight="700" fill="#0A1F14" font-family="inherit">'+sideStr+'</text>' +
+
+    // FRONT number — gold pill on the vertical stem
+    '<rect x="'+(cx - frontPillW/2)+'" y="'+(frontY - pillH/2 + 2)+'" width="'+frontPillW+'" height="'+pillH+'" rx="'+pillH/2+'" fill="#E6C84A"/>' +
+    '<text x="'+cx+'" y="'+(frontY + 9)+'" text-anchor="middle" font-size="18" font-weight="700" fill="#0A1F14" font-family="inherit">'+frontStr+'</text>';
+}
+
+// =============================================================
+// SCORECARD
+// =============================================================
+function renderScorecard() {
+  var yds = teeData[curTee];
+  var frontRow = document.getElementById('yds-front');
+  var backRow = document.getElementById('yds-back');
+  var frontCells = '<td>Yds</td>';
+  var backCells = '<td>Yds</td>';
+  var frontTotal = 0, backTotal = 0;
+  for (var i = 0; i < 9; i++) {
+    frontCells += '<td>'+yds[i]+'</td>';
+    frontTotal += yds[i];
+  }
+  frontCells += '<td class="out-col">'+frontTotal+'</td>';
+  for (var i = 9; i < 18; i++) {
+    backCells += '<td>'+yds[i]+'</td>';
+    backTotal += yds[i];
+  }
+  backCells += '<td class="in-col">'+backTotal+'</td>';
+  backCells += '<td class="total-col">'+(frontTotal+backTotal)+'</td>';
+  frontRow.innerHTML = frontCells;
+  backRow.innerHTML = backCells;
+
+  // Update tee buttons
+  var btns = document.querySelectorAll('.sc-tee-btn');
+  btns.forEach(function(b) {
+    b.classList.remove('active');
+    if (b.classList.contains(curTee === 'whitegold' ? 'whitegold' : curTee)) b.classList.add('active');
+  });
+}
+
+function setScTee(tee) {
+  curTee = tee;
+  document.getElementById('tee-select').value = tee;
+  renderScorecard();
+  render();
+}
+
+function toggleScorecard() {
+  scorecardOpen = !scorecardOpen;
+  document.getElementById('scorecard-panel').style.display = scorecardOpen ? 'block' : 'none';
+  if (scorecardOpen) renderScorecard();
+}
+
+// =============================================================
+// MAIN RENDER
+// =============================================================
+function render() {
+  var pin = pinData[cur];
+  var yds = teeData[curTee][cur];
+
+  document.getElementById('hole-number').textContent = cur + 1;
+  document.getElementById('hole-par').textContent = 'PAR ' + pars[cur];
+  document.getElementById('hole-yds').textContent = yds + ' YDS';
+
+  // Metrics — arrows go here in the cards below the green
+  // FROM FRONT: ↑ arrow (measuring from front edge upward into green)
+  // FROM LEFT: → arrow (measuring from left edge inward to the right)
+  // FROM RIGHT: ← arrow (measuring from right edge inward to the left)
+  document.getElementById('metric-front').textContent = '↑ ' + pin.front + "'";
+  var sideArrow = pin.dir === 'L' ? '→ ' : '← ';
+  document.getElementById('metric-side').textContent = sideArrow + pin.side + "'";
+  document.getElementById('metric-side-label').textContent = 'FROM ' + (pin.dir === 'L' ? 'LEFT' : 'RIGHT');
+
+  renderGreen(pin);
+
+  // Hole grid
+  var grid = document.getElementById('hole-grid');
+  grid.innerHTML = '';
+  for (var i = 0; i < 18; i++) {
+    var btn = document.createElement('button');
+    btn.className = 'hole-dot ' + (i === cur ? 'active' : 'inactive');
+    btn.textContent = i + 1;
+    btn.onclick = (function(idx) { return function() { cur = idx; render(); }; })(i);
+    grid.appendChild(btn);
+  }
+
+  // Notifications — CTA
+  var notif = document.getElementById('notification');
+  var holeNum = cur + 1;
+  if (notifications[holeNum] === 'grill') {
+    notif.style.display = 'block';
+    notif.className = 'notification-bar cta';
+    notif.innerHTML =
+      '<button class="notif-close" onclick="closeNotif()"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M1 1l8 8M9 1l-8 8" stroke="#0A1F14" stroke-width="2" stroke-linecap="round"/></svg></button>' +
+      '<div class="notif-cta-headline">Hungry at the turn?</div>' +
+      '<div class="notif-cta-sub">Order ahead from the Inverness Grill so it\'s ready when you get there.</div>' +
+      '<a href="tel:2059918608" class="notif-cta-btn">' +
+        '<svg width="18" height="18" viewBox="0 0 18 18"><path d="M3.6 1.2C4 .8 4.8.6 5.2 1l2 2.4c.3.4.2 1-.2 1.3l-.8.6c-.2.1-.2.4-.1.6l2.2 3.6c.1.2.4.3.6.2l.8-.5c.4-.3 1-.2 1.3.2l2 2.4c.3.4.2 1-.2 1.3-.8.7-1.8 1.2-2.8 1-2-.4-4.2-2-6-4.8S1.8 4.2 2.2 2.4c.2-1 .8-1.8 1.4-1.2z" fill="#E6C84A" stroke="none"/></svg>' +
+        'Call the Grill' +
+      '</a>';
+  } else if (notifications[holeNum] === 'thankyou') {
+    notif.style.display = 'block';
+    notif.className = 'notification-bar thankyou';
+    notif.innerHTML =
+      '<div class="notif-thankyou">Thank you for playing<br><strong>Inverness Country Club</strong></div>';
+  } else {
+    notif.style.display = 'none';
+    notif.className = 'notification-bar';
+  }
+}
+
+function nav(dir) {
+  cur = (cur + dir + 18) % 18;
+  render();
+}
+
+function closeNotif() {
+  document.getElementById('notification').style.display = 'none';
+}
+
+function setTee(tee) {
+  curTee = tee;
+  render();
+}
+
+function toggleMenu() {
+  menuOpen = !menuOpen;
+  document.getElementById('club-menu').style.display = menuOpen ? 'block' : 'none';
+  if (!menuOpen) {
+    scorecardOpen = false;
+    document.getElementById('scorecard-panel').style.display = 'none';
+  }
+}
+
+// INIT
+render();
+renderScorecard();
+</script>
+</body>
+</html>
