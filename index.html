@@ -37,25 +37,27 @@ body {
 
 .proshop-btn {
   display:flex; align-items:center; gap:6px;
-  background:rgba(255,255,255,0.1); padding:6px 12px; border-radius:20px;
-  cursor:pointer; border:1px solid rgba(138,172,200,0.25); font-family:inherit;
+  background:rgba(255,255,255,0.15); padding:6px 12px; border-radius:20px;
+  cursor:pointer; border:1px solid rgba(255,255,255,0.35); font-family:inherit;
+  transition:background 0.15s;
 }
 .proshop-btn span { font-size:13px; color:var(--accent-gold); font-weight:600; white-space:nowrap; }
-.proshop-btn:active { background:rgba(255,255,255,0.2); }
+.proshop-btn:hover { background:rgba(255,255,255,0.22); }
+.proshop-btn:active { background:rgba(255,255,255,0.3); }
 
 /* CLUB BANNER — always visible, prominent */
 .club-banner-inner {
   background:#0C2340; border-radius:12px 12px 0 0;
   padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
-  border:1px solid rgba(138,172,200,0.2); border-bottom:none;
+  border:2px solid rgba(138,172,200,0.35); border-bottom:none;
 }
 
-/* DATE INFO ROW — club branded, lighter blue, HIGH CONTRAST from navy banner */
+/* DATE INFO ROW — club branded, sits below banner or dropdown */
 .date-info-row {
   margin:0 14px 6px;
   background:#1E3A5C; border-radius:0 0 12px 12px;
   padding:7px 16px; display:flex; justify-content:space-between; align-items:center;
-  border:1px solid rgba(138,172,200,0.15); border-top:1px solid rgba(138,172,200,0.1);
+  border:2px solid rgba(138,172,200,0.35); border-top:1px solid rgba(255,255,255,0.15);
 }
 .date-info-date {
   font-size:14px; font-weight:700; color:var(--accent-gold);
@@ -111,32 +113,36 @@ body {
 
 /* HOLE NAV */
 .hole-nav {
-  padding:16px 22px 12px; display:flex; align-items:center; justify-content:space-between;
+  padding:4px 22px 12px; display:flex; align-items:center; justify-content:space-between;
 }
 .nav-btn {
   width:50px; height:50px; border-radius:12px;
-  border:2px solid #5AA87A; background:rgba(255,255,255,0.08);
+  border:2px solid #4A9E6E; background:rgba(255,255,255,0.08);
   cursor:pointer; display:flex; align-items:center; justify-content:center;
+  transition:background 0.15s, border-color 0.15s;
 }
-.nav-btn:active { background:rgba(255,255,255,0.15); }
+.nav-btn:hover { background:rgba(255,255,255,0.15); border-color:#6BC48A; }
+.nav-btn:active { background:rgba(255,255,255,0.2); border-color:#7DD09A; }
 .hole-display { text-align:center; }
 .hole-number {
-  font-size:80px; font-weight:600; color:#fff; line-height:1; letter-spacing:-3px;
-  display:inline-flex; align-items:baseline; justify-content:center;
-  width:120px; padding:8px 0 10px;
+  font-size:80px; font-weight:600; color:#fff; letter-spacing:-3px;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:150px; height:100px;
   border-radius:12px;
-  background:rgba(255,255,255,0.08); border:2px solid #5AA87A;
+  background:rgba(255,255,255,0.08); border:2px solid #4A9E6E;
 }
 .hole-hash {
   font-size:24px; font-weight:400; color:rgba(255,255,255,0.35); margin-right:2px;
   letter-spacing:0;
 }
-.hole-meta { display:flex; gap:8px; justify-content:center; align-items:center; margin-top:6px; }
+.hole-meta { display:flex; gap:8px; justify-content:center; align-items:center; margin-top:10px; margin-bottom:4px; }
 .hole-pill {
   font-size:14px; color:#fff; font-weight:500;
   background:rgba(255,255,255,0.1); padding:5px 14px; border-radius:20px;
-  border:1px solid rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.2);
+  cursor:pointer; transition:background 0.15s;
 }
+.hole-pill:hover { background:rgba(255,255,255,0.18); }
 
 /* TEE DROPDOWN — small, labeled */
 .tee-select {
@@ -151,7 +157,7 @@ body {
 /* GREEN CARD — T-SHAPED PIN SHEET */
 .green-card {
   background:var(--brand-surface); margin:0 14px; border-radius:16px; padding:10px;
-  border:1px solid rgba(255,255,255,0.1);
+  border:2px solid #4A9E6E;
 }
 .green-svg { display:flex; justify-content:center; }
 
@@ -172,9 +178,10 @@ body {
 }
 .metric-card {
   background:var(--brand-card); border-radius:12px; padding:16px; text-align:center;
+  border:2px solid #4A9E6E;
 }
-.metric-label { font-size:11px; color:var(--text-muted); letter-spacing:1px; margin-bottom:6px; }
-.metric-value { font-size:30px; font-weight:500; color:var(--accent-gold); letter-spacing:-1px; }
+.metric-label { font-size:12px; color:var(--text-muted); letter-spacing:1px; margin-bottom:6px; }
+.metric-value { font-size:32px; font-weight:500; color:var(--accent-gold); letter-spacing:-1px; }
 
 /* HOLE GRID — two rows of 9 (front nine / back nine) */
 .hole-grid {
@@ -185,9 +192,11 @@ body {
   width:100%; aspect-ratio:1; border-radius:50%;
   display:flex; align-items:center; justify-content:center;
   font-size:14px; font-weight:600; cursor:pointer; border:none;
+  transition:background 0.15s;
 }
 .hole-dot.active { background:var(--accent-gold); color:var(--brand-dark); }
 .hole-dot.inactive { background:rgba(255,255,255,0.08); color:var(--text-dim); }
+.hole-dot.inactive:hover { background:rgba(255,255,255,0.18); }
 
 /* LOGO TEXT */
 .logo-text { font-size:17px; color:#fff; letter-spacing:-0.3px; }
@@ -211,11 +220,14 @@ body {
 /* ==========================================================
    PRO SHOP PANEL — Navy blue, club branded
    ========================================================== */
-.club-menu { display:none; margin:0 14px 8px; }
+.club-menu { display:none; margin:0 14px 0; }
 .club-panel {
-  background:#0C2340; border-radius:0 0 14px 14px; overflow:hidden;
-  border:1px solid rgba(138,172,200,0.2); border-top:none;
-  margin-top:-9px;
+  background:#0C2340; border-radius:0; overflow:hidden;
+  border-left:2px solid rgba(138,172,200,0.35);
+  border-right:2px solid rgba(138,172,200,0.35);
+  border-top:1px solid rgba(255,255,255,0.15);
+  border-bottom:none;
+  margin-top:0;
 }
 .club-header-left { display:flex; align-items:center; gap:12px; }
 .club-header-name { font-size:16px; font-weight:700; color:#fff; letter-spacing:0.2px; white-space:nowrap; }
@@ -225,15 +237,16 @@ body {
 }
 .club-tile {
   padding:20px 16px; cursor:pointer; text-align:center;
-  background:rgba(138,172,200,0.12); font-family:inherit;
+  background:#132D4A; font-family:inherit;
   border:none;
-  border-right:1px solid rgba(138,172,200,0.12);
-  border-bottom:1px solid rgba(138,172,200,0.12);
+  border-right:1px solid rgba(255,255,255,0.4);
+  border-bottom:1px solid rgba(255,255,255,0.4);
   transition:background 0.15s;
 }
 .club-tile:nth-child(2n) { border-right:none; }
 .club-tile:nth-child(n+3) { border-bottom:none; }
-.club-tile:active { background:rgba(0,0,0,0.2); }
+.club-tile:hover { background:rgba(138,172,200,0.2); }
+.club-tile:active { background:rgba(138,172,200,0.3); }
 .club-tile-label { font-size:13px; font-weight:500; color:#fff; }
 .club-tile-sub { font-size:11px; color:rgba(255,255,255,0.5); margin-top:2px; }
 .club-tile-icon { margin-bottom:8px; }
@@ -298,13 +311,7 @@ body {
     </div>
   </div>
 
-  <!-- DATE INFO ROW -->
-  <div class="date-info-row">
-    <span class="date-info-date">Apr 12, 2026</span>
-    <span class="date-info-updated">Last update: Apr 12, 2026: 6:15am</span>
-  </div>
-
-  <!-- PRO SHOP PANEL -->
+  <!-- PRO SHOP PANEL (opens between banner and date row) -->
   <div class="club-menu" id="club-menu">
     <div class="club-panel">
       <div class="club-grid">
@@ -315,7 +322,7 @@ body {
         </button>
         <button class="club-tile" onclick="toggleScorecard()">
           <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="4" y="5" width="18" height="16" rx="2" fill="none" stroke="#e6c84a" stroke-width="1.5"/><line x1="4" y1="11" x2="22" y2="11" stroke="#e6c84a" stroke-width="1.5"/><line x1="10" y1="5" x2="10" y2="21" stroke="#e6c84a" stroke-width="1"/><line x1="16" y1="5" x2="16" y2="21" stroke="#e6c84a" stroke-width="1"/></svg></div>
-          <div class="club-tile-label">Scorecard</div>
+          <div class="club-tile-label">Course yardage</div>
           <div class="club-tile-sub">View card</div>
         </button>
         <button class="club-tile" onclick="window.location.href='tel:2059918608'">
@@ -353,6 +360,12 @@ body {
     </div>
   </div>
 
+  <!-- DATE INFO ROW — always at bottom of club block -->
+  <div class="date-info-row">
+    <span class="date-info-date">Apr 12, 2026</span>
+    <span class="date-info-updated">Last update: Apr 12, 2026: 6:15am</span>
+  </div>
+
   <!-- NOTIFICATION — club branded CTA -->
   <div class="notification-bar" id="notification"></div>
 
@@ -382,7 +395,7 @@ body {
   <!-- GREEN — T-SHAPED PIN SHEET -->
   <div class="green-card">
     <div class="green-svg">
-      <svg id="green-svg" width="270" height="270" viewBox="0 0 270 270"></svg>
+      <svg id="green-svg" width="270" height="290" viewBox="0 0 270 290"></svg>
     </div>
   </div>
 
@@ -471,7 +484,7 @@ var scorecardOpen = false;
 // =============================================================
 function renderGreen(pin) {
   var svg = document.getElementById('green-svg');
-  var cx = 135, cy = 135, r = 115;
+  var cx = 135, cy = 130, r = 115;
 
   // Side number position: on the correct half of horizontal line
   var sideX = pin.dir === 'L' ? cx - r/2 : cx + r/2;
