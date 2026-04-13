@@ -159,17 +159,18 @@ body {
 }
 .tee-select:focus { outline:1px solid var(--accent-gold); }
 .green-row {
-  display:flex; align-items:center; gap:0;
+  display:flex; align-items:center; gap:4px;
 }
 .nav-btn {
-  width:44px; height:44px; border-radius:12px; flex-shrink:0;
+  width:40px; min-width:40px; height:40px; border-radius:12px; flex-shrink:0;
   border:2px solid #4A9E6E; background:rgba(255,255,255,0.08);
   cursor:pointer; display:flex; align-items:center; justify-content:center;
   transition:background 0.15s, border-color 0.15s;
 }
 .nav-btn:hover { background:rgba(255,255,255,0.15); border-color:#6BC48A; }
 .nav-btn:active { background:rgba(255,255,255,0.2); border-color:#7DD09A; }
-.green-svg { display:flex; justify-content:center; flex:1; }
+.green-svg { display:flex; justify-content:center; flex:1; min-width:0; }
+.green-svg svg { width:100%; height:auto; max-width:270px; }
 
 /* DEPTH LABEL */
 .depth-row {
