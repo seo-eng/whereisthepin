@@ -26,12 +26,17 @@
   --pill-bg: rgba(255,255,255,0.08);
 }
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html {
+  overflow-x:hidden;
+}
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   background: var(--brand-dark); color: var(--text-primary);
   min-height:100vh; display:flex; justify-content:center;
+  overflow-x:hidden; width:100%;
+  -webkit-text-size-adjust:100%;
 }
-.app { width:100%; max-width:430px; min-height:100vh; }
+.app { width:100%; max-width:430px; min-height:100vh; overflow-x:hidden; }
 
 /* HEADER - removed, logo moves to footer */
 
@@ -48,8 +53,9 @@ body {
 /* CLUB BANNER — always visible, prominent */
 .club-banner-inner {
   background:#0C2340; border-radius:12px 12px 0 0;
-  padding:12px 16px; display:flex; align-items:center; justify-content:space-between;
+  padding:10px 12px; display:flex; align-items:center; justify-content:space-between;
   border:2px solid rgba(138,172,200,0.35); border-bottom:none;
+  gap:8px;
 }
 
 /* DATE INFO ROW — club branded, sits below banner or dropdown */
@@ -247,9 +253,9 @@ body {
   border-bottom:1px solid rgba(255,255,255,0.4);
   margin-top:0;
 }
-.club-header-left { display:flex; align-items:center; gap:12px; }
-.club-header-name { font-size:16px; font-weight:700; color:#fff; letter-spacing:0.2px; white-space:nowrap; }
-.club-header-city { font-size:12px; color:rgba(255,255,255,0.55); margin-top:1px; }
+.club-header-left { display:flex; align-items:center; gap:8px; min-width:0; }
+.club-header-name { font-size:15px; font-weight:700; color:#fff; letter-spacing:0.2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.club-header-city { font-size:11px; color:rgba(255,255,255,0.55); margin-top:1px; }
 .club-grid {
   display:grid; grid-template-columns:1fr 1fr; gap:0;
 }
