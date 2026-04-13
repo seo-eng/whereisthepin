@@ -111,55 +111,65 @@ body {
 }
 .notif-thankyou strong { color:#fff; }
 
-/* HOLE NAV */
-.hole-nav {
-  padding:4px 22px 12px; display:flex; align-items:center; justify-content:space-between;
+/* PIN SECTION — unified hole info + green diagram */
+.pin-section {
+  margin:6px 14px 0;
+  background:var(--brand-surface); border-radius:16px;
+  border:2px solid #4A9E6E;
+  padding:12px 12px 10px;
+  overflow:hidden;
+}
+.pin-header {
+  display:flex; align-items:center; gap:0;
+  margin-bottom:10px;
+}
+.pin-header-hole {
+  width:50%; display:flex; align-items:center; justify-content:center;
+  padding:0 8px;
+}
+.hole-number {
+  font-size:72px; font-weight:600; color:#fff; letter-spacing:-3px;
+  display:inline-flex; align-items:center; justify-content:center;
+  width:130px; height:95px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2);
+}
+.hole-hash {
+  font-size:22px; font-weight:400; color:rgba(255,255,255,0.35); margin-right:2px;
+  letter-spacing:0;
+}
+.pin-header-info {
+  width:50%; display:flex; flex-direction:column; align-items:center; gap:5px;
+  padding:0 8px;
+}
+.hole-info-item {
+  font-size:13px; color:#fff; font-weight:500;
+  background:rgba(255,255,255,0.1); padding:5px 14px; border-radius:10px;
+  border:1px solid rgba(255,255,255,0.2);
+  text-align:center; white-space:nowrap;
+  width:120px;
+}
+.tee-select {
+  font-size:13px; font-family:inherit; font-weight:500;
+  background:rgba(255,255,255,0.12); color:#fff;
+  border:1px solid rgba(255,255,255,0.25); border-radius:10px;
+  padding:5px 14px; cursor:pointer; appearance:auto;
+  -webkit-appearance:auto; white-space:nowrap; text-align:center;
+  width:120px;
+}
+.tee-select:focus { outline:1px solid var(--accent-gold); }
+.green-row {
+  display:flex; align-items:center; gap:0;
 }
 .nav-btn {
-  width:50px; height:50px; border-radius:12px;
+  width:44px; height:44px; border-radius:12px; flex-shrink:0;
   border:2px solid #4A9E6E; background:rgba(255,255,255,0.08);
   cursor:pointer; display:flex; align-items:center; justify-content:center;
   transition:background 0.15s, border-color 0.15s;
 }
 .nav-btn:hover { background:rgba(255,255,255,0.15); border-color:#6BC48A; }
 .nav-btn:active { background:rgba(255,255,255,0.2); border-color:#7DD09A; }
-.hole-display { text-align:center; }
-.hole-number {
-  font-size:80px; font-weight:600; color:#fff; letter-spacing:-3px;
-  display:inline-flex; align-items:center; justify-content:center;
-  width:150px; height:100px;
-  border-radius:12px;
-  background:rgba(255,255,255,0.08); border:2px solid #4A9E6E;
-}
-.hole-hash {
-  font-size:24px; font-weight:400; color:rgba(255,255,255,0.35); margin-right:2px;
-  letter-spacing:0;
-}
-.hole-meta { display:flex; gap:8px; justify-content:center; align-items:center; margin-top:10px; margin-bottom:4px; }
-.hole-pill {
-  font-size:14px; color:#fff; font-weight:500;
-  background:rgba(255,255,255,0.1); padding:5px 14px; border-radius:20px;
-  border:1px solid rgba(255,255,255,0.2);
-  cursor:pointer; transition:background 0.15s;
-}
-.hole-pill:hover { background:rgba(255,255,255,0.18); }
-
-/* TEE DROPDOWN — small, labeled */
-.tee-select {
-  font-size:13px; font-family:inherit; font-weight:500;
-  background:rgba(255,255,255,0.12); color:#fff;
-  border:1px solid rgba(255,255,255,0.25); border-radius:12px;
-  padding:4px 8px; cursor:pointer; appearance:auto;
-  -webkit-appearance:auto;
-}
-.tee-select:focus { outline:1px solid var(--accent-gold); }
-
-/* GREEN CARD — T-SHAPED PIN SHEET */
-.green-card {
-  background:var(--brand-surface); margin:0 14px; border-radius:16px; padding:10px;
-  border:2px solid #4A9E6E;
-}
-.green-svg { display:flex; justify-content:center; }
+.green-svg { display:flex; justify-content:center; flex:1; }
 
 /* DEPTH LABEL */
 .depth-row {
@@ -376,16 +386,15 @@ body {
   <!-- NOTIFICATION — club branded CTA -->
   <div class="notification-bar" id="notification"></div>
 
-  <!-- HOLE NAV -->
-  <div class="hole-nav">
-    <button class="nav-btn" onclick="nav(-1)">
-      <svg width="22" height="22" viewBox="0 0 22 22"><path d="M13 5 L7 11 L13 17" fill="none" stroke="#A0D8B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-    <div class="hole-display">
-      <div class="hole-number"><span class="hole-hash">#</span><span id="hole-number">1</span></div>
-      <div class="hole-meta">
-        <span class="hole-pill" id="hole-par">PAR 4</span>
-        <span class="hole-pill" id="hole-yds">392 YDS</span>
+  <!-- PIN SECTION — unified -->
+  <div class="pin-section">
+    <div class="pin-header">
+      <div class="pin-header-hole">
+        <div class="hole-number"><span class="hole-hash">#</span><span id="hole-number">1</span></div>
+      </div>
+      <div class="pin-header-info">
+        <span class="hole-info-item" id="hole-par">PAR 4</span>
+        <span class="hole-info-item" id="hole-yds">392 YDS</span>
         <select class="tee-select" id="tee-select" onchange="setTee(this.value)">
           <option value="blue">Blue tees</option>
           <option value="white">White tees</option>
@@ -394,15 +403,16 @@ body {
         </select>
       </div>
     </div>
-    <button class="nav-btn" onclick="nav(1)">
-      <svg width="22" height="22" viewBox="0 0 22 22"><path d="M9 5 L15 11 L9 17" fill="none" stroke="#A0D8B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-    </button>
-  </div>
-
-  <!-- GREEN — T-SHAPED PIN SHEET -->
-  <div class="green-card">
-    <div class="green-svg">
-      <svg id="green-svg" width="270" height="290" viewBox="0 0 270 290"></svg>
+    <div class="green-row">
+      <button class="nav-btn" onclick="nav(-1)">
+        <svg width="22" height="22" viewBox="0 0 22 22"><path d="M13 5 L7 11 L13 17" fill="none" stroke="#A0D8B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="green-svg">
+        <svg id="green-svg" width="270" height="290" viewBox="0 0 270 290"></svg>
+      </div>
+      <button class="nav-btn" onclick="nav(1)">
+        <svg width="22" height="22" viewBox="0 0 22 22"><path d="M9 5 L15 11 L9 17" fill="none" stroke="#A0D8B8" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
     </div>
   </div>
 
