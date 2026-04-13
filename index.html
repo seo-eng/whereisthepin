@@ -177,16 +177,23 @@ body {
   display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:14px 14px 0;
 }
 .metric-card {
-  background:var(--brand-card); border-radius:12px; padding:16px; text-align:center;
+  background:var(--brand-card); border-radius:12px; padding:14px 16px; text-align:center;
   border:2px solid #4A9E6E;
 }
 .metric-label { font-size:12px; color:var(--text-muted); letter-spacing:1px; margin-bottom:6px; }
 .metric-value { font-size:32px; font-weight:500; color:var(--accent-gold); letter-spacing:-1px; }
 
-/* HOLE GRID — two rows of 9 (front nine / back nine) */
+/* HOLE GRID SECTION */
+.hole-grid-section {
+  background:var(--brand-card); margin:14px 14px 0; border-radius:16px;
+  padding:10px 10px 12px; border:2px solid #4A9E6E;
+}
+.hole-grid-title {
+  font-size:10px; color:var(--text-muted); letter-spacing:1.5px; font-weight:600;
+  text-align:center; margin-bottom:8px; text-transform:uppercase;
+}
 .hole-grid {
   display:grid; grid-template-columns:repeat(9, 1fr); gap:5px;
-  padding:16px 10px 20px;
 }
 .hole-dot {
   width:100%; aspect-ratio:1; border-radius:50%;
@@ -195,8 +202,8 @@ body {
   transition:background 0.15s;
 }
 .hole-dot.active { background:var(--accent-gold); color:var(--brand-dark); }
-.hole-dot.inactive { background:rgba(255,255,255,0.08); color:var(--text-dim); }
-.hole-dot.inactive:hover { background:rgba(255,255,255,0.18); }
+.hole-dot.inactive { background:rgba(255,255,255,0.12); color:var(--text-dim); border:1px solid rgba(255,255,255,0.2); }
+.hole-dot.inactive:hover { background:rgba(230,200,74,0.3); color:#fff; border-color:rgba(255,255,255,0.2); }
 
 /* LOGO TEXT */
 .logo-text { font-size:17px; color:#fff; letter-spacing:-0.3px; }
@@ -225,8 +232,8 @@ body {
   background:#0C2340; border-radius:0; overflow:hidden;
   border-left:2px solid rgba(138,172,200,0.35);
   border-right:2px solid rgba(138,172,200,0.35);
-  border-top:1px solid rgba(255,255,255,0.15);
-  border-bottom:none;
+  border-top:1px solid rgba(255,255,255,0.4);
+  border-bottom:1px solid rgba(255,255,255,0.4);
   margin-top:0;
 }
 .club-header-left { display:flex; align-items:center; gap:12px; }
@@ -412,7 +419,10 @@ body {
   </div>
 
   <!-- HOLE GRID -->
-  <div class="hole-grid" id="hole-grid"></div>
+  <div class="hole-grid-section">
+    <div class="hole-grid-title">Skip to hole</div>
+    <div class="hole-grid" id="hole-grid"></div>
+  </div>
 
   <!-- BRANDING FOOTER -->
   <div class="brand-footer">
