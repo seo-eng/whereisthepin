@@ -1,0 +1,1428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2026 Kiva Cup</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Montserrat:wght@700;800;900&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* Colors sampled from the Ryder Cup reference graphic */
+  :root {
+    --usa-red:      #D2232A;  /* USA team bar */
+    --usa-result:   #EC1B30;  /* USA result text */
+    --eur-blue:     #25408F;  /* Europe team bar, result text, round band text */
+    --flag-red:     #E71F2C;
+    --flag-navy:    #242464;
+    --flag-eu:      #2C3383;
+    --flag-gold:    #FADF0C;
+    --board-gray:   #F1F1F1;
+    --rule-white:   #FAFCFB;
+    --black:        #000000;
+    --white:        #FFFFFF;
+    --witp-gold:    #E6C84A;
+
+    --display: 'Anton', Impact, 'Arial Narrow Bold', sans-serif;
+    --text:    'Montserrat', 'Arial Black', Arial, sans-serif;
+
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  .flag { display: block; }
+  [hidden] { display: none !important; }
+  html, body { margin: 0; background: var(--black); }
+  body { font-family: var(--text); color: var(--black); -webkit-font-smoothing: antialiased; }
+
+  .board {
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--board-gray);
+    border: 8px solid var(--black);
+    border-bottom: 0;
+  }
+
+  /* ---------- Header: flags flank a centered lockup ---------- */
+  .masthead { padding: 18px 14px 14px; overflow: hidden; }
+  .masthead-top {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr) 52px;
+    align-items: center;
+    gap: 10px;
+  }
+  .masthead-top .flag { width: 52px; height: 32px; }
+  .mast-center { text-align: center; min-width: 0; }
+  .edition {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    font-family: var(--cond);
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1;
+    letter-spacing: 0.32em;
+    padding-left: 0.32em;          /* balances the trailing letter-space */
+  }
+  .edition::before, .edition::after { content: ''; flex: 0 0 26px; height: 3px; }
+  .edition::before { background: var(--usa-red); }
+  .edition::after  { background: var(--eur-blue); }
+  .title {
+    display: inline-block;
+    margin: 6px 0 4px;
+    font-family: var(--display);
+    font-weight: 400;
+    font-size: 56px;               /* fitTitle() keeps it inside the lockup, max 56px */
+    line-height: 0.95;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .venue {
+    font-family: var(--cond);
+    font-weight: 500;
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    line-height: 1.45;
+    color: #3A4150;
+  }
+  .venue span { display: block; white-space: nowrap; }
+
+  /* ---------- Round tabs (the white band) ---------- */
+  .rounds {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    background: var(--white);
+    margin-top: 8px;
+  }
+  .round-tab {
+    appearance: none;
+    border: 0;
+    border-left: 2px solid var(--board-gray);
+    background: #B9C6D8;           /* accent for unselected rounds, 5.5:1 with the blue text */
+    color: var(--eur-blue);
+    font-family: var(--text);
+    font-weight: 800;
+    padding: 8px 2px 7px;
+    min-height: 52px;
+    cursor: pointer;
+    text-transform: uppercase;
+    line-height: 1.15;
+  }
+  .round-tab:first-child { border-left: 0; }
+  .round-tab .r-num  { display: block; font-size: 15px; letter-spacing: 0.04em; }
+  .round-tab .r-fmt  { display: block; font-size: 10.5px; letter-spacing: 0.06em; }
+  .round-tab[aria-selected="true"] { background: var(--eur-blue); color: var(--white); }
+  .round-tab:focus-visible { outline: 3px solid var(--black); outline-offset: -3px; }
+
+  /* ---------- Leaderboard (modeled on the on-course Ryder Cup board) ---------- */
+  :root {
+    --lb-slate:  #6A7F9E;   /* unlit cells, lightened from the photo's #4E6280 */
+    --lb-as:     #E6C84A;   /* all square: WITP gold with dark text */
+    --lb-grid:   #2A3342;   /* lines between cells */
+    --lb-light:  #D9E0E8;   /* STATUS / THRU strip and thru column */
+    --lb-ink:    #1E2633;
+    --cond: 'Oswald', 'Avenir Next Condensed', 'Roboto Condensed', 'sans-serif-condensed', 'Arial Narrow', Arial, sans-serif;
+    --lb-cols: 60px minmax(0, 1fr) 46px minmax(0, 1fr) 60px;
+  }
+  .lb-head {
+    display: grid;
+    grid-template-columns: 1fr 46px 1fr;
+    height: 54px;
+    margin-top: 8px;
+  }
+  .lb-side { display: flex; align-items: center; padding: 0 10px; color: var(--white); }
+  .lb-side.usa { background: var(--usa-red); }
+  .lb-side.eur { background: var(--eur-blue); flex-direction: row-reverse; }
+  .lb-side .flag { width: 44px; height: 27px; flex: none; border: 2px solid var(--white); }
+  .lb-side .pts { flex: 1; text-align: center; font-family: var(--display); font-size: 34px; line-height: 1; }
+  .lb-cup {
+    display: flex; align-items: center; justify-content: center;
+    background: linear-gradient(90deg, var(--usa-red) 50%, var(--eur-blue) 50%);
+  }
+  .lb-cup svg { width: 26px; height: 26px; }
+
+  .lb-labels {
+    display: grid;
+    grid-template-columns: var(--lb-cols);
+    column-gap: 2px;
+    background: var(--lb-light);
+    color: var(--lb-ink);
+    font-family: var(--cond);
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 4px 0;
+  }
+  .lb-labels span:nth-child(1) { grid-column: 1; }
+  .lb-labels span:nth-child(2) { grid-column: 3; }
+  .lb-labels span:nth-child(3) { grid-column: 5; }
+
+  .lb { list-style: none; margin: 0; padding: 0; background: var(--lb-grid); border-top: 2px solid var(--lb-grid); }
+  .lb li + li { margin-top: 2px; }
+  .lb-row {
+    display: grid;
+    grid-template-columns: var(--lb-cols);
+    gap: 2px;
+    min-height: 78px;
+    background: var(--lb-grid);
+    color: var(--white);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  a.lb-row:focus-visible { outline: 3px solid var(--witp-gold); outline-offset: -3px; }
+  a.lb-row:active .nm { filter: brightness(1.15); }
+  .lb-row > div { display: flex; align-items: center; justify-content: center; background: var(--lb-slate); }
+  .lb-row .nm {
+    flex-direction: column;
+    padding: 6px 4px;
+    font-family: var(--cond);
+    font-weight: 600;
+    font-size: 17px;
+    line-height: 1.3;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    text-align: center;
+    overflow: hidden;
+  }
+  .lb-row .nm span { display: block; white-space: nowrap; }
+  .lb-row .st { font-family: var(--display); font-size: 21px; line-height: 1.05; text-align: center; padding: 0 2px; }
+  .lb-row .st.word { font-family: var(--cond); font-weight: 700; font-size: 13px; letter-spacing: 0.04em; }
+  .lb-row .thru { background: var(--lb-light); color: var(--lb-ink); font-family: var(--display); font-size: 22px; }
+  .lb-row.lead-usa .usa { background: var(--usa-red); }
+  .lb-row.lead-eur .eur { background: var(--eur-blue); }
+  .lb-row.all-square .st { background: var(--lb-as); color: var(--lb-ink); }
+
+  .empty {
+    padding: 36px 14px 40px;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+    line-height: 1.4;
+  }
+
+  /* =========================================================
+     MATCH SCREEN (Step 4)
+     ========================================================= */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--black); color: var(--white);
+    padding: 0 12px 0 4px; min-height: 52px;
+  }
+  .back-btn {
+    appearance: none; border: 0; background: none; color: var(--white);
+    font-family: var(--text); font-weight: 800; font-size: 15px;
+    padding: 14px 10px; cursor: pointer; text-decoration: none;
+  }
+  .back-btn:focus-visible { outline: 3px solid var(--white); outline-offset: -3px; }
+  .topbar .where { font-weight: 800; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; text-align: right; }
+
+  /* Match screen palette: Where is the Pin card style, Kiva Cup colors */
+  :root {
+    --m-bg:    #141D2E;   /* deep navy page */
+    --m-card:  #1E2A42;   /* card */
+    --m-raise: #2A3A58;   /* boxes and chips inside cards */
+    --m-line:  #8FA3C0;   /* card borders, 5.6:1 on the card */
+    --m-muted: #B4C2D6;   /* labels */
+  }
+  #match-view { background: var(--m-bg); }
+  .match-head { padding: 12px 14px; background: var(--m-bg); }
+  .match-head .lb-labels { margin: 0; }
+  .match-head .lb-row { border-top: 2px solid var(--lb-grid); }
+
+  .final-banner {
+    margin: 0 14px 12px; padding: 10px 12px;
+    text-align: center; color: var(--white);
+    border: 2px solid var(--m-line); border-radius: 12px;
+    font-weight: 800; font-size: 15px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .final-banner.usa  { background: var(--usa-red); }
+  .final-banner.eur  { background: var(--eur-blue); }
+  .final-banner.even { background: var(--black); }
+
+  /* Scorecard hole selector — modeled on the Kiva Dunes card */
+  :root {
+    --card-ink:   #303642;   /* sampled scorecard text */
+    --card-shade: #E7E4DF;   /* sampled HANDICAP / PAR row shading */
+    --card-line:  #8A8E90;   /* darker than the printed card for sunlight */
+    --card-font:  'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif;
+    --current:    #FFF1A8;
+  }
+  .card-wrap { padding: 16px 8px 0; }
+  .card {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    background: var(--white);
+    color: var(--card-ink);
+    border: 2px solid var(--card-ink);
+  }
+  .card + .card { margin-top: 10px; }
+  .card col.label { width: 70px; }
+  .card th, .card td {
+    border: 1px solid var(--card-line);
+    padding: 0;
+    height: 30px;
+    text-align: center;
+    font-family: var(--text);
+    font-weight: 700;
+    font-size: 11px;
+  }
+  .card th {
+    font-family: var(--card-font);
+    font-weight: 700;
+    font-size: 12px;
+    text-align: left;
+    padding-left: 6px;
+    text-transform: uppercase;
+    line-height: 1.1;
+    overflow: hidden;
+  }
+  .card tr.shade th, .card tr.shade td { background: var(--card-shade); }
+  .card tr.hole-row th, .card tr.hole-row td { height: 40px; border-bottom: 2px solid var(--card-ink); }
+  .card tr.hole-row td.tot { font-family: var(--card-font); font-size: 12px; }
+  .card th.usa { color: var(--usa-result); font-family: var(--text); font-weight: 800; font-size: 10.5px; }
+  .card th.eur { color: var(--eur-blue);   font-family: var(--text); font-weight: 800; font-size: 10.5px; }
+  .card td.usa { color: var(--usa-result); font-size: 14px; letter-spacing: -2px; }
+  .card td.eur { color: var(--eur-blue);   font-size: 14px; letter-spacing: -2px; }
+  /* Match status row: lead after each hole, like the Ryder Cup board */
+  .card tr.status-row th, .card tr.status-row td { height: 46px; border-top: 3px solid var(--card-ink); }
+  .card tr.status-row th { background: var(--card-ink); color: var(--white); font-size: 13px; }
+  .card td.ms {
+    font-family: var(--cond); font-weight: 700; font-size: 14px; letter-spacing: -0.02em;
+    white-space: nowrap; overflow: hidden;
+  }
+  .card tr.status-row td.ms.eur { background: var(--eur-blue) !important; color: var(--white); }
+  .card tr.status-row td.ms.usa { background: var(--usa-red) !important;  color: var(--white); }
+  .card tr.status-row td.ms.as  { background: var(--lb-as) !important;    color: var(--lb-ink); }
+  .card tr.status-row td.ms.col-current { box-shadow: inset 0 0 0 3px var(--black); }
+  .card td.col-current { background: var(--current) !important; }
+  .card td[data-hole] { cursor: pointer; }
+  .card td.col-locked[data-hole] { cursor: default; }
+
+  .hole-btn {
+    appearance: none; display: block; width: 100%; height: 100%;
+    border: 0; background: transparent; color: var(--card-ink);
+    font-family: var(--card-font); font-weight: 700; font-size: 15px;
+    padding: 0; cursor: pointer;
+  }
+  .hole-btn.res-A { background: var(--eur-blue); color: var(--white); }
+  .hole-btn.res-B { background: var(--usa-red);  color: var(--white); }
+  .hole-btn.res-H { background: var(--black);    color: var(--white); }
+  .hole-btn.current { box-shadow: inset 0 0 0 3px var(--black); }
+  .hole-btn.current.res-A, .hole-btn.current.res-B, .hole-btn.current.res-H { box-shadow: inset 0 0 0 3px var(--current); }
+  .hole-btn:disabled { cursor: default; color: #A3A6AB; }
+  .hole-btn:focus-visible { outline: 3px solid var(--witp-gold); outline-offset: -3px; }
+
+  .card-key {
+    margin: 8px 6px 0; font-weight: 700; font-size: 12px; line-height: 1.5; color: var(--m-muted);
+  }
+
+  /* Hole card */
+  .hole-card {
+    margin: 0 14px;
+    padding: 16px 14px 18px;
+    background: var(--m-card);
+    border: 2px solid var(--m-line);
+    border-radius: 16px;
+    color: var(--white);
+  }
+  .hole-top { display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px; }
+  .hole-box {
+    display: flex; align-items: center; justify-content: center; gap: 2px;
+    min-width: 112px; padding: 8px 16px;
+    background: var(--m-raise);
+    border: 2px solid var(--m-line);
+    border-radius: 14px;
+  }
+  .hole-box .hash { font-family: var(--text); font-weight: 800; font-size: 24px; color: var(--m-muted); align-self: center; }
+  .hole-num { font-family: var(--display); font-size: 76px; line-height: 0.95; color: var(--white); }
+  .hole-tip {
+    margin: 0 0 0 auto;
+    flex: 1 1 120px;
+    max-width: 170px;
+    align-self: center;
+    padding: 9px 10px;
+    background: var(--current);
+    border: 2px solid var(--witp-gold);
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 11.5px;
+    line-height: 1.35;
+    color: var(--black);
+  }
+  .chips { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 12px; }
+  .chip {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 40px; padding: 0 6px;
+    background: var(--m-raise);
+    border: 2px solid var(--m-line);
+    border-radius: 10px;
+    font-weight: 800; font-size: 14px; letter-spacing: 0.03em; text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .field-label {
+    display: block; margin: 18px 0 8px;
+    font-weight: 800; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--m-muted);
+  }
+  .strokes { display: flex; flex-wrap: wrap; gap: 6px; font-weight: 700; font-size: 14px; }
+  .strokes .none { color: var(--m-muted); }
+  .spill {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 6px 12px; border-radius: 999px;
+    border: 2px solid var(--m-line);
+    font-weight: 800; font-size: 13px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--white);
+  }
+  .spill.usa { background: var(--usa-red); }
+  .spill.eur { background: var(--eur-blue); }
+  .spill .dots { color: var(--witp-gold); letter-spacing: -1px; }
+
+  .winner { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .pick {
+    appearance: none; min-height: 60px; padding: 4px;
+    border: 2px solid var(--m-line); border-radius: 12px;
+    color: var(--white);
+    font-family: var(--text); font-weight: 800; font-size: 14px; letter-spacing: 0.03em; text-transform: uppercase;
+    cursor: pointer;
+  }
+  .pick.usa  { background: var(--usa-red); }
+  .pick.even { background: var(--m-raise); }
+  .pick.eur  { background: var(--eur-blue); }
+  .pick[aria-pressed="true"] { border-color: var(--witp-gold); box-shadow: 0 0 0 3px var(--witp-gold); }
+  .pick[aria-pressed="true"]::before { content: '✓ '; color: var(--witp-gold); }
+  .pick:focus-visible { outline: 3px solid var(--white); outline-offset: 3px; }
+
+  .note {
+    width: 100%; min-height: 88px; resize: vertical;
+    padding: 12px;
+    background: var(--m-bg); color: var(--white);
+    border: 2px solid var(--m-line); border-radius: 12px;
+    font-family: var(--text); font-weight: 600; font-size: 16px;
+  }
+  .note::placeholder { color: var(--m-muted); }
+  .note:focus-visible { outline: 3px solid var(--witp-gold); outline-offset: 2px; }
+
+  .photo-actions { display: flex; gap: 8px; }
+  .btn-outline {
+    appearance: none; flex: 1; min-height: 50px;
+    background: var(--m-raise); color: var(--white);
+    border: 2px solid var(--m-line); border-radius: 12px;
+    font-family: var(--text); font-weight: 800; font-size: 15px; cursor: pointer;
+  }
+  .btn-outline:focus-visible, .btn-outline:focus-within { outline: 3px solid var(--witp-gold); outline-offset: 2px; }
+  .photo-preview { display: block; width: 100%; margin-top: 10px; border: 2px solid var(--m-line); border-radius: 12px; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+  .save-btn {
+    appearance: none; width: 100%; min-height: 62px; margin-top: 20px;
+    background: var(--witp-gold); color: var(--lb-ink);
+    border: 2px solid var(--witp-gold); border-radius: 14px;
+    font-family: var(--text); font-weight: 800; font-size: 18px; cursor: pointer;
+  }
+  .save-btn:disabled { background: var(--m-raise); color: var(--m-muted); border-color: var(--m-line); border-style: dashed; cursor: default; }
+  .save-btn.saved { background: #1E7B34; border-color: #1E7B34; color: var(--white); }
+  .save-btn:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; }
+  .form-error { margin: 10px 0 0; font-weight: 800; font-size: 14px; color: #FF6B74; }
+  .sync-note  { margin: 10px 0 0; font-weight: 800; font-size: 14px; line-height: 1.4; color: var(--witp-gold); }
+
+  .match-foot { height: 18px; }
+
+  /* ---------- Footer ---------- */
+  .footer {
+    max-width: 480px;
+    margin: 0 auto;
+    background: var(--black);
+    padding: 22px 14px 26px;
+    text-align: center;
+  }
+  .footer .brand { font-weight: 800; font-size: 20px; color: var(--white); }
+  .footer .url   { margin-top: 4px; font-weight: 700; font-size: 13px; color: var(--witp-gold); }
+</style>
+</head>
+<body>
+
+<main class="board">
+ <div id="board-view">
+  <header class="masthead">
+    <div class="masthead-top">
+      <span class="flag" data-flag="us"></span>
+      <div class="mast-center">
+        <div class="edition">2026</div>
+        <h1 class="title">Kiva Cup</h1>
+        <div class="venue"><span>Kiva Dunes, Gulf Shores, AL</span><span>Sept 24-26</span></div>
+      </div>
+      <span class="flag" data-flag="eu"></span>
+    </div>
+  </header>
+
+  <nav class="rounds" role="tablist" aria-label="Rounds" id="rounds"></nav>
+
+  <div class="lb-head" aria-label="Team points">
+    <div class="lb-side usa"><span class="flag" data-flag="us"></span><span class="pts" id="pts-usa" aria-label="United States points">0</span></div>
+    <div class="lb-cup" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="#FFFFFF"><path d="M7 3h10v2h3v3a4 4 0 0 1-4 4h-.3A5 5 0 0 1 13 14.9V17h3v2H8v-2h3v-2.1A5 5 0 0 1 8.3 12H8a4 4 0 0 1-4-4V5h3V3zm0 4H6v1a2 2 0 0 0 1.2 1.8A5 5 0 0 1 7 8.5V7zm10 0v1.5c0 .4 0 .9-.2 1.3A2 2 0 0 0 18 8V7h-1zM6 21h12v1H6z"/></svg>
+    </div>
+    <div class="lb-side eur"><span class="flag" data-flag="eu"></span><span class="pts" id="pts-eur" aria-label="Europe points">0</span></div>
+  </div>
+  <div class="lb-labels" aria-hidden="true"><span>Status</span><span>Thru</span><span>Status</span></div>
+
+  <section id="panel" role="tabpanel"></section>
+
+ </div>
+
+ <div id="match-view" hidden>
+  <div class="topbar">
+    <a class="back-btn" href="#">&lsaquo; Scoreboard</a>
+    <span class="where" id="m-where"></span>
+  </div>
+  <div class="match-head" id="m-head"></div>
+  <div id="m-final"></div>
+
+  <section class="hole-card" aria-live="polite">
+    <div class="hole-top">
+      <div class="hole-box" aria-label="Hole"><span class="hash">#</span><span class="hole-num" id="m-hole"></span></div>
+      <p class="hole-tip">To edit a hole, click on the hole number at the bottom of this page.</p>
+    </div>
+    <div class="chips" id="m-meta"></div>
+
+    <span class="field-label">Strokes</span>
+    <div class="strokes" id="m-strokes"></div>
+
+    <span class="field-label" id="winner-label">Who won the hole?</span>
+    <div class="winner" role="group" aria-labelledby="winner-label">
+      <button class="pick usa"  type="button" data-pick="B">USA</button>
+      <button class="pick even" type="button" data-pick="H">Halved</button>
+      <button class="pick eur"  type="button" data-pick="A">Europe</button>
+    </div>
+
+    <label class="field-label" for="m-note">Hole summary</label>
+    <textarea class="note" id="m-note" placeholder="What happened on this hole?"></textarea>
+
+    <span class="field-label">Photo</span>
+    <div class="photo-actions">
+      <label class="btn-outline" id="photo-add" style="display:flex;align-items:center;justify-content:center;">
+        Add photo
+        <input class="visually-hidden" id="m-photo" type="file" accept="image/*">
+      </label>
+      <button class="btn-outline" id="photo-remove" type="button" hidden>Remove photo</button>
+    </div>
+    <img class="photo-preview" id="m-preview" alt="Photo for this hole" hidden>
+
+    <button class="save-btn" id="m-save" type="button" disabled>Save hole</button>
+    <p class="form-error" id="m-error" hidden></p>
+    <p class="sync-note" id="m-sync" hidden></p>
+  </section>
+
+  <nav class="card-wrap" id="m-card" aria-label="Scorecard, choose a hole"></nav>
+  <div class="match-foot"></div>
+ </div>
+</main>
+
+<footer class="footer">
+  <div class="brand">where is the pin?</div>
+  <div class="url">whereisthepin.com</div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+/* =========================================================
+   KIVA CUP — Scoring Engine (Step 2)
+   Where is the Pin? — Tournament mode
+   Course: Kiva Dunes, Blue tees (70.7 / 128), par 72, 6,505 yds
+   Rules: USGA match play, 100% handicap, strokes off the
+          lowest handicap in the match.
+   ========================================================= */
+
+/* ---------- 1. COURSE ---------- */
+const COURSE = {
+  name: 'Kiva Dunes',
+  tee: 'Blue',
+  rating: 70.7,
+  slope: 128,
+  holes: [
+    { n: 1,  par: 4, yards: 379, hcp: 17 },
+    { n: 2,  par: 5, yards: 521, hcp: 11 },
+    { n: 3,  par: 3, yards: 193, hcp: 9  },
+    { n: 4,  par: 4, yards: 280, hcp: 15 },
+    { n: 5,  par: 5, yards: 513, hcp: 7  },
+    { n: 6,  par: 4, yards: 370, hcp: 5  },
+    { n: 7,  par: 4, yards: 465, hcp: 1  },
+    { n: 8,  par: 3, yards: 155, hcp: 13 },
+    { n: 9,  par: 4, yards: 412, hcp: 3  },
+    { n: 10, par: 4, yards: 334, hcp: 16 },
+    { n: 11, par: 4, yards: 342, hcp: 18 },
+    { n: 12, par: 4, yards: 383, hcp: 2  },
+    { n: 13, par: 3, yards: 157, hcp: 12 },
+    { n: 14, par: 5, yards: 510, hcp: 6  },
+    { n: 15, par: 5, yards: 509, hcp: 14 },
+    { n: 16, par: 4, yards: 381, hcp: 10 },
+    { n: 17, par: 3, yards: 196, hcp: 8  },
+    { n: 18, par: 4, yards: 405, hcp: 4  }
+  ]
+};
+
+/* ---------- 2. PLAYERS (handicaps as provided) ---------- */
+const PLAYERS = {
+  soup:     { name: 'Soup',     hcp: 4  },
+  soup2:    { name: 'Soup 2',   hcp: 15 },
+  skiba:    { name: 'Skiba',    hcp: 2  },
+  chief:    { name: 'Chief',    hcp: 13 },
+  domit:    { name: 'Domit',    hcp: 3  },
+  stiff:    { name: 'Stiff',    hcp: 10 },
+  collie:   { name: 'Collie',   hcp: 15 },
+  milo:     { name: 'Milo',     hcp: 7  },
+  bb:       { name: 'BB',       hcp: 6  },
+  reynolds: { name: 'Reynolds', hcp: 12 },
+  jrod:     { name: 'Jrod',     hcp: 11 },
+  jefco:    { name: 'Jefco',    hcp: 9  },
+  maddox:   { name: 'Maddox',   hcp: 6  },
+  sutton:   { name: 'Sutton',   hcp: 7  },
+  bobby:    { name: 'Bobby',    hcp: 0  },
+  womble:   { name: 'Womble',   hcp: 10 },
+  slay:     { name: 'Slay',     hcp: 10 },
+  warren:   { name: 'Warren',   hcp: 12 },
+  davis:    { name: 'Davis',    hcp: 9  },
+  sam:      { name: 'Sam',      hcp: 4  },
+  brick:    { name: 'Brick',    hcp: 4  },
+  luke:     { name: 'Luke',     hcp: 6  },
+  zac:      { name: 'Zac',      hcp: 8  },
+  anderson: { name: 'Anderson', hcp: 4  }
+};
+
+/* ---------- 3. TOURNAMENT ---------- */
+// Side A = Europe, Side B = USA. Exact colors sampled in Step 3.
+const TEAMS = {
+  A: { name: 'Europe', short: 'EUR', flag: 'eu', color: 'Europe blue' },
+  B: { name: 'United States', short: 'USA', flag: 'us', color: 'USA red' }
+};
+
+const ROUNDS = [
+  { n: 1, format: 'fourball'  },
+  { n: 2, format: 'foursomes' },
+  { n: 3, format: 'fourball'  },
+  { n: 4, format: 'singles'   }
+];
+
+// Side A (Europe) = first pair listed in each group, Side B (USA) = second pair.
+const ROUND1_MATCHES = [
+  { id: 'R1G1', round: 1, format: 'fourball', a: ['soup', 'soup2'],     b: ['skiba', 'chief'] },
+  { id: 'R1G2', round: 1, format: 'fourball', a: ['domit', 'stiff'],    b: ['collie', 'milo'] },
+  { id: 'R1G3', round: 1, format: 'fourball', a: ['bb', 'reynolds'],    b: ['jrod', 'jefco'] },
+  { id: 'R1G4', round: 1, format: 'fourball', a: ['maddox', 'sutton'],  b: ['bobby', 'womble'] },
+  { id: 'R1G5', round: 1, format: 'fourball', a: ['slay', 'warren'],    b: ['davis', 'sam'] },
+  { id: 'R1G6', round: 1, format: 'fourball', a: ['brick', 'luke'],     b: ['zac', 'anderson'] }
+];
+
+/* ---------- 4. HANDICAP STROKES ---------- */
+
+// Strokes each player (fourball/singles) or side (foursomes) receives
+// for the whole match, at 100%, off the lowest handicap in the match.
+function matchAllowances(match, players = PLAYERS) {
+  if (match.format === 'foursomes') {
+    // 100% of each side's combined handicap; lower side plays off 0.
+    const sum = side => match[side].reduce((t, id) => t + players[id].hcp, 0);
+    const a = sum('a'), b = sum('b'), low = Math.min(a, b);
+    return { A: a - low, B: b - low };
+  }
+  const ids = [...match.a, ...match.b];
+  const low = Math.min(...ids.map(id => players[id].hcp));
+  const out = {};
+  ids.forEach(id => { out[id] = players[id].hcp - low; });
+  return out;
+}
+
+// Strokes received on a given hole for a match allowance.
+// Handles allowances over 18 (second stroke on hardest holes).
+function strokesOnHole(allowance, holeHcp) {
+  if (allowance <= 0) return 0;
+  const base = Math.floor(allowance / 18);
+  const extra = holeHcp <= (allowance % 18) ? 1 : 0;
+  return base + extra;
+}
+
+// List of hole numbers where a given allowance gets a stroke.
+function strokeHoles(allowance, course = COURSE) {
+  return course.holes
+    .filter(h => strokesOnHole(allowance, h.hcp) > 0)
+    .map(h => h.n);
+}
+
+/* ---------- 5. HOLE RESULT ---------- */
+
+// hole entry shapes:
+//   fourball / singles: { scores: { playerId: gross | null } }  null = picked up / no score
+//   foursomes:          { scores: { A: gross | null, B: gross | null } }  one ball per side
+//   any format:         { conceded: 'A' | 'B' | 'H' }           hole awarded directly
+// Returns 'A', 'B', 'H' (halved), or null (not yet entered).
+function holeResult(match, holeNum, entry, players = PLAYERS, course = COURSE) {
+  if (!entry) return null;
+  if (entry.conceded) return entry.conceded;
+
+  const hole = course.holes[holeNum - 1];
+  const allow = matchAllowances(match, players);
+
+  const sideNet = side => {
+    if (match.format === 'foursomes') {
+      const key = side.toUpperCase();
+      const g = entry.scores ? entry.scores[key] : undefined;
+      if (g === null || g === undefined) return null;
+      return g - strokesOnHole(allow[key], hole.hcp);
+    }
+    const nets = match[side]
+      .map(id => {
+        const g = entry.scores ? entry.scores[id] : undefined;
+        if (g === null || g === undefined) return null;
+        return g - strokesOnHole(allow[id], hole.hcp);
+      })
+      .filter(v => v !== null);
+    return nets.length ? Math.min(...nets) : null;
+  };
+
+  const a = sideNet('a');
+  const b = sideNet('b');
+  if (a === null && b === null) return 'H';   // both sides picked up
+  if (a === null) return 'B';
+  if (b === null) return 'A';
+  if (a < b) return 'A';
+  if (b < a) return 'B';
+  return 'H';
+}
+
+/* ---------- 6. MATCH STATUS ---------- */
+
+// holes: { 1: entry, 2: entry, ... }
+// Holes are counted in order from 1; status is "thru" the last
+// consecutive hole entered. Entries after the match is decided are ignored.
+function matchStatus(match, holes, players = PLAYERS, course = COURSE) {
+  let lead = 0;          // + = Side A up, - = Side B up
+  let thru = 0;
+  const results = [];
+
+  for (let n = 1; n <= 18; n++) {
+    const r = holeResult(match, n, holes[n], players, course);
+    if (r === null) break;
+    if (r === 'A') lead++;
+    if (r === 'B') lead--;
+    results.push({ hole: n, result: r, lead });
+    thru = n;
+    if (Math.abs(lead) > 18 - n) break;          // match decided
+  }
+
+  const remaining = 18 - thru;
+  const abs = Math.abs(lead);
+  const leader = lead > 0 ? 'A' : lead < 0 ? 'B' : null;
+  const closedEarly = abs > remaining && remaining > 0;
+  const final = closedEarly || thru === 18;
+  const dormie = !final && abs > 0 && abs === remaining;
+
+  let label;
+  if (thru === 0) label = '—';
+  else if (closedEarly) label = `${abs}&${remaining}`;
+  else if (lead === 0) label = 'AS';
+  else label = `${abs}UP`;
+
+  // Points only awarded once the match is final.
+  let points = { a: 0, b: 0 };
+  if (final) {
+    if (leader === 'A') points = { a: 1, b: 0 };
+    else if (leader === 'B') points = { a: 0, b: 1 };
+    else points = { a: 0.5, b: 0.5 };
+  }
+
+  return { thru, lead, leader, label, final, dormie, points, results };
+}
+
+// Status from one side's perspective: "2UP", "2DN", "AS"
+function sideLabel(status, side) {
+  if (status.lead === 0) return 'AS';
+  const up = (side === 'A' && status.lead > 0) || (side === 'B' && status.lead < 0);
+  return `${Math.abs(status.lead)}${up ? 'UP' : 'DN'}`;
+}
+
+// Team totals across all matches (final matches only).
+function teamPoints(statuses) {
+  return statuses.reduce(
+    (t, s) => ({ a: t.a + s.points.a, b: t.b + s.points.b }),
+    { a: 0, b: 0 }
+  );
+}
+
+if (typeof module !== 'undefined') {
+  module.exports = {
+    COURSE, PLAYERS, TEAMS, ROUNDS, ROUND1_MATCHES,
+    matchAllowances, strokesOnHole, strokeHoles,
+    holeResult, matchStatus, sideLabel, teamPoints
+  };
+}
+
+</script>
+
+<script>
+/* =========================================================
+   KIVA CUP — Scoreboard (Step 3) + Match screen (Step 4)
+            + live shared scores through Supabase (Step 5)
+   ========================================================= */
+
+// Round names as shown on the tabs
+const FORMAT_NAME = { fourball: 'Fourball', foursomes: 'Foursomes', singles: 'Singles' };
+
+// Matches per round. Rounds 2–4 pairings not set yet.
+const MATCHES_BY_ROUND = { 1: ROUND1_MATCHES, 2: [], 3: [], 4: [] };
+const ALL_MATCHES = () => Object.values(MATCHES_BY_ROUND).flat();
+const findMatch = id => ALL_MATCHES().find(m => m.id === id);
+
+/* ---------- Live data (Supabase) — Step 5 ----------
+   Paste your project URL and publishable key here. Leave them blank and
+   the page falls back to saving on the phone only.                        */
+const SUPABASE_URL = 'https://ourexozuzuyfzziolvxf.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_zv47VHq2MJBbPL-9p8VhdQ__AY_jPB4';
+const TABLE  = 'kiva_holes';
+const BUCKET = 'kiva-photos';
+const LIVE = Boolean(SUPABASE_URL && SUPABASE_KEY);
+
+/* ---------- Local cache ----------
+   HOLES = { matchId: { holeNum: { conceded: 'A'|'B'|'H', note, photo } } }
+   'conceded' is the engine's field for a hole awarded directly.
+   In live mode this is a cache of the shared data, so the board still
+   shows the last known scores with no signal.                            */
+const STORE_KEY  = 'kivacup.holes.v1';
+const OUTBOX_KEY = 'kivacup.outbox.v1';   // saves waiting for signal
+const readJSON = key => { try { return JSON.parse(localStorage.getItem(key)) || {}; } catch (e) { return {}; } };
+let HOLES  = readJSON(STORE_KEY);
+let OUTBOX = LIVE ? readJSON(OUTBOX_KEY) : {};
+
+function persist() {
+  // Unsent photos live in the outbox, so the cache skips them in live mode
+  const skipData = (k, v) => (LIVE && k === 'photo' && typeof v === 'string' && v.startsWith('data:')) ? undefined : v;
+  try { localStorage.setItem(STORE_KEY, JSON.stringify(HOLES, skipData)); return true; }
+  catch (e) { return false; }
+}
+function saveOutbox() {
+  try { localStorage.setItem(OUTBOX_KEY, JSON.stringify(OUTBOX)); return true; }
+  catch (e) { return false; }
+}
+
+/* ---------- Flags ---------- */
+function usFlag() {
+  const W = 165, Hh = 100, stripe = Hh / 13, cw = W * 0.4, ch = stripe * 7;
+  let s = `<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" aria-hidden="true" width="100%" height="100%">`;
+  s += `<rect width="${W}" height="${Hh}" fill="#FFFFFF"/>`;
+  for (let i = 0; i < 13; i += 2) s += `<rect y="${i * stripe}" width="${W}" height="${stripe}" fill="var(--flag-red)"/>`;
+  s += `<rect width="${cw}" height="${ch}" fill="var(--flag-navy)"/>`;
+  for (let r = 0; r < 9; r++) {
+    const cols = r % 2 === 0 ? 6 : 5, off = r % 2 === 0 ? 0 : 0.5;
+    for (let c = 0; c < cols; c++) {
+      const x = (cw / 6) * (c + 0.5 + off), y = (ch / 9) * (r + 0.5);
+      s += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.9" fill="#FFFFFF"/>`;
+    }
+  }
+  return s + '</svg>';
+}
+function euFlag() {
+  const W = 165, Hh = 100, cx = W / 2, cy = Hh / 2, R = 33;
+  const star = (x, y, r) => {
+    const pts = [];
+    for (let i = 0; i < 10; i++) {
+      const a = -Math.PI / 2 + i * Math.PI / 5, rr = i % 2 ? r * 0.4 : r;
+      pts.push(`${(x + rr * Math.cos(a)).toFixed(1)},${(y + rr * Math.sin(a)).toFixed(1)}`);
+    }
+    return `<polygon points="${pts.join(' ')}" fill="var(--flag-gold)"/>`;
+  };
+  let s = `<svg viewBox="0 0 ${W} ${Hh}" preserveAspectRatio="none" aria-hidden="true" width="100%" height="100%">`;
+  s += `<rect width="${W}" height="${Hh}" fill="var(--flag-eu)"/>`;
+  for (let i = 0; i < 12; i++) {
+    const a = -Math.PI / 2 + i * Math.PI / 6;
+    s += star(cx + R * Math.cos(a), cy + R * Math.sin(a), 6.5);
+  }
+  return s + '</svg>';
+}
+const FLAG = { us: usFlag(), eu: euFlag() };
+const flagEl = code => `<span class="flag">${FLAG[code]}</span>`;
+
+/* ---------- Formatting ---------- */
+// 1.5 -> "1½"
+function fmtPts(n) {
+  const whole = Math.floor(n), half = n - whole === 0.5;
+  if (!half) return String(whole);
+  return whole === 0 ? '½' : `${whole}½`;
+}
+
+// Leaderboard row: [USA status][USA names][thru][Europe names][Europe status]
+// USA is Side B, Europe is Side A.
+const spaceUp = label => label.replace(/UP$/, ' UP');
+
+function lbCells(status) {
+  const c = { usa: '', eur: '', thru: '–', lead: '', word: false };
+  if (status.thru === 0) return c;
+  c.thru = status.final ? 'F' : String(status.thru);
+  if (status.leader === null) {
+    const label = status.final ? 'HALVED' : 'AS';
+    c.usa = c.eur = label;
+    c.word = status.final;
+    if (!status.final) c.lead = 'all-square';
+    return c;
+  }
+  const label = spaceUp(status.label);
+  if (status.leader === 'B') { c.usa = label; c.lead = 'lead-usa'; }
+  else { c.eur = label; c.lead = 'lead-eur'; }
+  return c;
+}
+
+function describe(status) {
+  if (status.thru === 0) return 'not started';
+  if (status.leader === null) return status.final ? 'halved' : `all square thru ${status.thru}`;
+  const team = status.leader === 'A' ? 'Europe' : 'USA';
+  return status.final ? `${team} wins ${status.label}` : `${team} ${status.label} thru ${status.thru}`;
+}
+
+const names = ids => ids.map(id => `<span>${PLAYERS[id].name} (${PLAYERS[id].hcp})</span>`).join('');
+
+// Shared by the scoreboard and the match screen header
+function lbRow(m, asLink) {
+  const st = statusFor(m), c = lbCells(st);
+  const who = `${m.b.map(id => PLAYERS[id].name).join(' and ')} vs ${m.a.map(id => PLAYERS[id].name).join(' and ')}, ${describe(st)}`;
+  const inner = `
+      <div class="st usa${c.word ? ' word' : ''}">${c.usa}</div>
+      <div class="nm usa">${names(m.b)}</div>
+      <div class="thru">${c.thru}</div>
+      <div class="nm eur">${names(m.a)}</div>
+      <div class="st eur${c.word ? ' word' : ''}">${c.eur}</div>`;
+  return asLink
+    ? `<a class="lb-row ${c.lead}" href="#match/${m.id}" aria-label="${who}">${inner}</a>`
+    : `<div class="lb-row ${c.lead}" aria-label="${who}">${inner}</div>`;
+}
+
+/* ---------- Render ---------- */
+let activeRound = 1;
+
+function statusFor(match) {
+  return matchStatus(match, HOLES[match.id] || {});
+}
+
+function renderTabs() {
+  const el = document.getElementById('rounds');
+  el.innerHTML = ROUNDS.map(r => `
+    <button class="round-tab" role="tab" id="tab-${r.n}"
+            aria-selected="${r.n === activeRound}" aria-controls="panel"
+            data-round="${r.n}">
+      <span class="r-num">Round ${r.n}</span>
+      <span class="r-fmt">${FORMAT_NAME[r.format]}</span>
+    </button>`).join('');
+  el.querySelectorAll('.round-tab').forEach(b =>
+    b.addEventListener('click', () => { activeRound = Number(b.dataset.round); render(); }));
+}
+
+function renderPanel() {
+  const panel = document.getElementById('panel');
+  panel.setAttribute('aria-labelledby', `tab-${activeRound}`);
+  const matches = MATCHES_BY_ROUND[activeRound];
+  const round = ROUNDS[activeRound - 1];
+  if (!matches.length) {
+    panel.innerHTML = `<p class="empty">Round ${round.n} ${FORMAT_NAME[round.format].toLowerCase()} pairings haven't been set yet.</p>`;
+    return;
+  }
+  panel.innerHTML = `<ol class="lb">${matches.map(m => `<li>${lbRow(m, true)}</li>`).join('')}</ol>`;
+}
+
+function renderTotals() {
+  const all = Object.values(MATCHES_BY_ROUND).flat().map(statusFor);
+  const t = teamPoints(all);                    // a = Europe, b = USA
+  document.getElementById('pts-usa').textContent = fmtPts(t.b);
+  document.getElementById('pts-eur').textContent = fmtPts(t.a);
+}
+
+function render() { renderTabs(); renderPanel(); renderTotals(); fitNames(); }
+
+// Long names shrink to fit instead of breaking mid-word. Every name cell
+// on screen uses the same size, set by the tightest fit, so rows stay even.
+function fitNames() {
+  const cells = [...document.querySelectorAll('.lb-row .nm')].filter(c => c.offsetParent);
+  if (!cells.length) return;
+  cells.forEach(c => { c.style.fontSize = ''; });
+  let size = parseFloat(getComputedStyle(cells[0]).fontSize);
+  const overflows = () => cells.some(c => [...c.children].some(sp => sp.scrollWidth > c.clientWidth - 8));
+  while (overflows() && size > 10) {
+    size -= 0.5;
+    cells.forEach(c => { c.style.fontSize = size + 'px'; });
+  }
+}
+
+// Status cells shrink together if "3UP" / "3&2" would be clipped on a narrow phone
+function fitStatus() {
+  const cells = [...document.querySelectorAll('.card td.ms')].filter(c => c.textContent);
+  cells.forEach(c => { c.style.fontSize = ''; });
+  if (!cells.length) return;
+  let size = parseFloat(getComputedStyle(cells[0]).fontSize);
+  while (cells.some(c => c.scrollWidth > c.clientWidth) && size > 9) {
+    size -= 0.5;
+    cells.forEach(c => { c.style.fontSize = size + 'px'; });
+  }
+}
+
+// Title stays inside the space between the flags, never larger than 56px
+function fitTitle() {
+  const t = document.querySelector('.title');
+  const avail = t.parentElement.clientWidth;       // space between the flags
+  t.style.fontSize = '100px';
+  t.style.fontSize = Math.min(56, 100 * avail / t.scrollWidth).toFixed(1) + 'px';
+  // Venue and dates: each line stays on one line, shrinking if needed
+  const v = document.querySelector('.venue');
+  v.style.fontSize = '';
+  let vs = 12;
+  const tooWide = () => [...v.children].some(sp => sp.scrollWidth > avail);
+  while (tooWide() && vs > 9) { vs -= 0.5; v.style.fontSize = vs + 'px'; }
+}
+
+document.querySelectorAll('[data-flag]').forEach(el => { el.innerHTML = FLAG[el.dataset.flag]; });
+render();
+fitTitle();
+if (document.fonts) document.fonts.ready.then(() => { fitTitle(); fitNames(); fitStatus(); });
+
+/* =========================================================
+   MATCH SCREEN (Step 4)
+   ========================================================= */
+const $ = id => document.getElementById(id);
+const cur = { match: null, hole: 1, pick: null, photo: null };
+
+// Latest hole that can be entered: the next unplayed hole,
+// or the closing hole once the match is decided.
+function maxHole(st) { return st.final ? st.thru : Math.min(st.thru + 1, 18); }
+
+function groupNumber(m) { return MATCHES_BY_ROUND[m.round].indexOf(m) + 1; }
+
+function openMatch(id) {
+  const m = findMatch(id);
+  if (!m) { location.hash = ''; return; }
+  cur.match = m;
+  activeRound = m.round;
+  const st = statusFor(m);
+  loadHole(st.final ? st.thru : maxHole(st));
+  $('board-view').hidden = true;
+  $('match-view').hidden = false;
+  window.scrollTo(0, 0);
+}
+
+function showBoard() {
+  cur.match = null;
+  $('match-view').hidden = true;
+  $('board-view').hidden = false;
+  render();
+  fitTitle();
+}
+
+function loadHole(n) {
+  cur.hole = n;
+  const e = (HOLES[cur.match.id] || {})[n] || {};
+  cur.pick = e.conceded || null;
+  cur.photo = e.photo || null;
+  $('m-note').value = e.note || '';
+  $('m-error').hidden = true;
+  const save = $('m-save');
+  save.classList.remove('saved');
+  renderMatch();
+}
+
+// Player name with handicap, e.g. "Soup 2 (15)" — used everywhere a player is named
+const nameHcp = id => `${PLAYERS[id].name} (${PLAYERS[id].hcp})`;
+
+// Stroke pills for this hole; ● per stroke received
+function strokesText(m, hole) {
+  const allow = matchAllowances(m);
+  const pill = (label, cls, n) => `<span class="spill ${cls}">${label}<span class="dots" aria-label="${n} stroke${n > 1 ? 's' : ''}">${'●'.repeat(n)}</span></span>`;
+  const parts = [];
+  if (m.format === 'foursomes') {
+    [['B', 'usa', 'USA'], ['A', 'eur', 'Europe']].forEach(([k, cls, label]) => {
+      const n = strokesOnHole(allow[k], hole.hcp);
+      if (n) parts.push(pill(label, cls, n));
+    });
+  } else {
+    [...m.b.map(id => [id, 'usa']), ...m.a.map(id => [id, 'eur'])].forEach(([id, cls]) => {
+      const n = strokesOnHole(allow[id], hole.hcp);
+      if (n) parts.push(pill(nameHcp(id), cls, n));
+    });
+  }
+  return parts.length ? parts.join('') : '<span class="none">No strokes on this hole</span>';
+}
+
+// Rows of player stroke dots: USA first, then Europe (matches the board)
+function strokeRows(m) {
+  const allow = matchAllowances(m);
+  if (m.format === 'foursomes') {
+    return [
+      { label: 'USA',    cls: 'usa', allow: allow.B },
+      { label: 'Europe', cls: 'eur', allow: allow.A }
+    ];
+  }
+  return [
+    ...m.b.map(id => ({ label: nameHcp(id), cls: 'usa', allow: allow[id] })),
+    ...m.a.map(id => ({ label: nameHcp(id), cls: 'eur', allow: allow[id] }))
+  ];
+}
+
+function renderCard(m, st) {
+  const max = maxHole(st);
+  const res = {};
+  st.results.forEach(r => { res[r.hole] = r.result; });
+  const rows = strokeRows(m);
+
+  const nine = (from, totLabel) => {
+    const holes = COURSE.holes.slice(from - 1, from + 8);
+    const colCls = h => [h.n === cur.hole ? 'col-current' : '', h.n > max ? 'col-locked' : ''].join(' ').trim();
+    const td = (h, inner, extra = '') => `<td class="${[colCls(h), extra].join(' ').trim()}" data-hole="${h.n}">${inner}</td>`;
+    const yards = holes.reduce((t, h) => t + h.yards, 0);
+    const par = holes.reduce((t, h) => t + h.par, 0);
+
+    const holeCells = holes.map(h => `<td class="${h.n > max ? 'col-locked' : ''}">
+        <button type="button" class="hole-btn${res[h.n] ? ' res-' + res[h.n] : ''}${h.n === cur.hole ? ' current' : ''}"
+          data-hole="${h.n}" ${h.n > max ? 'disabled' : ''}
+          aria-label="Hole ${h.n}${h.n === cur.hole ? ', selected' : ''}">${h.n}</button></td>`).join('');
+
+    // Match status after each played hole: 1UP / 2UP in the leader's color,
+    // AS in gold when level, and the result (e.g. 3&2) on the hole the match ended
+    const byHole = {};
+    st.results.forEach(r => { byHole[r.hole] = r.lead; });
+    const statusCell = h => {
+      if (!(h.n in byHole)) return td(h, '', 'ms');
+      const lead = byHole[h.n], abs = Math.abs(lead);
+      if (lead === 0) return td(h, 'AS', 'ms as');
+      const cls = lead > 0 ? 'ms eur' : 'ms usa';
+      const left = 18 - h.n;
+      if (st.final && h.n === st.thru && left > 0) return td(h, `${abs}&amp;${left}`, cls);
+      return td(h, `${abs}UP`, cls);
+    };
+
+    const strokeRow = r => `<tr><th class="${r.cls}" scope="row">${r.label}</th>${
+      holes.map(h => { const n = strokesOnHole(r.allow, h.hcp); return td(h, '●'.repeat(n), r.cls); }).join('')
+    }<td></td></tr>`;
+
+    return `<table class="card">
+      <colgroup><col class="label">${'<col>'.repeat(10)}</colgroup>
+      <tr class="hole-row"><th scope="row">Hole</th>${holeCells}<td class="tot">${totLabel}</td></tr>
+      <tr><th scope="row">Blue</th>${holes.map(h => td(h, h.yards)).join('')}<td>${yards}</td></tr>
+      <tr class="shade"><th scope="row">Hcp</th>${holes.map(h => td(h, h.hcp)).join('')}<td></td></tr>
+      <tr class="shade"><th scope="row">Par</th>${holes.map(h => td(h, h.par)).join('')}<td>${par}</td></tr>
+      ${rows.map(strokeRow).join('')}
+      <tr class="status-row"><th scope="row">Status</th>${holes.map(h => statusCell(h)).join('')}<td></td></tr>
+    </table>`;
+  };
+
+  const card = $('m-card');
+  card.innerHTML = nine(1, 'Out') + nine(10, 'In') +
+    `<p class="card-key">● = handicap stroke on that hole. Tap a hole to enter or edit it.</p>`;
+
+  // Tapping anywhere in an open hole's column selects that hole
+  card.querySelectorAll('[data-hole]').forEach(el => el.addEventListener('click', () => {
+    const n = Number(el.dataset.hole);
+    if (n <= max) { loadHole(n); document.querySelector('.hole-card').scrollIntoView({ behavior: 'smooth', block: 'start' }); }
+  }));
+}
+
+function finalText(st) {
+  if (!st.final) return '';
+  if (st.leader === null) return { cls: 'even', text: 'Match halved' };
+  const team = st.leader === 'A' ? 'Europe' : 'USA';
+  return { cls: st.leader === 'A' ? 'eur' : 'usa', text: `${team} wins ${st.label}` };
+}
+
+function renderMatch() {
+  const m = cur.match, st = statusFor(m), hole = COURSE.holes[cur.hole - 1];
+  const round = ROUNDS[m.round - 1];
+
+  $('m-where').textContent = `Round ${round.n} ${FORMAT_NAME[round.format]}, Group ${groupNumber(m)}`;
+  $('m-head').innerHTML = `<div class="lb-labels" aria-hidden="true"><span>Status</span><span>Thru</span><span>Status</span></div>${lbRow(m, false)}`;
+  fitNames();
+
+  const f = finalText(st);
+  $('m-final').innerHTML = f ? `<div class="final-banner ${f.cls}">${f.text}</div>` : '';
+
+  // Scorecard (hole selector)
+  renderCard(m, st);
+  fitStatus();
+
+  // Hole card
+  $('m-hole').textContent = hole.n;
+  $('m-meta').innerHTML = `<span class="chip">Par ${hole.par}</span><span class="chip">${hole.yards} yds</span><span class="chip">Hcp ${hole.hcp}</span>`;
+  $('m-strokes').innerHTML = strokesText(m, hole);
+
+  document.querySelectorAll('.pick').forEach(b =>
+    b.setAttribute('aria-pressed', String(b.dataset.pick === cur.pick)));
+
+  $('m-preview').hidden = !cur.photo;
+  if (cur.photo) $('m-preview').src = cur.photo; else $('m-preview').removeAttribute('src');
+  $('photo-remove').hidden = !cur.photo;
+  $('photo-add').firstChild.textContent = cur.photo ? 'Replace photo' : 'Add photo';
+
+  const save = $('m-save');
+  save.disabled = !cur.pick;
+  if (!save.classList.contains('saved')) save.textContent = `Save hole ${hole.n}`;
+}
+
+document.querySelectorAll('.pick').forEach(b => b.addEventListener('click', () => {
+  cur.pick = b.dataset.pick;
+  $('m-save').classList.remove('saved');
+  renderMatch();
+}));
+
+// Photos are resized on the phone before saving (long side 1200px, JPEG)
+function resizePhoto(file) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const scale = Math.min(1, 1200 / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(); };
+    img.src = url;
+  });
+}
+
+$('m-photo').addEventListener('change', async e => {
+  const file = e.target.files[0];
+  e.target.value = '';
+  if (!file) return;
+  try {
+    cur.photo = await resizePhoto(file);
+    $('m-save').classList.remove('saved');
+    renderMatch();
+  } catch (err) {
+    showError('That photo could not be opened. Try a different one.');
+  }
+});
+$('photo-remove').addEventListener('click', () => {
+  cur.photo = null;
+  $('m-save').classList.remove('saved');
+  renderMatch();
+});
+$('m-note').addEventListener('input', () => {
+  const save = $('m-save');
+  if (save.classList.contains('saved')) { save.classList.remove('saved'); renderMatch(); }
+});
+
+function showError(msg) { $('m-error').textContent = msg; $('m-error').hidden = false; }
+
+$('m-save').addEventListener('click', () => {
+  if (!cur.pick) return;
+  const id = cur.match.id, n = cur.hole;
+  const before = HOLES[id] ? { ...HOLES[id] } : null;
+  const entry = { conceded: cur.pick };
+  const note = $('m-note').value.trim();
+  if (note) entry.note = note;
+  if (cur.photo) entry.photo = cur.photo;
+  HOLES[id] = { ...(HOLES[id] || {}), [n]: entry };
+
+  if (LIVE) {
+    OUTBOX[`${id}:${n}`] = { match_id: id, hole: n, result: cur.pick, note: note || null, photo: cur.photo || null };
+    const kept = saveOutbox();
+    persist();
+    $('m-error').hidden = true;
+    const save = $('m-save');
+    save.classList.add('saved');
+    save.textContent = `Sending hole ${n}…`;
+    renderMatch();
+    flushOutbox().then(ok => {
+      if (cur.match && cur.match.id === id && cur.hole === n && save.classList.contains('saved')) {
+        save.textContent = ok ? `Hole ${n} saved` : `Hole ${n} saved on this phone`;
+      }
+      if (!ok && !kept) showError('Keep this page open until you have signal so this hole can send.');
+    });
+    const st = statusFor(cur.match);
+    if (!st.final && n < maxHole(st)) {
+      setTimeout(() => { if (cur.match && cur.match.id === id && cur.hole === n) loadHole(n + 1); }, 900);
+    }
+    return;
+  }
+
+  if (!persist()) {
+    if (before) HOLES[id] = before; else delete HOLES[id];
+    showError(cur.photo
+      ? 'This phone is out of space for photos. Remove the photo and save again.'
+      : 'The hole could not be saved on this phone.');
+    return;
+  }
+
+  $('m-error').hidden = true;
+  const save = $('m-save');
+  save.classList.add('saved');
+  save.textContent = `Hole ${n} saved`;
+  renderMatch();
+
+  // Move to the next hole unless the match just ended
+  const st = statusFor(cur.match);
+  if (!st.final && n < maxHole(st)) {
+    setTimeout(() => { if (cur.match && cur.match.id === id && cur.hole === n) loadHole(n + 1); }, 700);
+  }
+});
+
+/* ---------- Live sync ---------- */
+let sb = null, channel = null, flushing = null, loadingLib = false;
+
+function client() {
+  if (!LIVE) return null;
+  if (!sb && window.supabase && window.supabase.createClient) {
+    sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+  }
+  return sb;
+}
+
+// If the page opened with no signal, the library never loaded: try again later
+function ensureLibrary() {
+  if (!LIVE || window.supabase || loadingLib) return;
+  loadingLib = true;
+  const tag = document.createElement('script');
+  tag.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js';
+  tag.onload = () => { loadingLib = false; startLive(); };
+  tag.onerror = () => { loadingLib = false; tag.remove(); };
+  document.head.appendChild(tag);
+}
+
+const PHOTO_PREFIX = () => `${SUPABASE_URL}/storage/v1/object/public/${BUCKET}/`;
+function validRow(r) {
+  return r && typeof r.match_id === 'string' && findMatch(r.match_id) &&
+    Number.isInteger(r.hole) && r.hole >= 1 && r.hole <= 18 &&
+    ['A', 'B', 'H'].includes(r.result);
+}
+function rowToEntry(r) {
+  const e = { conceded: r.result };
+  if (typeof r.note === 'string' && r.note) e.note = r.note;
+  if (typeof r.photo_url === 'string' && r.photo_url.startsWith(PHOTO_PREFIX())) e.photo = r.photo_url;
+  return e;
+}
+function outboxEntry(o) {
+  const e = { conceded: o.result };
+  if (o.note) e.note = o.note;
+  if (o.photo) e.photo = o.photo;
+  return e;
+}
+
+// Redraw whichever screen is showing; never touches a hole being edited
+function refresh() {
+  if (cur.match) renderMatch(); else render();
+  updateSyncNote();
+}
+
+function updateSyncNote() {
+  const n = Object.keys(OUTBOX).length;
+  const el = $('m-sync');
+  el.hidden = n === 0;
+  if (n) el.textContent = `No signal: ${n} hole${n > 1 ? 's are' : ' is'} saved on this phone and will send automatically.`;
+}
+
+// Full reload from the shared data; unsent local saves stay on top
+async function pullAll() {
+  const c = client();
+  if (!c) return false;
+  const { data, error } = await c.from(TABLE).select('match_id, hole, result, note, photo_url');
+  if (error || !Array.isArray(data)) return false;
+  const fresh = {};
+  data.filter(validRow).forEach(r => { (fresh[r.match_id] ||= {})[r.hole] = rowToEntry(r); });
+  Object.values(OUTBOX).forEach(o => { (fresh[o.match_id] ||= {})[o.hole] = outboxEntry(o); });
+  HOLES = fresh;
+  persist();
+  refresh();
+  return true;
+}
+
+// Photo first (if new), then the hole row
+async function pushOne(key) {
+  const c = client(), o = OUTBOX[key];
+  if (!c || !o) return !o;
+  if (o.photo && o.photo.startsWith('data:')) {
+    const blob = await (await fetch(o.photo)).blob();
+    const path = `${o.match_id}/hole-${o.hole}-${Date.now()}.jpg`;
+    const up = await c.storage.from(BUCKET).upload(path, blob, { contentType: 'image/jpeg', upsert: false });
+    if (up.error) return false;
+    o.photo = c.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
+    saveOutbox();
+  }
+  const { error } = await c.from(TABLE).upsert({
+    match_id: o.match_id, hole: o.hole, result: o.result,
+    note: o.note || null, photo_url: o.photo || null,
+    updated_at: new Date().toISOString()
+  }, { onConflict: 'match_id,hole' });
+  if (error) return false;
+  // Only clear it if nobody re-saved this hole while it was sending
+  if (OUTBOX[key] === o) {
+    delete OUTBOX[key];
+    saveOutbox();
+    (HOLES[o.match_id] ||= {})[o.hole] = outboxEntry(o);
+    persist();
+  }
+  return true;
+}
+
+// Send every waiting save in order; stops at the first failure.
+// A save made while a send is running is picked up before this resolves.
+function flushOutbox() {
+  if (flushing) return flushing.then(ok => (ok && Object.keys(OUTBOX).length) ? flushOutbox() : ok);
+  const run = (async () => {
+    let key;
+    const tried = new Set();
+    while ((key = Object.keys(OUTBOX).find(k => !tried.has(k)))) {
+      tried.add(key);
+      let ok = false;
+      try { ok = await pushOne(key); } catch (e) { ok = false; }
+      if (!ok) return false;
+    }
+    return true;
+  })();
+  flushing = run;
+  // Cleared after it settles (not inside it), so an empty outbox can't leave it stuck
+  run.finally(() => { if (flushing === run) flushing = null; updateSyncNote(); });
+  return run;
+}
+
+// Live updates from every other phone
+function subscribe() {
+  const c = client();
+  if (!c || channel) return;
+  channel = c.channel('kiva-holes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, payload => {
+      const r = payload.new;
+      if (!validRow(r) || OUTBOX[`${r.match_id}:${r.hole}`]) return;
+      (HOLES[r.match_id] ||= {})[r.hole] = rowToEntry(r);
+      persist();
+      refresh();
+    })
+    .subscribe(status => {
+      // Catch anything missed while disconnected
+      if (status === 'SUBSCRIBED') { flushOutbox().then(pullAll); }
+    });
+}
+
+function startLive() {
+  if (!LIVE) return;
+  if (!client()) { ensureLibrary(); return; }
+  subscribe();
+  flushOutbox().then(pullAll);
+}
+
+if (LIVE) {
+  window.addEventListener('online', () => { ensureLibrary(); startLive(); });
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') { ensureLibrary(); flushOutbox().then(pullAll); }
+  });
+  setInterval(() => { if (Object.keys(OUTBOX).length) { ensureLibrary(); flushOutbox(); } }, 20000);
+}
+
+function route() {
+  const m = location.hash.match(/^#match\/([A-Za-z0-9]+)$/);
+  if (m && findMatch(m[1])) openMatch(m[1]); else showBoard();
+}
+window.addEventListener('hashchange', route);
+route();
+startLive();
+updateSyncNote();
+window.addEventListener('resize', () => { fitTitle(); fitNames(); fitStatus(); });
+</script>
+</body>
+</html>
