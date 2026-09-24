@@ -36,6 +36,21 @@
   html, body { margin: 0; background: var(--black); }
   body { font-family: var(--text); color: var(--black); -webkit-font-smoothing: antialiased; }
 
+  /* Mode switch — Pins / Kiva Cup Scoring (same control on both pages) */
+  .mode-switch {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
+    width: calc(100% - 16px); max-width: 464px; margin: 8px auto; padding: 4px;
+    background: rgba(255,255,255,0.10); border: 2px solid rgba(255,255,255,0.35); border-radius: 12px;
+  }
+  .mode-switch a {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 40px; border-radius: 9px;
+    font-family: var(--text); font-weight: 700; font-size: 14px; letter-spacing: 0.02em;
+    color: var(--white); text-decoration: none;
+  }
+  .mode-switch a[aria-current="page"] { background: var(--witp-gold); color: var(--lb-ink); }
+  .mode-switch a:focus-visible { outline: 3px solid var(--witp-gold); outline-offset: 2px; }
+
   .board {
     max-width: 480px;
     margin: 0 auto;
@@ -444,6 +459,11 @@
 </style>
 </head>
 <body>
+
+<nav class="mode-switch" aria-label="Switch view">
+  <a href="./">Pins</a>
+  <a href="kiva-cup.html" aria-current="page">Kiva Cup Scoring</a>
+</nav>
 
 <main class="board">
  <div id="board-view">

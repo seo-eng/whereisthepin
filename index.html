@@ -40,6 +40,19 @@ body {
 
 /* HEADER - removed, logo moves to footer */
 
+/* MODE SWITCH — Pins / Kiva Cup Scoring (same control on both pages) */
+.mode-switch {
+  display:grid; grid-template-columns:1fr 1fr; gap:4px;
+  margin:8px 14px 0; padding:4px;
+  background:rgba(255,255,255,0.08); border:2px solid var(--brand-border); border-radius:12px;
+}
+.mode-switch a {
+  display:flex; align-items:center; justify-content:center;
+  min-height:40px; border-radius:9px;
+  font-size:14px; font-weight:700; color:#fff; text-decoration:none; letter-spacing:0.2px;
+}
+.mode-switch a[aria-current="page"] { background:var(--accent-gold); color:var(--brand-dark); }
+
 .proshop-btn {
   display:flex; align-items:center; gap:6px;
   background:rgba(255,255,255,0.15); padding:6px 12px; border-radius:20px;
@@ -313,6 +326,12 @@ body {
 </head>
 <body>
 <div class="app">
+
+  <!-- MODE SWITCH -->
+  <nav class="mode-switch" aria-label="Switch view">
+    <a href="./" aria-current="page">Pins</a>
+    <a href="kiva-cup.html">Kiva Cup Scoring</a>
+  </nav>
 
   <!-- CLUB BANNER -->
   <div class="club-banner" style="margin:8px 14px 0;">
