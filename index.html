@@ -303,8 +303,10 @@ body {
 .sc-tee-btn.blue.active { background:#4A90D9; }
 .sc-tee-btn.white { border-color:rgba(255,255,255,0.5); }
 .sc-tee-btn.white.active { background:rgba(255,255,255,0.85); color:#0C2340; }
-.sc-tee-btn.whitegold { border-color:#C0A030; }
-.sc-tee-btn.whitegold.active { background:#C0A030; }
+.sc-tee-btn.green { border-color:#3FA15A; }
+.sc-tee-btn.green.active { background:#3FA15A; }
+.sc-tee-btn.red { border-color:#D2463C; }
+.sc-tee-btn.red.active { background:#D2463C; }
 .sc-tee-btn.gold { border-color:#E6C84A; }
 .sc-tee-btn.gold.active { background:#E6C84A; }
 
@@ -339,18 +341,21 @@ body {
       <div class="club-header-left">
         <svg width="32" height="32" viewBox="0 0 32 32">
           <rect x="1" y="1" width="30" height="30" rx="4" fill="rgba(255,255,255,0.1)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
-          <text x="16" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Georgia,serif">ICC</text>
-          <text x="16" y="26" text-anchor="middle" font-size="6" fill="rgba(255,255,255,0.5)" font-family="Georgia,serif">1973</text>
+          <text x="16" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#fff" font-family="Georgia,serif">KD</text>
+          <text x="16" y="26" text-anchor="middle" font-size="6" fill="rgba(255,255,255,0.5)" font-family="Georgia,serif">1995</text>
         </svg>
         <div>
-          <div class="club-header-name">Inverness Country Club</div>
-          <div class="club-header-city">Birmingham, AL</div>
+          <div class="club-header-name">Kiva Dunes</div>
+          <div class="club-header-city">Gulf Shores, AL</div>
         </div>
       </div>
+      <!-- PRO SHOP BUTTON — temporarily hidden for the Kiva Cup.
+           RESTORE for the full app: delete this comment wrapper (the menu panel and its code are unchanged).
       <button class="proshop-btn" onclick="toggleMenu()">
         <svg width="16" height="16" viewBox="0 0 16 16"><path d="M2 4h12M2 8h12M2 12h12" stroke="#E6C84A" stroke-width="1.5" stroke-linecap="round"/></svg>
         <span>Pro shop</span>
       </button>
+      -->
     </div>
   </div>
 
@@ -358,45 +363,46 @@ body {
   <div class="club-menu" id="club-menu">
     <div class="club-panel">
       <div class="club-grid">
-        <button class="club-tile" onclick="window.location.href='tel:2059918608'">
+        <button class="club-tile" onclick="window.location.href='tel:2515407100'">
           <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><path d="M4 8h18v2H4zM6 12h14v2H6zM8 16h10v2H8zM10 20h6v2H10z" fill="#e6c84a"/></svg></div>
-          <div class="club-tile-label">Call Tavern</div>
-          <div class="club-tile-sub">(205) 991-8608</div>
+          <div class="club-tile-label">Call resort</div>
+          <div class="club-tile-sub">(251) 540-7100</div>
         </button>
         <button class="club-tile" onclick="toggleScorecard()">
           <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="4" y="5" width="18" height="16" rx="2" fill="none" stroke="#e6c84a" stroke-width="1.5"/><line x1="4" y1="11" x2="22" y2="11" stroke="#e6c84a" stroke-width="1.5"/><line x1="10" y1="5" x2="10" y2="21" stroke="#e6c84a" stroke-width="1"/><line x1="16" y1="5" x2="16" y2="21" stroke="#e6c84a" stroke-width="1"/></svg></div>
           <div class="club-tile-label">Course yardage</div>
           <div class="club-tile-sub">View card</div>
         </button>
-        <button class="club-tile" onclick="window.location.href='tel:2059918608'">
+        <button class="club-tile" onclick="window.location.href='tel:2515407000'">
           <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="5" y="4" width="16" height="18" rx="2" fill="none" stroke="#4a9e6e" stroke-width="1.5"/><circle cx="13" cy="10" r="3" fill="none" stroke="#4a9e6e" stroke-width="1.2"/><path d="M8 19c0-2.5 2.2-4 5-4s5 1.5 5 4" fill="none" stroke="#4a9e6e" stroke-width="1.2"/></svg></div>
           <div class="club-tile-label">Call pro shop</div>
-          <div class="club-tile-sub">(205) 991-8608</div>
+          <div class="club-tile-sub">(251) 540-7000</div>
         </button>
-        <button class="club-tile" onclick="window.open('https://iccalabama.com','_blank')">
+        <button class="club-tile" onclick="window.open('https://www.kivadunes.com','_blank')">
           <div class="club-tile-icon"><svg width="26" height="26" viewBox="0 0 26 26"><circle cx="13" cy="13" r="9" fill="none" stroke="#4a9e6e" stroke-width="1.5"/><path d="M13 4c4 3 4 9 0 9s-4-6 0-9" fill="none" stroke="#4a9e6e" stroke-width="1"/><line x1="4" y1="13" x2="22" y2="13" stroke="#4a9e6e" stroke-width="1"/></svg></div>
           <div class="club-tile-label">Club website</div>
-          <div class="club-tile-sub">iccalabama.com</div>
+          <div class="club-tile-sub">kivadunes.com</div>
         </button>
       </div>
       <!-- SCORECARD -->
       <div class="scorecard-panel" id="scorecard-panel">
         <div class="scorecard-tee-row">
+          <button class="sc-tee-btn gold" onclick="setScTee('gold')">Gold</button>
           <button class="sc-tee-btn blue active" onclick="setScTee('blue')">Blue</button>
           <button class="sc-tee-btn white" onclick="setScTee('white')">White</button>
-          <button class="sc-tee-btn whitegold" onclick="setScTee('whitegold')">W/G</button>
-          <button class="sc-tee-btn gold" onclick="setScTee('gold')">Gold</button>
+          <button class="sc-tee-btn green" onclick="setScTee('green')">Green</button>
+          <button class="sc-tee-btn red" onclick="setScTee('red')">Red</button>
         </div>
         <div class="sc-nine-header">FRONT NINE</div>
         <table class="sc-table">
           <tr><th>Hole</th><th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th class="out-col">OUT</th></tr>
-          <tr class="par-row"><td>Par</td><td>4</td><td>5</td><td>3</td><td>5</td><td>4</td><td>4</td><td>3</td><td>4</td><td>5</td><td class="out-col" id="par-out">37</td></tr>
+          <tr class="par-row"><td>Par</td><td>4</td><td>5</td><td>3</td><td>4</td><td>5</td><td>4</td><td>4</td><td>3</td><td>4</td><td class="out-col" id="par-out">36</td></tr>
           <tr class="yds-row" id="yds-front"><td>Yds</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="out-col"></td></tr>
         </table>
         <div class="sc-nine-header" style="margin-top:4px;">BACK NINE</div>
         <table class="sc-table">
           <tr><th>Hole</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th><th>17</th><th>18</th><th class="in-col">IN</th><th class="total-col">TOT</th></tr>
-          <tr class="par-row"><td>Par</td><td>4</td><td>3</td><td>4</td><td>4</td><td>4</td><td>3</td><td>5</td><td>4</td><td>5</td><td class="in-col" id="par-in">36</td><td class="total-col">73</td></tr>
+          <tr class="par-row"><td>Par</td><td>4</td><td>4</td><td>4</td><td>3</td><td>5</td><td>5</td><td>4</td><td>3</td><td>4</td><td class="in-col" id="par-in">36</td><td class="total-col">72</td></tr>
           <tr class="yds-row" id="yds-back"><td>Yds</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td class="in-col"></td><td class="total-col"></td></tr>
         </table>
       </div>
@@ -405,8 +411,8 @@ body {
 
   <!-- DATE INFO ROW — always at bottom of club block -->
   <div class="date-info-row">
-    <span class="date-info-date">Apr 12, 2026</span>
-    <span class="date-info-updated">Last update: Apr 12, 2026: 6:15am</span>
+    <span class="date-info-date" id="date-today"></span>
+    <span class="date-info-updated" id="date-updated"></span>
   </div>
 
   <!-- NOTIFICATION — club branded CTA -->
@@ -422,10 +428,11 @@ body {
         <span class="hole-info-item" id="hole-par">PAR 4</span>
         <span class="hole-info-item" id="hole-yds">392 YDS</span>
         <select class="tee-select" id="tee-select" onchange="setTee(this.value)">
-          <option value="blue">Blue tees</option>
-          <option value="white">White tees</option>
-          <option value="whitegold">W/G tees</option>
           <option value="gold">Gold tees</option>
+          <option value="blue" selected>Blue tees</option>
+          <option value="white">White tees</option>
+          <option value="green">Green tees</option>
+          <option value="red">Red tees</option>
         </select>
       </div>
     </div>
@@ -475,44 +482,26 @@ body {
 
 <script>
 // =============================================================
-// INVERNESS COUNTRY CLUB DATA
+// KIVA DUNES DATA — Gulf Shores, AL (from the Kiva Dunes scorecard)
 // =============================================================
 var teeData = {
-  blue:      [392,562,219,420,440,413,452,201,454, 399,211,422,418,422,215,625,384,408],
-  white:     [370,540,200,400,420,395,430,185,435, 380,195,405,400,405,200,600,365,390],
-  whitegold: [350,515,185,380,400,375,410,170,415, 360,180,385,380,385,185,575,345,370],
-  gold:      [325,490,165,355,375,350,385,155,395, 335,165,365,355,365,170,550,325,350]
+  gold:  [415,541,228,313,576,428,495,161,428, 357,353,452,175,570,540,417,215,458],
+  blue:  [379,521,193,280,513,370,465,155,412, 334,342,383,157,510,509,381,196,405],
+  white: [321,484,160,262,461,345,424,135,375, 308,307,369,137,463,452,350,175,350],
+  green: [310,472,153,257,423,335,395,135,324, 290,276,313,135,445,401,343,150,338],
+  red:   [260,416,111,221,423,296,363, 98,324, 256,276,313, 95,402,401,320,126,305]
 };
-var pars = [4,5,3,5,4,4,3,4,5, 4,3,4,4,4,3,5,4,5];
+var pars = [4,5,3,4,5,4,4,3,4, 4,4,4,3,5,5,4,3,4];
 
-// Green depth per hole (paces, from pin sheet)
-var depths = [30,41,40,35,35,37,40,36,38, 50,30,40,35,37,40,36,38,50];
-
-// Pin positions — from_front + from_left OR from_right (EDGE, not center)
+// Pin sheet — not posted yet. Each hole becomes:
+//   { front: 19, side: 6, dir: 'L', depth: 30 }   (paces; side measured from the EDGE)
+var pinsUpdated = '';          // e.g. 'Sep 25, 2026: 6:15am'
 var pinData = [
-  { front:19, side:6,  dir:'L', depth:30 },
-  { front:8,  side:6,  dir:'L', depth:41 },
-  { front:10, side:9,  dir:'R', depth:40 },
-  { front:12, side:11, dir:'L', depth:35 },
-  { front:11, side:5,  dir:'L', depth:35 },
-  { front:11, side:8,  dir:'L', depth:37 },
-  { front:25, side:6,  dir:'R', depth:40 },
-  { front:22, side:9,  dir:'L', depth:36 },
-  { front:9,  side:5,  dir:'L', depth:38 },
-  { front:38, side:8,  dir:'R', depth:50 },
-  { front:16, side:5,  dir:'R', depth:30 },
-  { front:8,  side:11, dir:'L', depth:40 },
-  { front:10, side:7,  dir:'R', depth:35 },
-  { front:24, side:2,  dir:'L', depth:37 },
-  { front:18, side:11, dir:'R', depth:40 },
-  { front:28, side:4,  dir:'L', depth:36 },
-  { front:14, side:6,  dir:'R', depth:38 },
-  { front:22, side:8,  dir:'L', depth:50 }
+  null, null, null, null, null, null, null, null, null,
+  null, null, null, null, null, null, null, null, null
 ];
 
-var notifications = {
-  8: "grill"
-};
+var notifications = {};
 
 // =============================================================
 // STATE
@@ -637,12 +626,18 @@ function render() {
   // FROM FRONT: ↑ arrow (measuring from front edge upward into green)
   // FROM LEFT: → arrow (measuring from left edge inward to the right)
   // FROM RIGHT: ← arrow (measuring from right edge inward to the left)
-  document.getElementById('metric-front').textContent = '↑ ' + pin.front + "'";
-  var sideArrow = pin.dir === 'L' ? '→ ' : '← ';
-  document.getElementById('metric-side').textContent = sideArrow + pin.side + "'";
-  document.getElementById('metric-side-label').textContent = 'FROM ' + (pin.dir === 'L' ? 'LEFT' : 'RIGHT');
-
-  renderGreen(pin);
+  if (pin) {
+    document.getElementById('metric-front').textContent = '↑ ' + pin.front + "'";
+    var sideArrow = pin.dir === 'L' ? '→ ' : '← ';
+    document.getElementById('metric-side').textContent = sideArrow + pin.side + "'";
+    document.getElementById('metric-side-label').textContent = 'FROM ' + (pin.dir === 'L' ? 'LEFT' : 'RIGHT');
+    renderGreen(pin);
+  } else {
+    document.getElementById('metric-front').textContent = '—';
+    document.getElementById('metric-side').textContent = '—';
+    document.getElementById('metric-side-label').textContent = 'FROM SIDE';
+    renderNoPin();
+  }
 
   // Hole grid
   var grid = document.getElementById('hole-grid');
@@ -673,11 +668,28 @@ function render() {
     notif.style.display = 'block';
     notif.className = 'notification-bar thankyou';
     notif.innerHTML =
-      '<div class="notif-thankyou">Thank you for playing<br><strong>Inverness Country Club</strong></div>';
+      '<div class="notif-thankyou">Thank you for playing<br><strong>Kiva Dunes</strong></div>';
   } else {
     notif.style.display = 'none';
     notif.className = 'notification-bar';
   }
+}
+
+// Green with no pin posted yet
+function renderNoPin() {
+  var cx = 135, cy = 130, r = 115;
+  document.getElementById('green-svg').innerHTML =
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#2D6A3E" stroke="#6BC48A" stroke-width="2.5"/>' +
+    '<text x="'+cx+'" y="'+(cy - 4)+'" text-anchor="middle" font-size="18" font-weight="700" fill="#fff" font-family="inherit">Pin not posted yet</text>' +
+    '<text x="'+cx+'" y="'+(cy + 20)+'" text-anchor="middle" font-size="13" fill="rgba(255,255,255,0.75)" font-family="inherit">Check back soon</text>';
+}
+
+// Date row: today, plus when the pin sheet was last updated
+function renderDates() {
+  document.getElementById('date-today').textContent =
+    new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+  document.getElementById('date-updated').textContent =
+    pinsUpdated ? 'Last update: ' + pinsUpdated : 'Pins not posted yet';
 }
 
 function nav(dir) {
@@ -704,6 +716,7 @@ function toggleMenu() {
 }
 
 // INIT
+renderDates();
 render();
 renderScorecard();
 </script>
