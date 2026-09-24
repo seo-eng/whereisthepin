@@ -442,6 +442,38 @@
   .save-btn.saved { background: #1E7B34; border-color: #1E7B34; color: var(--white); }
   .save-btn:focus-visible { outline: 3px solid var(--white); outline-offset: 2px; }
   .form-error { margin: 10px 0 0; font-weight: 800; font-size: 14px; color: #FF6B74; }
+  .lock-note {
+    margin: 0 0 14px; padding: 10px 12px; border-radius: 12px;
+    background: var(--m-raise); border: 2px solid var(--witp-gold);
+    font-weight: 800; font-size: 14px; line-height: 1.4; color: var(--white);
+  }
+  .pick:disabled { cursor: default; opacity: 0.55; }
+  .pick[aria-pressed="true"]:disabled { opacity: 1; }
+  .note[readonly] { opacity: 0.85; }
+  /* Updates feed */
+  #updates-view { background: var(--m-bg); color: var(--white); padding-bottom: 18px; }
+  .upd-title { font-weight: 800; font-size: 18px; letter-spacing: 0.04em; text-transform: uppercase; padding: 14px 10px; }
+  .updates { list-style: none; margin: 0; padding: 12px 14px 0; display: grid; gap: 10px; }
+  .u-item {
+    display: block; padding: 12px 14px 13px;
+    background: var(--m-card); border: 2px solid var(--m-line); border-radius: 14px;
+    color: var(--white); text-decoration: none;
+  }
+  .u-item:focus-visible { outline: 3px solid var(--witp-gold); outline-offset: 2px; }
+  .u-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
+  .u-where { font-weight: 800; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--m-muted); }
+  .u-time { flex: none; font-weight: 700; font-size: 12px; color: var(--m-muted); }
+  .u-note { margin: 8px 0 10px; font-weight: 700; font-size: 17px; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .u-foot { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+  .u-tag {
+    padding: 4px 10px; border-radius: 999px; border: 2px solid var(--m-line);
+    font-weight: 800; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase;
+  }
+  .u-tag.usa  { background: var(--usa-red); }
+  .u-tag.eur  { background: var(--eur-blue); }
+  .u-tag.even { background: var(--m-raise); }
+  .u-match { font-weight: 700; font-size: 12.5px; color: var(--m-muted); }
+  .u-empty { margin: 0; padding: 28px 18px 10px; text-align: center; font-weight: 700; font-size: 15px; line-height: 1.5; color: var(--m-muted); }
   .sync-note  { margin: 10px 0 0; font-weight: 800; font-size: 14px; line-height: 1.4; color: var(--witp-gold); }
 
   .match-foot { height: 18px; }
@@ -461,8 +493,8 @@
 <body>
 
 <nav class="mode-switch" aria-label="Switch view">
-  <a href="./">Pins</a>
-  <a href="kiva-cup.html" aria-current="page">Kiva Cup Scoring</a>
+  <a href="#updates" id="sw-updates">Updates</a>
+  <a href="#" id="sw-scoring" aria-current="page">Kiva Cup Scoring</a>
 </nav>
 
 <main class="board">
@@ -494,6 +526,15 @@
 
  </div>
 
+ <div id="updates-view" hidden>
+  <div class="topbar">
+    <span class="upd-title">Updates</span>
+    <span class="where" id="u-count"></span>
+  </div>
+  <ol class="updates" id="u-list" aria-live="polite"></ol>
+  <p class="u-empty" id="u-empty" hidden>No updates yet. Notes added on any hole show up here as they come in.</p>
+ </div>
+
  <div id="match-view" hidden>
   <div class="topbar">
     <a class="back-btn" href="#">&lsaquo; Scoreboard</a>
@@ -503,9 +544,10 @@
   <div id="m-final"></div>
 
   <section class="hole-card" aria-live="polite">
+    <p class="lock-note" id="m-lock" hidden></p>
     <div class="hole-top">
       <div class="hole-box" aria-label="Hole"><span class="hash">#</span><span class="hole-num" id="m-hole"></span></div>
-      <p class="hole-tip">To edit a hole, click on the hole number at the bottom of this page.</p>
+      <p class="hole-tip" id="m-tip">To edit a hole, click on the hole number at the bottom of this page.</p>
     </div>
     <div class="chips" id="m-meta"></div>
 
@@ -522,8 +564,8 @@
     <label class="field-label" for="m-note">Hole summary</label>
     <textarea class="note" id="m-note" placeholder="What happened on this hole?"></textarea>
 
-    <span class="field-label">Photo</span>
-    <div class="photo-actions">
+    <span class="field-label" id="photo-label">Photo</span>
+    <div class="photo-actions" id="photo-actions">
       <label class="btn-outline" id="photo-add" style="display:flex;align-items:center;justify-content:center;">
         Add photo
         <input class="visually-hidden" id="m-photo" type="file" accept="image/*">
@@ -610,7 +652,11 @@ const PLAYERS = {
   brick:    { name: 'Brick',    hcp: 4  },
   luke:     { name: 'Luke',     hcp: 6  },
   zac:      { name: 'Zac',      hcp: 8  },
-  anderson: { name: 'Anderson', hcp: 4  }
+  anderson: { name: 'Anderson', hcp: 4  },
+  // Added for Round 2 (Brandino replaces Zac for USA)
+  stephen:  { name: 'Stephen',  hcp: 9  },
+  coat:     { name: 'Coat',     hcp: 9  },
+  brandino: { name: 'Brandino', hcp: 8  }
 };
 
 /* ---------- 3. TOURNAMENT ---------- */
@@ -622,8 +668,8 @@ const TEAMS = {
 
 const ROUNDS = [
   { n: 1, format: 'fourball'  },
-  { n: 2, format: 'foursomes' },
-  { n: 3, format: 'fourball'  },
+  { n: 2, format: 'fourball'  },
+  { n: 3, format: 'foursomes' },
   { n: 4, format: 'singles'   }
 ];
 
@@ -637,11 +683,37 @@ const ROUND1_MATCHES = [
   { id: 'R1G6', round: 1, format: 'fourball', a: ['brick', 'luke'],     b: ['zac', 'anderson'] }
 ];
 
+// Round 2 — fourball. Side A (Europe) first, Side B (USA) second.
+const ROUND2_MATCHES = [
+  { id: 'R2G1', round: 2, format: 'fourball', a: ['domit', 'sutton'],   b: ['sam', 'bobby'] },
+  { id: 'R2G2', round: 2, format: 'fourball', a: ['brick', 'luke'],     b: ['skiba', 'anderson'] },
+  { id: 'R2G3', round: 2, format: 'fourball', a: ['stiff', 'reynolds'], b: ['stephen', 'womble'] },
+  { id: 'R2G4', round: 2, format: 'fourball', a: ['bb', 'slay'],        b: ['milo', 'collie'] },
+  { id: 'R2G5', round: 2, format: 'fourball', a: ['maddox', 'soup2'],   b: ['brandino', 'chief'] },
+  { id: 'R2G6', round: 2, format: 'fourball', a: ['soup', 'warren'],    b: ['jrod', 'coat'] }
+];
+
+// Round 3 — foursomes (alternate shot). pops = each side's team handicap as given
+// (50% of the pair's combined handicaps, .5 rounded up). The higher side gets the difference.
+const ROUND3_MATCHES = [
+  { id: 'R3G1', round: 3, format: 'foursomes', a: ['sutton', 'maddox'], b: ['skiba', 'sam'],        pops: { a: 7,  b: 3  } },
+  { id: 'R3G2', round: 3, format: 'foursomes', a: ['bb', 'warren'],       b: ['davis', 'brandino'],   pops: { a: 9,  b: 9  } },
+  { id: 'R3G3', round: 3, format: 'foursomes', a: ['soup2', 'reynolds'],   b: ['collie', 'jefco'],     pops: { a: 14, b: 12 } },
+  { id: 'R3G4', round: 3, format: 'foursomes', a: ['brick', 'luke'],    b: ['womble', 'chief'],     pops: { a: 5,  b: 12 } },
+  { id: 'R3G5', round: 3, format: 'foursomes', a: ['domit', 'slay'],    b: ['milo', 'jrod'],        pops: { a: 7,  b: 9  } },
+  { id: 'R3G6', round: 3, format: 'foursomes', a: ['stiff', 'soup'],    b: ['bobby', 'anderson'],   pops: { a: 7,  b: 2  } }
+];
+
 /* ---------- 4. HANDICAP STROKES ---------- */
 
 // Strokes each player (fourball/singles) or side (foursomes) receives
 // for the whole match, at 100%, off the lowest handicap in the match.
 function matchAllowances(match, players = PLAYERS) {
+  if (match.format === 'foursomes' && match.pops) {
+    // Team pops given for the match: the lower side plays off 0, the other gets the difference
+    const low = Math.min(match.pops.a, match.pops.b);
+    return { A: match.pops.a - low, B: match.pops.b - low };
+  }
   if (match.format === 'foursomes') {
     // 100% of each side's combined handicap; lower side plays off 0.
     const sum = side => match[side].reduce((t, id) => t + players[id].hcp, 0);
@@ -773,7 +845,7 @@ function teamPoints(statuses) {
 
 if (typeof module !== 'undefined') {
   module.exports = {
-    COURSE, PLAYERS, TEAMS, ROUNDS, ROUND1_MATCHES,
+    COURSE, PLAYERS, TEAMS, ROUNDS, ROUND1_MATCHES, ROUND2_MATCHES, ROUND3_MATCHES,
     matchAllowances, strokesOnHole, strokeHoles,
     holeResult, matchStatus, sideLabel, teamPoints
   };
@@ -790,8 +862,8 @@ if (typeof module !== 'undefined') {
 // Round names as shown on the tabs
 const FORMAT_NAME = { fourball: 'Fourball', foursomes: 'Foursomes', singles: 'Singles' };
 
-// Matches per round. Rounds 2–4 pairings not set yet.
-const MATCHES_BY_ROUND = { 1: ROUND1_MATCHES, 2: [], 3: [], 4: [] };
+// Matches per round. Round 4 pairings not set yet.
+const MATCHES_BY_ROUND = { 1: ROUND1_MATCHES, 2: ROUND2_MATCHES, 3: ROUND3_MATCHES, 4: [] };
 const ALL_MATCHES = () => Object.values(MATCHES_BY_ROUND).flat();
 const findMatch = id => ALL_MATCHES().find(m => m.id === id);
 
@@ -821,6 +893,15 @@ function persist() {
   try { localStorage.setItem(STORE_KEY, JSON.stringify(HOLES, skipData)); return true; }
   catch (e) { return false; }
 }
+// Rounds locked in Supabase (finished rounds can't be edited). Cached for offline.
+const LOCKS_KEY = 'kivacup.locks.v1';
+let LOCKED = new Set(LIVE ? (readJSON(LOCKS_KEY).rounds || []) : []);
+const isLocked = m => LOCKED.has(m.round);
+function setLocks(rounds) {
+  LOCKED = new Set(rounds);
+  try { localStorage.setItem(LOCKS_KEY, JSON.stringify({ rounds: [...LOCKED] })); } catch (e) {}
+}
+
 function saveOutbox() {
   try { localStorage.setItem(OUTBOX_KEY, JSON.stringify(OUTBOX)); return true; }
   catch (e) { return false; }
@@ -899,7 +980,8 @@ function describe(status) {
   return status.final ? `${team} wins ${status.label}` : `${team} ${status.label} thru ${status.thru}`;
 }
 
-const names = ids => ids.map(id => `<span>${PLAYERS[id].name} (${PLAYERS[id].hcp})</span>`).join('');
+const hcpText = id => PLAYERS[id].hcp === null ? '' : ` (${PLAYERS[id].hcp})`;
+const names = ids => ids.map(id => `<span>${PLAYERS[id].name}${hcpText(id)}</span>`).join('');
 
 // Shared by the scoreboard and the match screen header
 function lbRow(m, asLink) {
@@ -1014,24 +1096,93 @@ function maxHole(st) { return st.final ? st.thru : Math.min(st.thru + 1, 18); }
 
 function groupNumber(m) { return MATCHES_BY_ROUND[m.round].indexOf(m) + 1; }
 
-function openMatch(id) {
+let showingUpdates = false;
+
+// Which side of the switch is lit
+function setSwitch(updates) {
+  showingUpdates = updates;
+  if (updates) { $('sw-updates').setAttribute('aria-current', 'page'); $('sw-scoring').removeAttribute('aria-current'); }
+  else { $('sw-scoring').setAttribute('aria-current', 'page'); $('sw-updates').removeAttribute('aria-current'); }
+}
+
+function openMatch(id, hole) {
   const m = findMatch(id);
   if (!m) { location.hash = ''; return; }
   cur.match = m;
   activeRound = m.round;
   const st = statusFor(m);
-  loadHole(st.final ? st.thru : maxHole(st));
+  const start = st.final ? st.thru : maxHole(st);
+  loadHole(hole && hole >= 1 && hole <= Math.max(start, 1) ? hole : start);
+  setSwitch(false);
   $('board-view').hidden = true;
+  $('updates-view').hidden = true;
   $('match-view').hidden = false;
   window.scrollTo(0, 0);
 }
 
 function showBoard() {
   cur.match = null;
+  setSwitch(false);
   $('match-view').hidden = true;
+  $('updates-view').hidden = true;
   $('board-view').hidden = false;
   render();
   fitTitle();
+}
+
+function showUpdates() {
+  cur.match = null;
+  setSwitch(true);
+  $('match-view').hidden = true;
+  $('board-view').hidden = true;
+  $('updates-view').hidden = false;
+  renderUpdates();
+  window.scrollTo(0, 0);
+}
+
+// Every hole note, newest first. Built with textContent so notes can't inject markup.
+function renderUpdates() {
+  const items = [];
+  Object.entries(HOLES).forEach(([id, holes]) => {
+    const m = findMatch(id);
+    if (!m) return;
+    Object.entries(holes || {}).forEach(([n, e]) => {
+      if (e && e.note) items.push({ m, n: Number(n), e });
+    });
+  });
+  items.sort((x, y) => (y.e.at || '').localeCompare(x.e.at || '') || y.n - x.n);
+
+  const list = $('u-list');
+  list.textContent = '';
+  $('u-empty').hidden = items.length > 0;
+  $('u-count').textContent = items.length ? `${items.length} note${items.length > 1 ? 's' : ''}` : '';
+
+  const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; };
+  const pair = ids => ids.map(i => PLAYERS[i].name).join(' & ');
+  const TAG = { A: ['eur', 'Europe won the hole'], B: ['usa', 'USA won the hole'], H: ['even', 'Hole halved'] };
+
+  items.forEach(({ m, n, e }) => {
+    const li = el('li');
+    const a = el('a', 'u-item');
+    a.href = `#match/${m.id}/${n}`;
+    const top = el('div', 'u-top');
+    top.append(el('span', 'u-where', `Round ${m.round}, Group ${groupNumber(m)}, Hole ${n}`), el('span', 'u-time', timeLabel(e.at)));
+    const foot = el('div', 'u-foot');
+    const [cls, txt] = TAG[e.conceded] || TAG.H;
+    foot.append(el('span', `u-tag ${cls}`, txt), el('span', 'u-match', `${pair(m.a)} v ${pair(m.b)}`));
+    a.append(top, el('p', 'u-note', e.note), foot);
+    li.append(a);
+    list.append(li);
+  });
+}
+
+// "2:14 PM" today, "Fri 2:14 PM" on other days
+function timeLabel(iso) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  if (isNaN(d)) return '';
+  const time = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+  return d.toDateString() === new Date().toDateString() ? time : `${d.toLocaleDateString('en-US', { weekday: 'short' })} ${time}`;
 }
 
 function loadHole(n) {
@@ -1047,7 +1198,7 @@ function loadHole(n) {
 }
 
 // Player name with handicap, e.g. "Soup 2 (15)" — used everywhere a player is named
-const nameHcp = id => `${PLAYERS[id].name} (${PLAYERS[id].hcp})`;
+const nameHcp = id => `${PLAYERS[id].name}${hcpText(id)}`;
 
 // Stroke pills for this hole; ● per stroke received
 function strokesText(m, hole) {
@@ -1055,7 +1206,7 @@ function strokesText(m, hole) {
   const pill = (label, cls, n) => `<span class="spill ${cls}">${label}<span class="dots" aria-label="${n} stroke${n > 1 ? 's' : ''}">${'●'.repeat(n)}</span></span>`;
   const parts = [];
   if (m.format === 'foursomes') {
-    [['B', 'usa', 'USA'], ['A', 'eur', 'Europe']].forEach(([k, cls, label]) => {
+    [['B', 'usa', `USA${m.pops ? ` (${m.pops.b})` : ''}`], ['A', 'eur', `Europe${m.pops ? ` (${m.pops.a})` : ''}`]].forEach(([k, cls, label]) => {
       const n = strokesOnHole(allow[k], hole.hcp);
       if (n) parts.push(pill(label, cls, n));
     });
@@ -1073,8 +1224,8 @@ function strokeRows(m) {
   const allow = matchAllowances(m);
   if (m.format === 'foursomes') {
     return [
-      { label: 'USA',    cls: 'usa', allow: allow.B },
-      { label: 'Europe', cls: 'eur', allow: allow.A }
+      { label: `USA${m.pops ? ` (${m.pops.b})` : ''}`,    cls: 'usa', allow: allow.B },
+      { label: `Europe${m.pops ? ` (${m.pops.a})` : ''}`, cls: 'eur', allow: allow.A }
     ];
   }
   return [
@@ -1179,6 +1330,18 @@ function renderMatch() {
   const save = $('m-save');
   save.disabled = !cur.pick;
   if (!save.classList.contains('saved')) save.textContent = `Save hole ${hole.n}`;
+
+  // Locked round: results, notes and photos can be viewed but not changed
+  const locked = isLocked(m);
+  $('m-lock').hidden = !locked;
+  if (locked) $('m-lock').textContent = `Round ${m.round} is final and locked. Scores can be viewed but not changed.`;
+  $('m-tip').textContent = locked ? 'Tap a hole number at the bottom of this page to see it.' : 'To edit a hole, click on the hole number at the bottom of this page.';
+  document.querySelectorAll('.pick').forEach(b => { b.disabled = locked; });
+  $('m-note').readOnly = locked;
+  $('m-note').placeholder = locked ? 'No summary for this hole' : 'What happened on this hole?';
+  $('photo-actions').hidden = locked;
+  $('photo-label').hidden = locked && !cur.photo;
+  save.hidden = locked;
 }
 
 document.querySelectorAll('.pick').forEach(b => b.addEventListener('click', () => {
@@ -1231,17 +1394,17 @@ $('m-note').addEventListener('input', () => {
 function showError(msg) { $('m-error').textContent = msg; $('m-error').hidden = false; }
 
 $('m-save').addEventListener('click', () => {
-  if (!cur.pick) return;
+  if (!cur.pick || isLocked(cur.match)) return;
   const id = cur.match.id, n = cur.hole;
   const before = HOLES[id] ? { ...HOLES[id] } : null;
-  const entry = { conceded: cur.pick };
+  const entry = { conceded: cur.pick, at: new Date().toISOString() };
   const note = $('m-note').value.trim();
   if (note) entry.note = note;
   if (cur.photo) entry.photo = cur.photo;
   HOLES[id] = { ...(HOLES[id] || {}), [n]: entry };
 
   if (LIVE) {
-    OUTBOX[`${id}:${n}`] = { match_id: id, hole: n, result: cur.pick, note: note || null, photo: cur.photo || null };
+    OUTBOX[`${id}:${n}`] = { match_id: id, hole: n, result: cur.pick, note: note || null, photo: cur.photo || null, at: entry.at };
     const kept = saveOutbox();
     persist();
     $('m-error').hidden = true;
@@ -1313,12 +1476,14 @@ function validRow(r) {
 }
 function rowToEntry(r) {
   const e = { conceded: r.result };
+  if (typeof r.updated_at === 'string') e.at = r.updated_at;
   if (typeof r.note === 'string' && r.note) e.note = r.note;
   if (typeof r.photo_url === 'string' && r.photo_url.startsWith(PHOTO_PREFIX())) e.photo = r.photo_url;
   return e;
 }
 function outboxEntry(o) {
   const e = { conceded: o.result };
+  if (o.at) e.at = o.at;
   if (o.note) e.note = o.note;
   if (o.photo) e.photo = o.photo;
   return e;
@@ -1326,7 +1491,7 @@ function outboxEntry(o) {
 
 // Redraw whichever screen is showing; never touches a hole being edited
 function refresh() {
-  if (cur.match) renderMatch(); else render();
+  if (cur.match) renderMatch(); else if (showingUpdates) renderUpdates(); else render();
   updateSyncNote();
 }
 
@@ -1341,7 +1506,9 @@ function updateSyncNote() {
 async function pullAll() {
   const c = client();
   if (!c) return false;
-  const { data, error } = await c.from(TABLE).select('match_id, hole, result, note, photo_url');
+  const lk = await c.from('kiva_locks').select('round');
+  if (!lk.error && Array.isArray(lk.data)) setLocks(lk.data.map(r => r.round));
+  const { data, error } = await c.from(TABLE).select('match_id, hole, result, note, photo_url, updated_at');
   if (error || !Array.isArray(data)) return false;
   const fresh = {};
   data.filter(validRow).forEach(r => { (fresh[r.match_id] ||= {})[r.hole] = rowToEntry(r); });
@@ -1369,6 +1536,15 @@ async function pushOne(key) {
     note: o.note || null, photo_url: o.photo || null,
     updated_at: new Date().toISOString()
   }, { onConflict: 'match_id,hole' });
+  if (error && String(error.message || '').includes('KIVA_LOCKED')) {
+    const round = Number((o.match_id.match(/^R(\d+)G/) || [])[1]);
+    if (round) setLocks([...LOCKED, round]);
+    delete OUTBOX[key];
+    saveOutbox();
+    pullAll();                       // put the official result back on this phone
+    if (cur.match && cur.match.id === o.match_id) showError(`Round ${round} is locked, so that change was not saved.`);
+    return true;
+  }
   if (error) return false;
   // Only clear it if nobody re-saved this hole while it was sending
   if (OUTBOX[key] === o) {
@@ -1435,8 +1611,9 @@ if (LIVE) {
 }
 
 function route() {
-  const m = location.hash.match(/^#match\/([A-Za-z0-9]+)$/);
-  if (m && findMatch(m[1])) openMatch(m[1]); else showBoard();
+  if (location.hash === '#updates') { showUpdates(); return; }
+  const m = location.hash.match(/^#match\/([A-Za-z0-9]+)(?:\/(\d{1,2}))?$/);
+  if (m && findMatch(m[1])) openMatch(m[1], m[2] ? Number(m[2]) : null); else showBoard();
 }
 window.addEventListener('hashchange', route);
 route();
