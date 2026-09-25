@@ -522,6 +522,15 @@
   .lock-note { color: var(--lb-ink); background: #FFF1A8; border-color: var(--witp-gold); }
   .sync-note { color: #7A5C00; }
   .final-banner { border-color: transparent; }
+
+  /* Entry section (hole number through Save): its own blue-gray block so nothing is white on white */
+  .hole-card { background: #B9C6D8; --m-raise: #FFFFFF; }
+  .hole-card .field-label, .hole-card .strokes .none { color: var(--lb-ink); }
+
+  /* Save button: light golf green until a winner is picked, darker golf green once it can be saved */
+  .save-btn { background: #2E7D3E; border: 2px solid #2E7D3E; color: var(--white); }
+  .save-btn:disabled { background: #CDE8D2; border: 2px solid #2E7D3E; color: #1E5631; opacity: 1; }
+  .save-btn.saved { background: #1B4D2A; border-color: #1B4D2A; color: var(--white); }
 </style>
 </head>
 <body>
