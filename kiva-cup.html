@@ -719,7 +719,7 @@ const ROUND1_MATCHES = [
 
 // Round 2 — fourball, in the order given for Friday. Side A (Europe) first, Side B (USA) second.
 // "DW" (12) is David Warren; "Drew" (4) is Anderson (pending Chris's confirmation).
-// Round 3 "Brad" is Brad Reynolds and "David" is David Warren.
+// Round 3 "Brad" is Brad Reynolds and "David"/"DW" is David Warren. Order as sent for the 1:52 start.
 const ROUND2_MATCHES = [
   { id: 'R2G1', round: 2, format: 'fourball', a: ['soup', 'reynolds'],  b: ['jefco', 'jrod'] },
   { id: 'R2G2', round: 2, format: 'fourball', a: ['domit', 'sutton'],   b: ['bobby', 'sam'] },
@@ -733,11 +733,11 @@ const ROUND2_MATCHES = [
 // (50% of the pair's combined handicaps, .5 rounded up). The higher side gets the difference.
 const ROUND3_MATCHES = [
   { id: 'R3G1', round: 3, format: 'foursomes', a: ['sutton', 'maddox'], b: ['skiba', 'sam'],        pops: { a: 7,  b: 3  } },
-  { id: 'R3G2', round: 3, format: 'foursomes', a: ['bb', 'reynolds'],     b: ['davis', 'brandino'],   pops: { a: 9,  b: 9  } },
-  { id: 'R3G3', round: 3, format: 'foursomes', a: ['soup2', 'warren'],    b: ['collie', 'jefco'],     pops: { a: 14, b: 12 } },
-  { id: 'R3G4', round: 3, format: 'foursomes', a: ['brick', 'luke'],    b: ['womble', 'chief'],     pops: { a: 5,  b: 12 } },
-  { id: 'R3G5', round: 3, format: 'foursomes', a: ['domit', 'slay'],    b: ['milo', 'jrod'],        pops: { a: 7,  b: 9  } },
-  { id: 'R3G6', round: 3, format: 'foursomes', a: ['stiff', 'soup'],    b: ['bobby', 'anderson'],   pops: { a: 7,  b: 2  } }
+  { id: 'R3G2', round: 3, format: 'foursomes', a: ['stiff', 'soup'],    b: ['bobby', 'anderson'],   pops: { a: 7,  b: 2  } },
+  { id: 'R3G3', round: 3, format: 'foursomes', a: ['domit', 'slay'],    b: ['milo', 'jrod'],        pops: { a: 7,  b: 9  } },
+  { id: 'R3G4', round: 3, format: 'foursomes', a: ['warren', 'soup2'],  b: ['collie', 'jefco'],     pops: { a: 14, b: 12 } },
+  { id: 'R3G5', round: 3, format: 'foursomes', a: ['bb', 'reynolds'],   b: ['davis', 'brandino'],   pops: { a: 9,  b: 9  } },
+  { id: 'R3G6', round: 3, format: 'foursomes', a: ['brick', 'luke'],    b: ['womble', 'chief'],     pops: { a: 5,  b: 12 } }
 ];
 
 /* ---------- 4. HANDICAP STROKES ---------- */
