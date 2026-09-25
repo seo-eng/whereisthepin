@@ -1210,6 +1210,7 @@ function loadHole(n) {
   cur.pick = e.conceded || null;
   cur.photo = e.photo || null;
   $('m-note').value = e.note || '';
+  cur.orig = { note: e.note || '', photo: e.photo || null };   // to send only what changes
   $('m-error').hidden = true;
   const save = $('m-save');
   save.classList.remove('saved');
@@ -1416,14 +1417,24 @@ $('m-save').addEventListener('click', () => {
   if (!cur.pick || isLocked(cur.match)) return;
   const id = cur.match.id, n = cur.hole;
   const before = HOLES[id] ? { ...HOLES[id] } : null;
-  const entry = { conceded: cur.pick, at: new Date().toISOString() };
+  // Only what was changed on this screen is saved. Changing the winner keeps the
+  // hole's note and photo, even if someone else added them after this screen opened.
   const note = $('m-note').value.trim();
-  if (note) entry.note = note;
-  if (cur.photo) entry.photo = cur.photo;
+  const orig = cur.orig || { note: '', photo: null };
+  const noteChanged = note !== orig.note;
+  const photoChanged = (cur.photo || null) !== (orig.photo || null);
+  const entry = { ...((HOLES[id] || {})[n] || {}), conceded: cur.pick, at: new Date().toISOString() };
+  if (noteChanged) { if (note) entry.note = note; else delete entry.note; }
+  if (photoChanged) { if (cur.photo) entry.photo = cur.photo; else delete entry.photo; }
   HOLES[id] = { ...(HOLES[id] || {}), [n]: entry };
+  cur.orig = { note: entry.note || '', photo: entry.photo || null };
 
   if (LIVE) {
-    OUTBOX[`${id}:${n}`] = { match_id: id, hole: n, result: cur.pick, note: note || null, photo: cur.photo || null, at: entry.at };
+    const key = `${id}:${n}`;
+    const item = { ...(OUTBOX[key] || {}), match_id: id, hole: n, result: cur.pick, at: entry.at };
+    if (noteChanged) item.note = note || null;
+    if (photoChanged) item.photo = cur.photo || null;
+    OUTBOX[key] = item;
     const kept = saveOutbox();
     persist();
     $('m-error').hidden = true;
@@ -1500,11 +1511,11 @@ function rowToEntry(r) {
   if (typeof r.photo_url === 'string' && r.photo_url.startsWith(PHOTO_PREFIX())) e.photo = r.photo_url;
   return e;
 }
-function outboxEntry(o) {
-  const e = { conceded: o.result };
+function outboxEntry(o, base) {
+  const e = { ...(base || {}), conceded: o.result };
   if (o.at) e.at = o.at;
-  if (o.note) e.note = o.note;
-  if (o.photo) e.photo = o.photo;
+  if ('note' in o)  { if (o.note)  e.note  = o.note;  else delete e.note; }
+  if ('photo' in o) { if (o.photo) e.photo = o.photo; else delete e.photo; }
   return e;
 }
 
@@ -1531,7 +1542,7 @@ async function pullAll() {
   if (error || !Array.isArray(data)) return false;
   const fresh = {};
   data.filter(validRow).forEach(r => { (fresh[r.match_id] ||= {})[r.hole] = rowToEntry(r); });
-  Object.values(OUTBOX).forEach(o => { (fresh[o.match_id] ||= {})[o.hole] = outboxEntry(o); });
+  Object.values(OUTBOX).forEach(o => { (fresh[o.match_id] ||= {})[o.hole] = outboxEntry(o, fresh[o.match_id][o.hole]); });
   HOLES = fresh;
   persist();
   refresh();
@@ -1583,11 +1594,10 @@ async function pushOne(key) {
     o.photo = c.storage.from(BUCKET).getPublicUrl(`${base}.jpg`).data.publicUrl;
     saveOutbox();
   }
-  const { error } = await c.from(TABLE).upsert({
-    match_id: o.match_id, hole: o.hole, result: o.result,
-    note: o.note || null, photo_url: o.photo || null,
-    updated_at: new Date().toISOString()
-  }, { onConflict: 'match_id,hole' });
+  const row = { match_id: o.match_id, hole: o.hole, result: o.result, updated_at: new Date().toISOString() };
+  if ('note' in o)  row.note = o.note || null;
+  if ('photo' in o) row.photo_url = o.photo || null;
+  const { error } = await c.from(TABLE).upsert(row, { onConflict: 'match_id,hole' });
   if (error && String(error.message || '').includes('KIVA_LOCKED')) {
     const round = Number((o.match_id.match(/^R(\d+)G/) || [])[1]);
     if (round) setLocks([...LOCKED, round]);
@@ -1602,7 +1612,7 @@ async function pushOne(key) {
   if (OUTBOX[key] === o) {
     delete OUTBOX[key];
     saveOutbox();
-    (HOLES[o.match_id] ||= {})[o.hole] = outboxEntry(o);
+    (HOLES[o.match_id] ||= {})[o.hole] = outboxEntry(o, HOLES[o.match_id][o.hole]);
     persist();
   }
   return true;
