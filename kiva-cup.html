@@ -1027,6 +1027,22 @@ function lbRow(m, asLink) {
 
 /* ---------- Render ---------- */
 let activeRound = 1;
+let userPickedRound = false;   // true once someone taps a round tab on the scoreboard
+
+// The round in progress: the latest round that has started but isn't finished;
+// otherwise the next round not yet finished; otherwise the last round with matches.
+function currentRound() {
+  const info = ROUNDS.map(r => r.n).filter(n => MATCHES_BY_ROUND[n].length).map(n => {
+    const st = MATCHES_BY_ROUND[n].map(statusFor);
+    const done = LOCKED.has(n) || st.every(x => x.final);
+    return { n, done, started: st.some(x => x.thru > 0) };
+  });
+  const live = info.filter(r => r.started && !r.done);
+  if (live.length) return live[live.length - 1].n;
+  const next = info.find(r => !r.done);
+  if (next) return next.n;
+  return info.length ? info[info.length - 1].n : 1;
+}
 
 function statusFor(match) {
   return matchStatus(match, HOLES[match.id] || {});
@@ -1042,7 +1058,7 @@ function renderTabs() {
       <span class="r-fmt">${FORMAT_NAME[r.format]}</span>
     </button>`).join('');
   el.querySelectorAll('.round-tab').forEach(b =>
-    b.addEventListener('click', () => { activeRound = Number(b.dataset.round); render(); }));
+    b.addEventListener('click', () => { activeRound = Number(b.dataset.round); userPickedRound = true; render(); }));
 }
 
 function renderPanel() {
@@ -1150,6 +1166,9 @@ function openMatch(id, hole) {
 function showBoard() {
   cur.match = null;
   setSwitch(false);
+  // Arriving at Scoring from anywhere opens the round in progress
+  userPickedRound = false;
+  activeRound = currentRound();
   $('match-view').hidden = true;
   $('updates-view').hidden = true;
   $('board-view').hidden = false;
@@ -1541,6 +1560,8 @@ function outboxEntry(o, base) {
 
 // Redraw whichever screen is showing; never touches a hole being edited
 function refresh() {
+  // New scores arrived: keep the scoreboard on the round in progress unless someone picked a tab
+  if (!cur.match && !showingUpdates && !userPickedRound) activeRound = currentRound();
   if (cur.match) renderMatch(); else if (showingUpdates) renderUpdates(); else render();
   updateSyncNote();
 }
