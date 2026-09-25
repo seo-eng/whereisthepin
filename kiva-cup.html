@@ -36,24 +36,21 @@
   html, body { margin: 0; background: var(--black); }
   body { font-family: var(--text); color: var(--black); -webkit-font-smoothing: antialiased; }
 
-  /* Updates / Scoring switch — Updates in its own American red shades, Scoring in its own
-     European blue shades (none of these four colors is used anywhere else in the app) */
+  /* Updates / Scoring switch — quiet greyscale navigation so the 2026 Kiva Cup header leads */
   .mode-switch {
     display: grid; grid-template-columns: 1fr 1fr;
-    background: var(--white);
+    background: var(--board-gray);
   }
   .mode-switch a {
     display: flex; align-items: center; justify-content: center;
-    min-height: 38px;
+    min-height: 36px;
     border-left: 2px solid var(--board-gray);
-    font-family: var(--text); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    background: #DCDCDC; color: #2E2E2E;                     /* off: light gray, dark text */
+    font-family: var(--text); font-weight: 700; font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase;
     text-decoration: none;
   }
   .mode-switch a:first-child { border-left: 0; }
-  #sw-updates { background: var(--usa-red); color: var(--white); }               /* Updates: American red */
-  #sw-updates[aria-current="page"] { box-shadow: inset 0 -4px 0 var(--white); }  /* on: white underline */
-  #sw-scoring { background: #CFDBF3; color: #1A3A78; }                         /* Scoring, off */
-  #sw-scoring[aria-current="page"] { background: #1A3A78; color: var(--white); } /* Scoring, on */
+  .mode-switch a[aria-current="page"] { background: #333333; color: #FFFFFF; }   /* on: dark gray, white text */
   .mode-switch a:focus-visible { outline: 3px solid var(--black); outline-offset: -3px; }
 
   /* Thin white strip closing the bottom of the app, same height as the black frame at the top (8px).
@@ -156,7 +153,7 @@
     display: grid;
     grid-template-columns: 1fr 46px 1fr;
     height: 52px;
-    margin-top: 0;
+    margin-top: 2px;                /* 2px gap below the round tabs */
   }
   .lb-side { display: flex; align-items: center; padding: 0 10px; color: var(--white); }
   .lb-side.usa { background: var(--usa-red); }
