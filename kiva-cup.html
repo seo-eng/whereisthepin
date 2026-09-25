@@ -36,20 +36,29 @@
   html, body { margin: 0; background: var(--black); }
   body { font-family: var(--text); color: var(--black); -webkit-font-smoothing: antialiased; }
 
-  /* Mode switch — Pins / Kiva Cup Scoring (same control on both pages) */
+  /* Updates / Scoring switch — full-width bar at the top, built exactly like the round tabs */
   .mode-switch {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 4px;
-    width: calc(100% - 16px); max-width: 464px; margin: 8px auto; padding: 4px;
-    background: rgba(255,255,255,0.10); border: 2px solid rgba(255,255,255,0.35); border-radius: 12px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    background: var(--white);
   }
   .mode-switch a {
     display: flex; align-items: center; justify-content: center;
-    min-height: 40px; border-radius: 9px;
-    font-family: var(--text); font-weight: 700; font-size: 14px; letter-spacing: 0.02em;
-    color: var(--white); text-decoration: none;
+    min-height: 40px;
+    border-left: 2px solid var(--board-gray);
+    background: #B9C6D8;
+    font-family: var(--text); font-weight: 800; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase;
+    color: var(--eur-blue); text-decoration: none;
   }
-  .mode-switch a[aria-current="page"] { background: var(--witp-gold); color: var(--lb-ink); }
-  .mode-switch a:focus-visible { outline: 3px solid var(--witp-gold); outline-offset: 2px; }
+  .mode-switch a:first-child { border-left: 0; }
+  .mode-switch a[aria-current="page"] { background: var(--eur-blue); color: var(--white); }
+  .mode-switch a:focus-visible { outline: 3px solid var(--black); outline-offset: -3px; }
+
+  /* Thin white strip closing the bottom of the app, same height as the black frame at the top (8px).
+     Sticky, so it always shows at the bottom of the screen, even when the page is taller than the screen. */
+  .board::after {
+    content: ''; display: block; height: 8px; background: var(--white);
+    position: sticky; bottom: env(safe-area-inset-bottom, 0px); z-index: 5;
+  }
 
   .board {
     max-width: 480px;
@@ -60,7 +69,7 @@
   }
 
   /* ---------- Header: flags flank a centered lockup ---------- */
-  .masthead { padding: 18px 14px 14px; overflow: hidden; }
+  .masthead { padding: 10px 14px 10px; overflow: hidden; }
   .masthead-top {
     display: grid;
     grid-template-columns: 52px minmax(0, 1fr) 52px;
@@ -108,7 +117,7 @@
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     background: var(--white);
-    margin-top: 8px;
+    margin-top: 0;
   }
   .round-tab {
     appearance: none;
@@ -118,8 +127,8 @@
     color: var(--eur-blue);
     font-family: var(--text);
     font-weight: 800;
-    padding: 8px 2px 7px;
-    min-height: 52px;
+    padding: 5px 2px 5px;
+    min-height: 44px;
     cursor: pointer;
     text-transform: uppercase;
     line-height: 1.15;
@@ -143,8 +152,8 @@
   .lb-head {
     display: grid;
     grid-template-columns: 1fr 46px 1fr;
-    height: 54px;
-    margin-top: 8px;
+    height: 46px;
+    margin-top: 6px;
   }
   .lb-side { display: flex; align-items: center; padding: 0 10px; color: var(--white); }
   .lb-side.usa { background: var(--usa-red); }
@@ -181,7 +190,7 @@
     display: grid;
     grid-template-columns: var(--lb-cols);
     gap: 2px;
-    min-height: 78px;
+    min-height: 56px;
     background: var(--lb-grid);
     color: var(--white);
     text-decoration: none;
@@ -192,11 +201,11 @@
   .lb-row > div { display: flex; align-items: center; justify-content: center; background: var(--lb-slate); }
   .lb-row .nm {
     flex-direction: column;
-    padding: 6px 4px;
+    padding: 4px 4px;
     font-family: var(--cond);
     font-weight: 600;
     font-size: 17px;
-    line-height: 1.3;
+    line-height: 1.2;
     letter-spacing: 0.02em;
     text-transform: uppercase;
     text-align: center;
@@ -485,27 +494,16 @@
 
   .match-foot { height: 18px; }
 
-  /* ---------- Footer ---------- */
-  .footer {
-    max-width: 480px;
-    margin: 0 auto;
-    background: var(--black);
-    padding: 22px 14px 26px;
-    text-align: center;
-  }
-  .footer .brand { font-weight: 800; font-size: 20px; color: var(--white); }
-  .footer .url   { margin-top: 4px; font-weight: 700; font-size: 13px; color: var(--witp-gold); }
 </style>
 </head>
 <body>
 
-<nav class="mode-switch" aria-label="Switch view">
-  <a href="#updates" id="sw-updates">Updates</a>
-  <a href="#" id="sw-scoring" aria-current="page">Kiva Cup Scoring</a>
-</nav>
-
 <main class="board">
  <div id="board-view">
+  <nav class="mode-switch" aria-label="Switch view">
+    <a href="#updates" id="sw-updates">Updates</a>
+    <a href="#" id="sw-scoring" aria-current="page">Scoring</a>
+  </nav>
   <header class="masthead">
     <div class="masthead-top">
       <span class="flag" data-flag="us"></span>
@@ -535,8 +533,8 @@
 
  <div id="updates-view" hidden>
   <div class="topbar">
-    <span class="upd-title">Updates</span>
-    <span class="where" id="u-count"></span>
+    <a class="back-btn" href="#">&lsaquo; Scoreboard</a>
+    <span class="where" id="u-count">Updates</span>
   </div>
   <ol class="updates" id="u-list" aria-live="polite"></ol>
   <p class="u-empty" id="u-empty" hidden>No updates yet. Notes and photos added on any hole show up here as they come in.</p>
@@ -591,10 +589,6 @@
  </div>
 </main>
 
-<footer class="footer">
-  <div class="brand">where is the pin?</div>
-  <div class="url">whereisthepin.com</div>
-</footer>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
@@ -661,8 +655,6 @@ const PLAYERS = {
   zac:      { name: 'Zac',      hcp: 8  },
   anderson: { name: 'Anderson', hcp: 4  },
   // Added for Round 2 (Brandino replaces Zac for USA)
-  stephen:  { name: 'Stephen',  hcp: 9  },
-  coat:     { name: 'Coat',     hcp: 9  },
   brandino: { name: 'Brandino', hcp: 8  }
 };
 
@@ -690,22 +682,24 @@ const ROUND1_MATCHES = [
   { id: 'R1G6', round: 1, format: 'fourball', a: ['brick', 'luke'],     b: ['zac', 'anderson'] }
 ];
 
-// Round 2 — fourball. Side A (Europe) first, Side B (USA) second.
+// Round 2 — fourball, in the order given for Friday. Side A (Europe) first, Side B (USA) second.
+// "DW" (12) is David Warren; "Drew" (4) is Anderson (pending Chris's confirmation).
+// Round 3 "Brad" is Brad Reynolds and "David" is David Warren.
 const ROUND2_MATCHES = [
-  { id: 'R2G1', round: 2, format: 'fourball', a: ['domit', 'sutton'],   b: ['sam', 'bobby'] },
-  { id: 'R2G2', round: 2, format: 'fourball', a: ['brick', 'luke'],     b: ['skiba', 'anderson'] },
-  { id: 'R2G3', round: 2, format: 'fourball', a: ['stiff', 'reynolds'], b: ['stephen', 'womble'] },
-  { id: 'R2G4', round: 2, format: 'fourball', a: ['bb', 'slay'],        b: ['milo', 'collie'] },
-  { id: 'R2G5', round: 2, format: 'fourball', a: ['maddox', 'soup2'],   b: ['brandino', 'chief'] },
-  { id: 'R2G6', round: 2, format: 'fourball', a: ['soup', 'warren'],    b: ['jrod', 'coat'] }
+  { id: 'R2G1', round: 2, format: 'fourball', a: ['soup', 'reynolds'],  b: ['jefco', 'jrod'] },
+  { id: 'R2G2', round: 2, format: 'fourball', a: ['domit', 'sutton'],   b: ['bobby', 'sam'] },
+  { id: 'R2G3', round: 2, format: 'fourball', a: ['brick', 'luke'],     b: ['skiba', 'anderson'] },
+  { id: 'R2G4', round: 2, format: 'fourball', a: ['maddox', 'soup2'],   b: ['brandino', 'chief'] },
+  { id: 'R2G5', round: 2, format: 'fourball', a: ['stiff', 'warren'],   b: ['davis', 'womble'] },
+  { id: 'R2G6', round: 2, format: 'fourball', a: ['bb', 'slay'],        b: ['milo', 'collie'] }
 ];
 
 // Round 3 — foursomes (alternate shot). pops = each side's team handicap as given
 // (50% of the pair's combined handicaps, .5 rounded up). The higher side gets the difference.
 const ROUND3_MATCHES = [
   { id: 'R3G1', round: 3, format: 'foursomes', a: ['sutton', 'maddox'], b: ['skiba', 'sam'],        pops: { a: 7,  b: 3  } },
-  { id: 'R3G2', round: 3, format: 'foursomes', a: ['bb', 'warren'],       b: ['davis', 'brandino'],   pops: { a: 9,  b: 9  } },
-  { id: 'R3G3', round: 3, format: 'foursomes', a: ['soup2', 'reynolds'],   b: ['collie', 'jefco'],     pops: { a: 14, b: 12 } },
+  { id: 'R3G2', round: 3, format: 'foursomes', a: ['bb', 'reynolds'],     b: ['davis', 'brandino'],   pops: { a: 9,  b: 9  } },
+  { id: 'R3G3', round: 3, format: 'foursomes', a: ['soup2', 'warren'],    b: ['collie', 'jefco'],     pops: { a: 14, b: 12 } },
   { id: 'R3G4', round: 3, format: 'foursomes', a: ['brick', 'luke'],    b: ['womble', 'chief'],     pops: { a: 5,  b: 12 } },
   { id: 'R3G5', round: 3, format: 'foursomes', a: ['domit', 'slay'],    b: ['milo', 'jrod'],        pops: { a: 7,  b: 9  } },
   { id: 'R3G6', round: 3, format: 'foursomes', a: ['stiff', 'soup'],    b: ['bobby', 'anderson'],   pops: { a: 7,  b: 2  } }
@@ -1162,7 +1156,7 @@ function renderUpdates() {
   const list = $('u-list');
   list.textContent = '';
   $('u-empty').hidden = items.length > 0;
-  $('u-count').textContent = items.length ? `${items.length} update${items.length > 1 ? 's' : ''}` : '';
+  $('u-count').textContent = items.length ? `Updates (${items.length})` : 'Updates';
 
   const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; };
   const pair = ids => ids.map(i => PLAYERS[i].name).join(' & ');
