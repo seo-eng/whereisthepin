@@ -36,21 +36,24 @@
   html, body { margin: 0; background: var(--black); }
   body { font-family: var(--text); color: var(--black); -webkit-font-smoothing: antialiased; }
 
-  /* Updates / Scoring switch — full-width bar at the top, built exactly like the round tabs */
+  /* Updates / Scoring switch — Updates in its own American red shades, Scoring in its own
+     European blue shades (none of these four colors is used anywhere else in the app) */
   .mode-switch {
     display: grid; grid-template-columns: 1fr 1fr;
     background: var(--white);
   }
   .mode-switch a {
     display: flex; align-items: center; justify-content: center;
-    min-height: 40px;
+    min-height: 38px;
     border-left: 2px solid var(--board-gray);
-    background: #B9C6D8;
-    font-family: var(--text); font-weight: 800; font-size: 14px; letter-spacing: 0.04em; text-transform: uppercase;
-    color: var(--eur-blue); text-decoration: none;
+    font-family: var(--text); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    text-decoration: none;
   }
   .mode-switch a:first-child { border-left: 0; }
-  .mode-switch a[aria-current="page"] { background: var(--eur-blue); color: var(--white); }
+  #sw-updates { background: var(--usa-red); color: var(--white); }               /* Updates: American red */
+  #sw-updates[aria-current="page"] { box-shadow: inset 0 -4px 0 var(--white); }  /* on: white underline */
+  #sw-scoring { background: #CFDBF3; color: #1A3A78; }                         /* Scoring, off */
+  #sw-scoring[aria-current="page"] { background: #1A3A78; color: var(--white); } /* Scoring, on */
   .mode-switch a:focus-visible { outline: 3px solid var(--black); outline-offset: -3px; }
 
   /* Thin white strip closing the bottom of the app, same height as the black frame at the top (8px).
@@ -152,8 +155,8 @@
   .lb-head {
     display: grid;
     grid-template-columns: 1fr 46px 1fr;
-    height: 46px;
-    margin-top: 6px;
+    height: 52px;
+    margin-top: 0;
   }
   .lb-side { display: flex; align-items: center; padding: 0 10px; color: var(--white); }
   .lb-side.usa { background: var(--usa-red); }
@@ -232,24 +235,24 @@
      ========================================================= */
   .topbar {
     display: flex; align-items: center; justify-content: space-between;
-    background: var(--black); color: var(--white);
-    padding: 0 12px 0 4px; min-height: 52px;
+    background: var(--lb-light); color: var(--lb-ink);
+    padding: 0 10px 0 2px; min-height: 36px;
   }
   .back-btn {
-    appearance: none; border: 0; background: none; color: var(--white);
-    font-family: var(--text); font-weight: 800; font-size: 15px;
-    padding: 14px 10px; cursor: pointer; text-decoration: none;
+    appearance: none; border: 0; background: none; color: var(--lb-ink);
+    font-family: var(--cond); font-weight: 700; font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 9px 8px; cursor: pointer; text-decoration: none;
   }
-  .back-btn:focus-visible { outline: 3px solid var(--white); outline-offset: -3px; }
-  .topbar .where { font-weight: 800; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; text-align: right; }
+  .back-btn:focus-visible { outline: 3px solid var(--black); outline-offset: -3px; }
+  .topbar .where { font-family: var(--cond); font-weight: 700; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; text-align: right; }
 
-  /* Match screen palette: Where is the Pin card style, Kiva Cup colors */
+  /* Match screen palette: same as the scoreboard (light gray page, white blocks, slate lines) */
   :root {
-    --m-bg:    #141D2E;   /* deep navy page */
-    --m-card:  #1E2A42;   /* card */
-    --m-raise: #2A3A58;   /* boxes and chips inside cards */
-    --m-line:  #8FA3C0;   /* card borders, 5.6:1 on the card */
-    --m-muted: #B4C2D6;   /* labels */
+    --m-bg:    #F1F1F1;   /* page, same gray as the scoreboard header */
+    --m-card:  #FFFFFF;   /* entry block */
+    --m-raise: #D9E0E8;   /* boxes and chips, same as the STATUS / THRU strip */
+    --m-line:  #2A3342;   /* lines, same as the scoreboard grid */
+    --m-muted: #4A5568;   /* labels, 7.5:1 on white */
   }
   #match-view { background: var(--m-bg); }
   .match-head { padding: 12px 14px; background: var(--m-bg); }
@@ -459,51 +462,80 @@
   .pick:disabled { cursor: default; opacity: 0.55; }
   .pick[aria-pressed="true"]:disabled { opacity: 1; }
   .note[readonly] { opacity: 0.85; }
-  /* Updates feed */
-  #updates-view { background: var(--m-bg); color: var(--white); padding-bottom: 18px; }
-  .upd-title { font-weight: 800; font-size: 18px; letter-spacing: 0.04em; text-transform: uppercase; padding: 14px 10px; }
-  .updates { list-style: none; margin: 0; padding: 12px 14px 0; display: grid; gap: 10px; }
-  .u-item {
-    display: block; padding: 12px 14px 13px;
-    background: var(--m-card); border: 2px solid var(--m-line); border-radius: 14px;
-    color: var(--white); text-decoration: none;
+  /* Updates feed — same building blocks as the scoreboard */
+  #updates-view { background: var(--board-gray); color: var(--lb-ink); }
+  .u-bar {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 10px; background: var(--lb-light); color: var(--lb-ink);
+    font-family: var(--cond); font-weight: 700; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase;
   }
-  .u-item:focus-visible { outline: 3px solid var(--witp-gold); outline-offset: 2px; }
+  .updates { list-style: none; margin: 0; padding: 0; background: var(--lb-grid); border-top: 2px solid var(--lb-grid); }
+  .updates li + li { margin-top: 2px; }
+  .u-item {
+    display: block; padding: 10px 12px 11px;
+    background: var(--white); color: var(--lb-ink); text-decoration: none;
+    border-left: 8px solid var(--lb-slate);
+  }
+  .u-item.usa  { border-left-color: var(--usa-red); }
+  .u-item.eur  { border-left-color: var(--eur-blue); }
+  .u-item.even { border-left-color: var(--lb-as); }
+  .u-item:focus-visible { outline: 3px solid var(--black); outline-offset: -3px; }
   .u-top { display: flex; justify-content: space-between; gap: 10px; align-items: baseline; }
-  .u-where { font-weight: 800; font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--m-muted); }
-  .u-time { flex: none; font-weight: 700; font-size: 12px; color: var(--m-muted); }
-  .u-body { display: flex; gap: 12px; align-items: flex-start; margin: 8px 0 10px; }
+  .u-where { font-family: var(--cond); font-weight: 700; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--lb-ink); }
+  .u-time { flex: none; font-family: var(--cond); font-weight: 600; font-size: 13px; color: #4A5568; }
+  .u-body { display: flex; gap: 12px; align-items: flex-start; margin: 6px 0 8px; }
   .u-body .u-note { flex: 1; margin: 0; }
   .u-thumb {
     flex: none; width: 84px; height: 84px; margin-left: auto;
-    object-fit: cover; border-radius: 10px; border: 2px solid var(--m-line); background: var(--m-raise);
+    object-fit: cover; border: 2px solid var(--lb-grid); background: var(--lb-light);
   }
   .u-thumb.solo { margin-left: 0; width: 120px; height: 120px; }   /* photo with no note: lead with it */
-  .u-note { margin: 8px 0 10px; font-weight: 700; font-size: 17px; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
+  .u-note { margin: 6px 0 8px; font-weight: 700; font-size: 16px; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; }
   .u-foot { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
   .u-tag {
-    padding: 4px 10px; border-radius: 999px; border: 2px solid var(--m-line);
-    font-weight: 800; font-size: 11.5px; letter-spacing: 0.04em; text-transform: uppercase;
+    padding: 3px 8px; color: var(--white);
+    font-family: var(--cond); font-weight: 700; font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase;
   }
   .u-tag.usa  { background: var(--usa-red); }
   .u-tag.eur  { background: var(--eur-blue); }
-  .u-tag.even { background: var(--m-raise); }
-  .u-match { font-weight: 700; font-size: 12.5px; color: var(--m-muted); }
-  .u-empty { margin: 0; padding: 28px 18px 10px; text-align: center; font-weight: 700; font-size: 15px; line-height: 1.5; color: var(--m-muted); }
+  .u-tag.even { background: var(--lb-as); color: var(--lb-ink); }
+  .u-match { font-weight: 700; font-size: 12.5px; color: #4A5568; }
+  .u-empty { margin: 0; padding: 28px 18px 24px; text-align: center; font-weight: 700; font-size: 15px; line-height: 1.5; color: #4A5568; }
   .sync-note  { margin: 10px 0 0; font-weight: 800; font-size: 14px; line-height: 1.4; color: var(--witp-gold); }
 
   .match-foot { height: 18px; }
 
+
+  /* Match screen: square blocks and dark text, like every other part of the app */
+  .final-banner, .hole-card, .hole-box, .hole-tip, .chip, .spill, .pick, .note,
+  .btn-outline, .photo-preview, .save-btn, .lock-note { border-radius: 0; }
+  .hole-card { color: var(--lb-ink); }
+  .hole-num { color: var(--lb-ink); }
+  .chip { color: var(--lb-ink); }
+  .spill { border-color: transparent; }
+  .spill .dots { color: var(--white); }
+  .pick { border-color: transparent; }
+  .pick.even { background: var(--lb-as); color: var(--lb-ink); }
+  .pick[aria-pressed="true"] { border-color: var(--black); box-shadow: 0 0 0 3px var(--black); }
+  .pick[aria-pressed="true"]::before { color: inherit; }
+  .note { background: var(--white); color: var(--lb-ink); }
+  .note:focus-visible, .btn-outline:focus-visible, .btn-outline:focus-within, .save-btn:focus-visible { outline-color: var(--black); }
+  .btn-outline { color: var(--lb-ink); }
+  .save-btn:disabled { color: var(--m-muted); }
+  .lock-note { color: var(--lb-ink); background: #FFF1A8; border-color: var(--witp-gold); }
+  .sync-note { color: #7A5C00; }
+  .final-banner { border-color: transparent; }
 </style>
 </head>
 <body>
 
 <main class="board">
- <div id="board-view">
   <nav class="mode-switch" aria-label="Switch view">
     <a href="#updates" id="sw-updates">Updates</a>
     <a href="#" id="sw-scoring" aria-current="page">Scoring</a>
   </nav>
+
+ <div id="board-view">
   <header class="masthead">
     <div class="masthead-top">
       <span class="flag" data-flag="us"></span>
@@ -532,10 +564,7 @@
  </div>
 
  <div id="updates-view" hidden>
-  <div class="topbar">
-    <a class="back-btn" href="#">&lsaquo; Scoreboard</a>
-    <span class="where" id="u-count">Updates</span>
-  </div>
+  <div class="u-bar"><span>Updates</span><span id="u-count"></span></div>
   <ol class="updates" id="u-list" aria-live="polite"></ol>
   <p class="u-empty" id="u-empty" hidden>No updates yet. Notes and photos added on any hole show up here as they come in.</p>
  </div>
@@ -1156,7 +1185,7 @@ function renderUpdates() {
   const list = $('u-list');
   list.textContent = '';
   $('u-empty').hidden = items.length > 0;
-  $('u-count').textContent = items.length ? `Updates (${items.length})` : 'Updates';
+  $('u-count').textContent = items.length ? `${items.length} post${items.length > 1 ? 's' : ''}` : '';
 
   const el = (tag, cls, text) => { const x = document.createElement(tag); if (cls) x.className = cls; if (text != null) x.textContent = text; return x; };
   const pair = ids => ids.map(i => PLAYERS[i].name).join(' & ');
@@ -1164,7 +1193,7 @@ function renderUpdates() {
 
   items.forEach(({ m, n, e }) => {
     const li = el('li');
-    const a = el('a', 'u-item');
+    const a = el('a', `u-item ${(TAG[e.conceded] || TAG.H)[0]}`);
     a.href = `#match/${m.id}/${n}`;
     const top = el('div', 'u-top');
     top.append(el('span', 'u-where', `Round ${m.round}, Group ${groupNumber(m)}, Hole ${n}`), el('span', 'u-time', timeLabel(e.at)));
