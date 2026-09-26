@@ -740,6 +740,24 @@ const ROUND3_MATCHES = [
   { id: 'R3G6', round: 3, format: 'foursomes', a: ['brick', 'luke'],    b: ['womble', 'chief'],     pops: { a: 5,  b: 12 } }
 ];
 
+// Round 4 — singles, 1 point each, 100% of the difference between the two players.
+// Europe first. "DW" = Warren, "Meelo" = Milo, "PB" (4) = Anderson and "Stephen" (9) = Davis
+// (the only USA players with those handicaps not otherwise in the lineup; pending Chris's confirmation).
+const ROUND4_MATCHES = [
+  { id: 'R4G1',  round: 4, format: 'singles', a: ['soup'],     b: ['jrod'] },
+  { id: 'R4G2',  round: 4, format: 'singles', a: ['maddox'],   b: ['skiba'] },
+  { id: 'R4G3',  round: 4, format: 'singles', a: ['warren'],   b: ['bobby'] },
+  { id: 'R4G4',  round: 4, format: 'singles', a: ['slay'],     b: ['anderson'] },
+  { id: 'R4G5',  round: 4, format: 'singles', a: ['stiff'],    b: ['sam'] },
+  { id: 'R4G6',  round: 4, format: 'singles', a: ['reynolds'], b: ['jefco'] },
+  { id: 'R4G7',  round: 4, format: 'singles', a: ['sutton'],   b: ['milo'] },
+  { id: 'R4G8',  round: 4, format: 'singles', a: ['domit'],    b: ['collie'] },
+  { id: 'R4G9',  round: 4, format: 'singles', a: ['soup2'],    b: ['womble'] },
+  { id: 'R4G10', round: 4, format: 'singles', a: ['brick'],    b: ['chief'] },
+  { id: 'R4G11', round: 4, format: 'singles', a: ['luke'],     b: ['brandino'] },
+  { id: 'R4G12', round: 4, format: 'singles', a: ['bb'],       b: ['davis'] }
+];
+
 /* ---------- 4. HANDICAP STROKES ---------- */
 
 // Strokes each player (fourball/singles) or side (foursomes) receives
@@ -881,7 +899,7 @@ function teamPoints(statuses) {
 
 if (typeof module !== 'undefined') {
   module.exports = {
-    COURSE, PLAYERS, TEAMS, ROUNDS, ROUND1_MATCHES, ROUND2_MATCHES, ROUND3_MATCHES,
+    COURSE, PLAYERS, TEAMS, ROUNDS, ROUND1_MATCHES, ROUND2_MATCHES, ROUND3_MATCHES, ROUND4_MATCHES,
     matchAllowances, strokesOnHole, strokeHoles,
     holeResult, matchStatus, sideLabel, teamPoints
   };
@@ -898,8 +916,8 @@ if (typeof module !== 'undefined') {
 // Round names as shown on the tabs
 const FORMAT_NAME = { fourball: 'Fourball', foursomes: 'Foursomes', singles: 'Singles' };
 
-// Matches per round. Round 4 pairings not set yet.
-const MATCHES_BY_ROUND = { 1: ROUND1_MATCHES, 2: ROUND2_MATCHES, 3: ROUND3_MATCHES, 4: [] };
+// Matches per round.
+const MATCHES_BY_ROUND = { 1: ROUND1_MATCHES, 2: ROUND2_MATCHES, 3: ROUND3_MATCHES, 4: ROUND4_MATCHES };
 const ALL_MATCHES = () => Object.values(MATCHES_BY_ROUND).flat();
 const findMatch = id => ALL_MATCHES().find(m => m.id === id);
 
