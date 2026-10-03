@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>2026 Kiva Cup — Recap</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<style>
+:root{
+  --bg:#0A1F14; --panel:#10291B; --panel-2:#153322; --line:#2C5239;
+  --text:#FFFFFF; --muted:#BFD0C5; --gold:#E6C84A;
+  --eur:#4C8DFF; --eur-ink:#0A1F14; --usa:#FF5A5F; --half:#9DB3A6;
+  --display:'Barlow Condensed','Arial Narrow',Arial,sans-serif;
+  --body:'Barlow',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+}
+*{box-sizing:border-box}
+html{height:100%;scroll-padding-top:calc(56px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 var(--body);
+  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 16px}
+
+/* scoreboard */
+header.board{border-bottom:2px solid var(--line)}
+.event{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding:18px 0 10px}
+.event h1{font:700 30px/1 var(--display);margin:0;letter-spacing:.01em}
+.event p{margin:0;color:var(--muted);font-size:15px}
+.score{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:stretch;margin:6px 0 14px;border:2px solid var(--line);border-radius:6px;overflow:hidden}
+.team{display:flex;align-items:center;gap:14px;padding:12px 18px}
+.team.A{background:var(--eur);color:var(--eur-ink)}
+.team.B{background:var(--usa);color:var(--eur-ink);justify-content:flex-end}
+.team .nm{font:700 26px/1 var(--display);text-transform:none}
+.team .pts{font:700 64px/1 var(--display)}
+.abbr{display:none}
+@media (max-width:480px){.full{display:none}.abbr{display:inline}}
+.score .mid{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:8px 16px;background:var(--panel);min-width:150px;text-align:center}
+.score .mid b{font:700 20px/1.1 var(--display);color:var(--gold)}
+.score .mid span{font-size:13px;color:var(--muted)}
+@media (max-width:620px){.team .pts{font-size:42px}.team .nm{font-size:18px}.score .mid{min-width:0;max-width:110px;padding:6px}.score .mid b{font-size:16px}.team{padding:10px;gap:8px}}
+
+/* tabs */
+nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:2px solid var(--line)}
+nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
+nav.tabs a{flex:none;padding:14px 14px 12px;color:var(--muted);text-decoration:none;font:600 18px/1 var(--display);border-bottom:3px solid transparent}
+nav.tabs a[aria-current="page"]{color:var(--text);border-color:var(--gold)}
+
+main{padding:22px 0 60px}
+section.view{display:none}
+section.view.on{display:block}
+h2{font:700 24px/1.15 var(--display);margin:30px 0 10px}
+h2:first-child{margin-top:4px}
+h3{font:600 19px/1.2 var(--display);margin:0 0 8px}
+.lede{color:var(--muted);max-width:68ch;margin:0 0 14px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+.eur{color:var(--eur)} .usa{color:var(--usa)} .gold{color:var(--gold)}
+.chip{display:inline-block;padding:2px 8px;border-radius:4px;font:700 15px/1.3 var(--display);white-space:nowrap}
+.chip.A{background:var(--eur);color:var(--eur-ink)} .chip.B{background:var(--usa);color:var(--eur-ink)} .chip.H{background:var(--half);color:var(--eur-ink)}
+.scroll{overflow-x:auto}
+
+/* tables */
+table{border-collapse:collapse;width:100%}
+th,td{padding:8px 10px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+th{font:600 15px/1.2 var(--display);color:var(--muted)}
+th button{background:none;border:0;padding:0;cursor:pointer;color:inherit;font:inherit}
+th button[aria-sort]{color:var(--gold)}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+tr.teamA td:first-child{box-shadow:inset 4px 0 0 var(--eur)}
+tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
+
+/* rounds strip */
+.rounds{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.rounds div{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:10px;text-align:center}
+.rounds small{display:block;color:var(--muted);font-size:13px}
+.rounds b{font:700 26px/1.1 var(--display)}
+@media (max-width:560px){.rounds{grid-template-columns:repeat(2,1fr)}}
+
+/* bars */
+.bar{display:flex;height:22px;border-radius:4px;overflow:hidden;min-width:120px}
+.bar i{display:block;height:100%}
+.bar .A{background:var(--eur)} .bar .H{background:var(--half)} .bar .B{background:var(--usa)}
+
+/* match list */
+.seg{display:inline-flex;border:2px solid var(--line);border-radius:6px;overflow:hidden;margin-bottom:14px}
+.seg button{background:none;border:0;padding:8px 14px;cursor:pointer;font:600 17px/1 var(--display);color:var(--muted);white-space:nowrap}
+@media (max-width:480px){.seg button{padding:8px 9px;font-size:16px}}
+.seg button[aria-pressed="true"]{background:var(--gold);color:var(--bg)}
+.match{border:1px solid var(--line);border-radius:6px;background:var(--panel);margin-bottom:10px}
+.match > button{display:grid;grid-template-columns:1fr minmax(120px,240px) 1fr auto;gap:12px;align-items:center;width:100%;padding:12px 14px;background:none;border:0;cursor:pointer;text-align:left}
+.match .side{font:600 19px/1.15 var(--display)}
+.match .side.A{border-left:4px solid var(--eur);padding-left:8px}
+.match .side.B{border-right:4px solid var(--usa);padding-right:8px;text-align:right}
+.match .side small{display:block;font:400 13px/1.3 var(--body);color:var(--muted)}
+.match .res{min-width:76px;text-align:right}
+@media (max-width:640px){
+  .match > button{grid-template-columns:1fr 1fr;grid-template-areas:"a b" "spark spark" "res res"}
+  .match .side.A{grid-area:a}.match .side.B{grid-area:b}.match .spark{grid-area:spark}.match .res{grid-area:res;text-align:left}
+}
+.detail{border-top:1px solid var(--line);padding:14px}
+.holes td,.holes th{padding:6px 4px;text-align:center;min-width:34px}
+.holes th[scope=row]{text-align:left;padding-right:10px;min-width:70px;position:sticky;left:0;background:var(--panel);z-index:1}
+.lead{font:700 14px/1 var(--display)}
+.cell{display:block;border-radius:3px;font:700 14px/26px var(--display)}
+.cell.A{background:var(--eur);color:var(--eur-ink)} .cell.B{background:var(--usa);color:var(--eur-ink)} .cell.H{background:var(--half);color:var(--eur-ink)}
+.dots{letter-spacing:1px;font-size:12px}
+.t{font-size:12px;color:var(--muted)} .t.approx{color:var(--gold)}
+.notes{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:10px}
+.notes li{display:flex;gap:12px;align-items:flex-start}
+.notes img{width:96px;height:72px;object-fit:cover;border-radius:4px;border:1px solid var(--line);flex:none}
+.meta{color:var(--muted);font-size:14px}
+
+/* timeline */
+.tl{list-style:none;margin:0;padding:0}
+.tl li{display:grid;grid-template-columns:76px 1fr auto;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);align-items:start}
+.tl time{font:600 16px/1.3 var(--display)}
+.tl .k{font-weight:600}
+.tl img{width:80px;height:60px;object-fit:cover;border-radius:4px;border:1px solid var(--line)}
+.tl a{color:var(--text)}
+.filters{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px}
+.filters label{display:flex;gap:6px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:6px 10px;cursor:pointer}
+
+.status{padding:40px 0;color:var(--muted)}
+.status.err{color:var(--usa)}
+svg text{font-family:var(--display)}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+<header class="board">
+  <div class="wrap">
+    <div class="event"><h1 id="evName">Kiva Cup</h1><p id="evMeta"></p></div>
+    <div class="score" id="score" aria-live="polite">
+      <div class="team A"><span class="pts" id="ptsA">–</span><span class="nm"><span class="full">Europe</span><span class="abbr">EUR</span></span></div>
+      <div class="mid"><b id="verdict">Loading</b><span id="verdictSub"></span></div>
+      <div class="team B"><span class="nm">USA</span><span class="pts" id="ptsB">–</span></div>
+    </div>
+  </div>
+</header>
+<nav class="tabs" aria-label="Sections"><div class="wrap">
+  <a href="#overview">Overview</a><a href="#matches">Matches</a><a href="#players">Players</a><a href="#holes">Holes</a><a href="#timeline">Timeline</a>
+</div></nav>
+<main class="wrap">
+  <div class="status" id="status">Loading hole results from Supabase…</div>
+  <section class="view" id="v-overview"></section>
+  <section class="view" id="v-matches"></section>
+  <section class="view" id="v-players"></section>
+  <section class="view" id="v-holes"></section>
+  <section class="view" id="v-timeline"></section>
+</main>
+
+<script>
+/* Kiva Cup recap — config + analytics (pure functions, no DOM). */
+(function (root) {
+  const SUPABASE_URL = 'https://ourexozuzuyfzziolvxf.supabase.co';
+  const SUPABASE_KEY = 'sb_publishable_zv47VHq2MJBbPL-9p8VhdQ__AY_jPB4'; // read-only via RLS
+
+  const EVENT = {
+    name: '2026 Kiva Cup', venue: 'Kiva Dunes', place: 'Gulf Shores, AL',
+    dates: 'Sept 24–26, 2026', tees: 'Blue', yards: 6505, rating: '70.7 / 128',
+    tz: 'America/Chicago', toWin: 15.5, holderRetains: 15, holder: 'B'
+  };
+  const TEAMS = {
+    A: { key: 'A', name: 'Europe', short: 'EUR' },
+    B: { key: 'B', name: 'USA', short: 'USA' }
+  };
+  const COURSE = {
+    par:  [4,5,3,4,5,4,4,3,4, 4,4,4,3,5,5,4,3,4],
+    yards:[379,521,193,280,513,370,465,155,412, 334,342,383,157,510,509,381,196,405],
+    hcp:  [17,11,9,15,7,5,1,13,3, 16,18,2,12,6,14,10,8,4]
+  };
+  const PLAYERS = {
+    'Soup':{team:'A',hcp:4}, 'Soup 2':{team:'A',hcp:15}, 'Domit':{team:'A',hcp:3}, 'Stiff':{team:'A',hcp:10},
+    'BB':{team:'A',hcp:6}, 'Reynolds':{team:'A',hcp:12}, 'Maddox':{team:'A',hcp:6}, 'Sutton':{team:'A',hcp:7},
+    'Slay':{team:'A',hcp:10}, 'Warren':{team:'A',hcp:12}, 'Brick':{team:'A',hcp:4}, 'Luke':{team:'A',hcp:6},
+    'Skiba':{team:'B',hcp:2}, 'Chief':{team:'B',hcp:13}, 'Collie':{team:'B',hcp:15}, 'Milo':{team:'B',hcp:7},
+    'Jrod':{team:'B',hcp:11}, 'Jefco':{team:'B',hcp:9}, 'Bobby':{team:'B',hcp:0}, 'Womble':{team:'B',hcp:10},
+    'Davis':{team:'B',hcp:9}, 'Sam':{team:'B',hcp:4}, 'Anderson':{team:'B',hcp:4}, 'Zac':{team:'B',hcp:8},
+    'Brandino':{team:'B',hcp:8}
+  };
+  const ROUNDS = {
+    1: { label: 'Round 1', format: 'fourball', formatLabel: 'Fourball', day: 'Thu Sep 24' },
+    2: { label: 'Round 2', format: 'fourball', formatLabel: 'Fourball', day: 'Fri Sep 25 AM' },
+    3: { label: 'Round 3', format: 'foursomes', formatLabel: 'Foursomes', day: 'Fri Sep 25 PM' },
+    4: { label: 'Round 4', format: 'singles', formatLabel: 'Singles', day: 'Sat Sep 26' }
+  };
+  const P = (id, a, b) => ({ id, round: +id[1], group: +id.slice(3), a, b });
+  const MATCHES = [
+    P('R1G1',['Soup','Soup 2'],['Skiba','Chief']), P('R1G2',['Domit','Stiff'],['Collie','Milo']),
+    P('R1G3',['BB','Reynolds'],['Jrod','Jefco']), P('R1G4',['Maddox','Sutton'],['Bobby','Womble']),
+    P('R1G5',['Slay','Warren'],['Davis','Sam']), P('R1G6',['Brick','Luke'],['Zac','Anderson']),
+    P('R2G1',['Soup','Reynolds'],['Jefco','Jrod']), P('R2G2',['Domit','Sutton'],['Bobby','Sam']),
+    P('R2G3',['Brick','Luke'],['Skiba','Anderson']), P('R2G4',['Maddox','Soup 2'],['Brandino','Chief']),
+    P('R2G5',['Stiff','Warren'],['Davis','Womble']), P('R2G6',['BB','Slay'],['Milo','Collie']),
+    P('R3G1',['Sutton','Maddox'],['Skiba','Sam']), P('R3G2',['Stiff','Soup'],['Bobby','Anderson']),
+    P('R3G3',['Domit','Slay'],['Milo','Jrod']), P('R3G4',['Warren','Soup 2'],['Collie','Jefco']),
+    P('R3G5',['BB','Reynolds'],['Davis','Brandino']), P('R3G6',['Brick','Luke'],['Womble','Chief']),
+    P('R4G1',['Soup'],['Jrod']), P('R4G2',['Maddox'],['Skiba']), P('R4G3',['Warren'],['Bobby']),
+    P('R4G4',['Slay'],['Anderson']), P('R4G5',['Stiff'],['Sam']), P('R4G6',['Reynolds'],['Jefco']),
+    P('R4G7',['Sutton'],['Milo']), P('R4G8',['Domit'],['Collie']), P('R4G9',['Soup 2'],['Womble']),
+    P('R4G10',['Brick'],['Chief']), P('R4G11',['Luke'],['Brandino']), P('R4G12',['BB'],['Davis'])
+  ];
+  // Official results, used only to flag any mismatch with the hole data.
+  const OFFICIAL = {R1G1:'A 1UP',R1G2:'B 6&5',R1G3:'B 2UP',R1G4:'A 4&3',R1G5:'A 2&1',R1G6:'A 2&1',
+    R2G1:'B 5&4',R2G2:'A 5&4',R2G3:'AS',R2G4:'B 2&1',R2G5:'A 3&2',R2G6:'B 5&4',
+    R3G1:'AS',R3G2:'B 6&5',R3G3:'A 3&1',R3G4:'A 3&1',R3G5:'B 3&2',R3G6:'A 6&5',
+    R4G1:'B 3&2',R4G2:'A 1UP',R4G3:'B 1UP',R4G4:'A 3&1',R4G5:'A 1UP',R4G6:'B 4&2',
+    R4G7:'A 3&2',R4G8:'A 5&3',R4G9:'A 2&1',R4G10:'A 4&3',R4G11:'A 2&1',R4G12:'A 3&1'};
+
+  /* ---------- handicaps ---------- */
+  const strokesOnHole = (n, hole) => {
+    const i = COURSE.hcp[hole - 1];
+    return Math.floor(n / 18) + (i <= n % 18 ? 1 : 0);
+  };
+  function allowances(m) {
+    const fmt = ROUNDS[m.round].format, h = p => PLAYERS[p].hcp;
+    if (fmt === 'foursomes') {
+      const pa = Math.ceil((h(m.a[0]) + h(m.a[1])) / 2), pb = Math.ceil((h(m.b[0]) + h(m.b[1])) / 2);
+      const lo = Math.min(pa, pb);
+      return { kind: 'side', A: pa - lo, B: pb - lo, pops: { A: pa, B: pb } };
+    }
+    const all = [...m.a, ...m.b], lo = Math.min(...all.map(h)), per = {};
+    all.forEach(p => { per[p] = h(p) - lo; });
+    return { kind: 'player', per };
+  }
+  // strokes per side on a hole: {A: n, B: n}  (fourball = sum of players getting a stroke)
+  function sideStrokes(m, hole) {
+    const al = m.allow || allowances(m);
+    if (al.kind === 'side') return { A: strokesOnHole(al.A, hole), B: strokesOnHole(al.B, hole) };
+    const s = side => m[side.toLowerCase()].reduce((t, p) => t + strokesOnHole(al.per[p], hole), 0);
+    return { A: s('A'), B: s('B') };
+  }
+
+  /* ---------- match analysis ---------- */
+  const fmtTime = (ts, tz) => ts ? new Date(ts).toLocaleTimeString('en-US', { timeZone: tz || EVENT.tz, hour: 'numeric', minute: '2-digit' }) : '';
+  const mins = ts => new Date(ts).getTime() / 60000;
+
+  function analyzeMatch(m, rows) {
+    const byHole = {};
+    rows.forEach(r => { byHole[r.hole] = r; });
+    const holes = [];
+    for (let h = 1; h <= 18; h++) { if (!byHole[h]) break; holes.push(byHole[h]); } // stop at first gap
+    let lead = 0, prevSign = 0, leadChanges = 0, maxA = 0, maxB = 0, closedAt = null;
+    const path = [], streak = { A: 0, B: 0 }, best = { A: { len: 0, from: 0 }, B: { len: 0, from: 0 } };
+    let cur = { side: null, len: 0, from: 0 };
+    const played = [];
+    for (let i = 0; i < holes.length; i++) {
+      const r = holes[i], h = i + 1, res = r.result;
+      lead += (res === 'A') - (res === 'B');
+      path.push(lead);
+      maxA = Math.max(maxA, lead); maxB = Math.max(maxB, -lead);
+      const sg = Math.sign(lead);
+      if (sg && prevSign && sg !== prevSign) leadChanges++;
+      if (sg) prevSign = sg;
+      if (res === cur.side) cur.len++; else cur = { side: res, len: 1, from: h };
+      if (res !== 'H' && cur.len > best[res].len) best[res] = { len: cur.len, from: cur.from };
+      const st = sideStrokes(m, h);
+      played.push({ hole: h, result: res, lead, note: r.note || null, photo: r.photo_url || null,
+        thumb: r.photo_url ? r.photo_url.replace(/\.jpg$/i, '-thumb.jpg') : null,
+        ts: r.updated_at, strokes: st });
+      if (Math.abs(lead) > 18 - h) { closedAt = h; break; }
+    }
+    const thru = played.length, rem = 18 - thru;
+    const done = thru === 18 || closedAt !== null;
+    const winner = lead > 0 ? 'A' : lead < 0 ? 'B' : null;
+    let label = '—';
+    if (thru) label = lead === 0 ? 'AS' : (rem === 0 || !done ? `${Math.abs(lead)}UP` : `${Math.abs(lead)}&${rem}`);
+    const points = done ? (winner === 'A' ? { A: 1, B: 0 } : winner === 'B' ? { A: 0, B: 1 } : { A: .5, B: .5 }) : { A: 0, B: 0 };
+    const result = done ? (winner ? `${winner} ${label}` : 'AS') : null;
+    // reliable timestamps: strictly after previous save by 3–40 min
+    played.forEach((p, i) => {
+      if (i === 0) { const n = played[1]; p.reliable = !n || (mins(n.ts) - mins(p.ts) >= 3); return; }
+      const d = mins(p.ts) - mins(played[i - 1].ts);
+      p.gap = d; p.reliable = d >= 3 && d <= 40;
+    });
+    const winnerDeficit = winner === 'A' ? maxB : winner === 'B' ? maxA : 0;
+    const deficitHole = winner ? path.findIndex(v => (winner === 'A' ? -v : v) === winnerDeficit) + 1 : 0;
+    return {
+      ...m, allow: m.allow || allowances(m), holes: played, path, lead, thru, done, winner, label, result,
+      points, official: OFFICIAL[m.id], matchesOfficial: result === OFFICIAL[m.id],
+      leadChanges, maxLead: { A: maxA, B: maxB }, longestRun: best,
+      winnerDeficit, deficitHole,
+      start: played[0] && played[0].ts, end: played.length ? played[played.length - 1].ts : null, // closing-hole save time
+      reliableShare: played.length ? played.filter(p => p.reliable).length / played.length : 0
+    };
+  }
+
+  /* ---------- tournament analysis ---------- */
+  function analyze(rows) {
+    const byMatch = {};
+    rows.forEach(r => { (byMatch[r.match_id] = byMatch[r.match_id] || []).push(r); });
+    const matches = MATCHES.map(m => {
+      const mm = { ...m }; mm.allow = allowances(mm);
+      return analyzeMatch(mm, byMatch[m.id] || []);
+    });
+
+    const total = { A: 0, B: 0 };
+    const byRound = {};
+    matches.forEach(m => {
+      total.A += m.points.A; total.B += m.points.B;
+      const r = byRound[m.round] = byRound[m.round] || { A: 0, B: 0 };
+      r.A += m.points.A; r.B += m.points.B;
+    });
+
+    // points race in order of match completion
+    const race = []; let ca = 0, cb = 0, clinch = null;
+    matches.filter(m => m.done).slice().sort((x, y) => x.end < y.end ? -1 : 1).forEach(m => {
+      ca += m.points.A; cb += m.points.B;
+      const e = { id: m.id, round: m.round, end: m.end, A: ca, B: cb, match: m };
+      if (!clinch && ca >= EVENT.toWin) clinch = { side: 'A', ...e, how: 'won' };
+      if (!clinch && cb >= EVENT.holderRetains && EVENT.holder === 'B') clinch = { side: 'B', ...e, how: 'retained' };
+      race.push(e);
+    });
+
+    // hole stats
+    const holeStats = COURSE.par.map((par, i) => ({ hole: i + 1, par, yards: COURSE.yards[i], hcp: COURSE.hcp[i], A: 0, B: 0, H: 0, n: 0, gaps: [] }));
+    const nines = { front: { A: 0, B: 0, H: 0 }, back: { A: 0, B: 0, H: 0 } };
+    const strokeFx = {}; // format -> {win, loss, half, evenA, evenB, evenH}
+    matches.forEach(m => {
+      const fmt = ROUNDS[m.round].format;
+      const fx = strokeFx[fmt] = strokeFx[fmt] || { win: 0, loss: 0, half: 0, n: 0, even: { A: 0, B: 0, H: 0 } };
+      m.holes.forEach(p => {
+        const s = holeStats[p.hole - 1]; s[p.result]++; s.n++;
+        if (p.hole > 1 && p.reliable) s.gaps.push(p.gap);
+        nines[p.hole <= 9 ? 'front' : 'back'][p.result]++;
+        const edge = p.strokes.A - p.strokes.B;
+        if (!edge) { fx.even[p.result]++; return; }
+        const recv = edge > 0 ? 'A' : 'B';
+        fx.n++;
+        if (p.result === 'H') fx.half++; else if (p.result === recv) fx.win++; else fx.loss++;
+      });
+    });
+    const median = a => { if (!a.length) return null; const s = [...a].sort((x, y) => x - y), k = s.length >> 1; return s.length % 2 ? s[k] : (s[k - 1] + s[k]) / 2; };
+    holeStats.forEach(s => { s.medianMin = median(s.gaps); s.decisive = s.n ? (s.A + s.B) / s.n : 0; delete s.gaps; });
+
+    // players
+    const players = Object.entries(PLAYERS).map(([name, p]) => ({ name, ...p, W: 0, L: 0, H: 0, pts: 0, hw: 0, hl: 0, hh: 0, matches: [] }));
+    const pIdx = Object.fromEntries(players.map(p => [p.name, p]));
+    matches.forEach(m => {
+      ['A', 'B'].forEach(side => {
+        m[side.toLowerCase()].forEach(name => {
+          const x = pIdx[name]; x.matches.push(m.id);
+          if (m.done) {
+            if (!m.winner) { x.H++; x.pts += .5; } else if (m.winner === side) { x.W++; x.pts++; } else x.L++;
+          }
+          m.holes.forEach(p => { if (p.result === 'H') x.hh++; else if (p.result === side) x.hw++; else x.hl++; });
+        });
+      });
+    });
+    players.forEach(p => { p.net = p.hw - p.hl; });
+
+    // partnerships (pairs that played together)
+    const pairs = {};
+    matches.filter(m => m.a.length === 2).forEach(m => {
+      ['A', 'B'].forEach(side => {
+        const ps = [...m[side.toLowerCase()]].sort(), k = ps.join(' / ');
+        const x = pairs[k] = pairs[k] || { names: ps, team: side, W: 0, L: 0, H: 0, pts: 0, matches: [] };
+        x.matches.push(m.id);
+        if (!m.winner) { x.H++; x.pts += .5; } else if (m.winner === side) { x.W++; x.pts++; } else x.L++;
+      });
+    });
+
+    const comebacks = matches.filter(m => m.winner && m.winnerDeficit >= 2)
+      .sort((x, y) => y.winnerDeficit - x.winnerDeficit || (y.deficitHole - x.deficitHole));
+
+    // moments: timestamped events, the hook for media sync later
+    const moments = [];
+    matches.forEach(m => {
+      let prevSign = 0;
+      m.holes.forEach((p, i) => {
+        const base = { match: m.id, round: m.round, hole: p.hole, ts: p.ts, reliable: p.reliable, photo: p.photo, thumb: p.thumb };
+        const sg = Math.sign(p.lead);
+        if (sg && prevSign && sg !== prevSign) moments.push({ ...base, kind: 'lead-change', side: sg > 0 ? 'A' : 'B' });
+        if (sg) prevSign = sg;
+        const run = m.longestRun;
+        ['A', 'B'].forEach(s => { if (run[s].len >= 4 && run[s].from + run[s].len - 1 === p.hole) moments.push({ ...base, kind: 'run', side: s, len: run[s].len, from: run[s].from }); });
+        if (i === m.holes.length - 1 && m.done) moments.push({ ...base, kind: 'final', side: m.winner, label: m.label });
+        if (p.note) moments.push({ ...base, kind: 'note', text: p.note, side: p.result === 'H' ? null : p.result });
+        else if (p.photo) moments.push({ ...base, kind: 'photo', side: p.result === 'H' ? null : p.result });
+      });
+    });
+    if (clinch) moments.push({ match: clinch.id, round: clinch.round, hole: clinch.match.thru, ts: clinch.end, kind: 'clinch', side: clinch.side, reliable: true });
+    moments.sort((x, y) => x.ts < y.ts ? -1 : x.ts > y.ts ? 1 : 0);
+
+    return { matches, total, byRound, race, clinch, holeStats, nines, strokeFx, players, pairs: Object.values(pairs), comebacks, moments,
+      mismatches: matches.filter(m => m.done && !m.matchesOfficial).map(m => m.id) };
+  }
+
+  const API = { SUPABASE_URL, SUPABASE_KEY, EVENT, TEAMS, COURSE, PLAYERS, ROUNDS, MATCHES, OFFICIAL,
+    strokesOnHole, allowances, sideStrokes, analyzeMatch, analyze, fmtTime };
+  if (typeof module !== 'undefined') module.exports = API; else root.KivaRecap = API;
+})(this);
+
+</script>
+<script>
+(function () {
+  const K = window.KivaRecap, T = K.TEAMS;
+  const $ = s => document.querySelector(s);
+  const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const half = n => { const w = Math.floor(n), f = n - w; return (w || !f ? w : '') + (f ? '½' : ''); };
+  const pct = x => Math.round(x * 100) + '%';
+  const tm = ts => K.fmtTime(ts);
+  const dayOf = ts => new Date(ts).toLocaleDateString('en-US', { timeZone: K.EVENT.tz, weekday: 'long', month: 'short', day: 'numeric' });
+  const names = arr => arr.map(esc).join(' / ');
+  let A = null; // analysis
+  const state = { round: 4, open: null, sort: { key: 'pts', dir: -1 }, team: 'all', kinds: new Set(['lead-change','run','final','note','photo','clinch']) };
+
+  /* ---------- data ---------- */
+  async function load() {
+    const client = window.supabase.createClient(K.SUPABASE_URL, K.SUPABASE_KEY);
+    const { data, error } = await client.from('kiva_holes')
+      .select('match_id,hole,result,note,photo_url,updated_at')
+      .order('match_id').order('hole');
+    if (error) throw new Error(error.message);
+    return data;
+  }
+
+  /* ---------- svg helpers ---------- */
+  function spark(m, w = 240, h = 44) {
+    const max = Math.max(3, ...m.path.map(Math.abs)), x = i => (i / 18) * w, y = v => h / 2 - (v / max) * (h / 2 - 4);
+    const pts = [[0, y(0)], ...m.path.map((v, i) => [x(i + 1), y(v)])];
+    const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = line + ` L${pts[pts.length - 1][0].toFixed(1)} ${h / 2} L0 ${h / 2} Z`;
+    return `<svg class="spark" viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none" role="img" aria-label="Lead by hole">
+      <defs><clipPath id="up${m.id}"><rect x="0" y="0" width="${w}" height="${h / 2}"/></clipPath><clipPath id="dn${m.id}"><rect x="0" y="${h / 2}" width="${w}" height="${h / 2}"/></clipPath></defs>
+      <line x1="0" x2="${w}" y1="${h / 2}" y2="${h / 2}" stroke="var(--line)" stroke-width="1"/>
+      <line x1="${x(9)}" x2="${x(9)}" y1="2" y2="${h - 2}" stroke="var(--line)" stroke-dasharray="2 3"/>
+      <path d="${area}" fill="var(--eur)" opacity=".35" clip-path="url(#up${m.id})"/>
+      <path d="${area}" fill="var(--usa)" opacity=".35" clip-path="url(#dn${m.id})"/>
+      <path d="${line}" fill="none" stroke="var(--text)" stroke-width="2" vector-effect="non-scaling-stroke"/>
+    </svg>`;
+  }
+
+  function raceChart() {
+    const r = A.race, w = 900, h = 300, pad = { l: 34, r: 16, t: 14, b: 34 };
+    const iw = w - pad.l - pad.r, ih = h - pad.t - pad.b, ymax = 20;
+    const x = i => pad.l + (i / r.length) * iw, y = v => pad.t + ih - (v / ymax) * ih;
+    const step = side => { let d = `M${x(0)} ${y(0)}`; r.forEach((e, i) => { d += ` H${x(i + 1)} V${y(e[side])}`; }); return d; };
+    let g = '';
+    for (let v = 0; v <= ymax; v += 5) g += `<line x1="${pad.l}" x2="${w - pad.r}" y1="${y(v)}" y2="${y(v)}" stroke="var(--line)"/><text x="${pad.l - 6}" y="${y(v) + 4}" text-anchor="end" fill="var(--muted)" font-size="13">${v}</text>`;
+    g += `<line x1="${pad.l}" x2="${w - pad.r}" y1="${y(15.5)}" y2="${y(15.5)}" stroke="var(--gold)" stroke-dasharray="6 4"/><text x="${pad.l + 6}" y="${y(15.5) - 6}" fill="var(--gold)" font-size="14">15½ to win</text>`;
+    let prev = 0;
+    [1, 2, 3, 4].forEach(rd => {
+      const n = r.filter(e => e.round === rd).length, x0 = x(prev), x1 = x(prev + n);
+      g += `<line x1="${x1}" x2="${x1}" y1="${pad.t}" y2="${pad.t + ih}" stroke="var(--line)" stroke-dasharray="2 4"/><text x="${(x0 + x1) / 2}" y="${h - 10}" text-anchor="middle" fill="var(--muted)" font-size="14">${K.ROUNDS[rd].label}</text>`;
+      prev += n;
+    });
+    const ci = A.clinch ? r.findIndex(e => e.id === A.clinch.id) : -1;
+    const clinchMark = ci >= 0 ? `<circle cx="${x(ci + 1)}" cy="${y(r[ci][A.clinch.side])}" r="6" fill="var(--gold)"/>` : '';
+    return `<svg viewBox="0 0 ${w} ${h}" width="100%" role="img" aria-label="Points race: cumulative points as matches finished">${g}
+      <path d="${step('B')}" fill="none" stroke="var(--usa)" stroke-width="3"/>
+      <path d="${step('A')}" fill="none" stroke="var(--eur)" stroke-width="3"/>${clinchMark}</svg>`;
+  }
+
+  const bar = (a, hh, b) => { const n = a + hh + b || 1; return `<div class="bar" role="img" aria-label="Europe ${a}, halved ${hh}, USA ${b}"><i class="A" style="width:${a / n * 100}%"></i><i class="H" style="width:${hh / n * 100}%"></i><i class="B" style="width:${b / n * 100}%"></i></div>`; };
+
+  /* ---------- views ---------- */
+  function renderHeader() {
+    const E = K.EVENT;
+    $('#evName').textContent = E.name;
+    $('#evMeta').textContent = `${E.venue}, ${E.place}. ${E.dates}. ${E.tees} tees, ${E.yards.toLocaleString()} yds, ${E.rating}`;
+    $('#ptsA').textContent = half(A.total.A); $('#ptsB').textContent = half(A.total.B);
+    const allDone = A.matches.every(m => m.done);
+    if (A.clinch) {
+      $('#verdict').textContent = A.clinch.side === 'A' ? 'Europe win the Cup' : 'USA retain the Cup';
+      $('#verdictSub').textContent = allDone ? 'Final' : 'In progress';
+    } else { $('#verdict').textContent = allDone ? 'Final' : 'In progress'; }
+  }
+
+  function renderOverview() {
+    const c = A.clinch, cm = c && c.match;
+    const fx = A.strokeFx, fxRow = (k, label) => fx[k] ? `<tr><td>${label}</td><td class="num">${fx[k].win}</td><td class="num">${fx[k].half}</td><td class="num">${fx[k].loss}</td><td class="num">${fx[k].n ? pct(fx[k].win / fx[k].n) : '–'}</td></tr>` : '';
+    const tot = ['fourball', 'foursomes', 'singles'].reduce((t, k) => fx[k] ? { win: t.win + fx[k].win, half: t.half + fx[k].half, loss: t.loss + fx[k].loss, n: t.n + fx[k].n } : t, { win: 0, half: 0, loss: 0, n: 0 });
+    const nn = A.nines;
+    $('#v-overview').innerHTML = `
+      <h2>Points race</h2>
+      <p class="lede">Cumulative points in the order matches finished, using the save time of each match's closing hole.
+      ${c ? `The deciding point was <a class="gold" href="#matches/${cm.id}">${names(cm.a)} v ${names(cm.b)}</a> (${esc(cm.id)}, ${esc(cm.label)}) at about ${tm(c.end)} CDT on ${dayOf(c.end)}.` : ''}</p>
+      <div class="panel scroll">${raceChart()}</div>
+
+      <h2>By round</h2>
+      <div class="rounds">${[1, 2, 3, 4].map(r => `<div><small>${K.ROUNDS[r].label}, ${K.ROUNDS[r].formatLabel}</small><b><span class="eur">${half(A.byRound[r].A)}</span> – <span class="usa">${half(A.byRound[r].B)}</span></b></div>`).join('')}</div>
+
+      <div class="grid2" style="margin-top:16px">
+        <div class="panel"><h3>Holes won by nine</h3>
+          <p class="meta">Every hole played across all 30 matches.</p>
+          <table><tr><th>Nine</th><th class="num">EUR</th><th class="num">Halved</th><th class="num">USA</th><th></th></tr>
+          <tr><td>Front</td><td class="num">${nn.front.A}</td><td class="num">${nn.front.H}</td><td class="num">${nn.front.B}</td><td>${bar(nn.front.A, nn.front.H, nn.front.B)}</td></tr>
+          <tr><td>Back</td><td class="num">${nn.back.A}</td><td class="num">${nn.back.H}</td><td class="num">${nn.back.B}</td><td>${bar(nn.back.A, nn.back.H, nn.back.B)}</td></tr></table>
+        </div>
+        <div class="panel"><h3>Side receiving the stroke</h3>
+          <p class="meta">Holes where one side had a net stroke edge. Fourball counts how many players on each side got a stroke.</p>
+          <table><tr><th>Format</th><th class="num">Won</th><th class="num">Halved</th><th class="num">Lost</th><th class="num">Win rate</th></tr>
+          ${fxRow('fourball', 'Fourball')}${fxRow('foursomes', 'Foursomes')}${fxRow('singles', 'Singles')}
+          <tr><td><b>All</b></td><td class="num"><b>${tot.win}</b></td><td class="num"><b>${tot.half}</b></td><td class="num"><b>${tot.loss}</b></td><td class="num"><b>${tot.n ? pct(tot.win / tot.n) : '–'}</b></td></tr></table>
+        </div>
+      </div>
+
+      <h2>Comebacks</h2>
+      <p class="lede">Matches won by a side that was 2 or more down.</p>
+      <div class="panel scroll"><table>
+        <tr><th>Match</th><th>Winner</th><th class="num">Worst deficit</th><th>Result</th><th>Lead by hole</th></tr>
+        ${A.comebacks.map(m => `<tr class="team${m.winner}"><td><a class="gold" href="#matches/${m.id}">${m.id}</a></td><td>${names(m[m.winner.toLowerCase()])}</td>
+          <td class="num">${m.winnerDeficit} down thru ${m.deficitHole}</td><td><span class="chip ${m.winner}">${T[m.winner].short} ${esc(m.label)}</span></td><td style="width:200px">${spark(m, 200, 34)}</td></tr>`).join('')}
+      </table></div>
+      ${A.mismatches.length ? `<p class="status err">Hole data disagrees with the official result for: ${A.mismatches.join(', ')}.</p>` : ''}`;
+  }
+
+  function matchDetail(m) {
+    const al = m.allow, hs = Array.from({ length: 18 }, (_, i) => i + 1);
+    const byH = Object.fromEntries(m.holes.map(p => [p.hole, p]));
+    const pops = al.kind === 'side'
+      ? `Team pops ${al.pops.A} v ${al.pops.B}. ${al.A ? `Europe get ${al.A}` : al.B ? `USA get ${al.B}` : 'No strokes'}.`
+      : 'Strokes: ' + [...m.a, ...m.b].map(p => `${esc(p)} ${al.per[p]}`).join(', ') + '.';
+    const dots = (p, s) => p && p.strokes[s] ? `<span class="dots ${s === 'A' ? 'eur' : 'usa'}">${'●'.repeat(p.strokes[s])}</span>` : '';
+    const notes = m.holes.filter(p => p.note || p.photo);
+    return `<div class="detail">
+      <p class="meta">${K.ROUNDS[m.round].formatLabel}. ${pops} Dots show strokes received; times are last save, CDT${m.reliableShare < 1 ? ', gold times are approximate (batch or edited saves)' : ''}.</p>
+      <div class="scroll"><table class="holes">
+        <tr><th scope="row">Hole</th>${hs.map(h => `<th>${h}</th>`).join('')}</tr>
+        <tr><th scope="row">Par</th>${hs.map(h => `<td class="t">${K.COURSE.par[h - 1]}</td>`).join('')}</tr>
+        <tr><th scope="row" class="eur">EUR</th>${hs.map(h => `<td>${dots(byH[h], 'A')}</td>`).join('')}</tr>
+        <tr><th scope="row">Result</th>${hs.map(h => { const p = byH[h]; if (!p) return '<td></td>';
+          return `<td><span class="cell ${p.result}" title="Hole ${h}: ${p.result === 'H' ? 'halved' : T[p.result].name + ' won'}">${p.result === 'H' ? '½' : T[p.result].short[0]}</span></td>`; }).join('')}</tr>
+        <tr><th scope="row" class="usa">USA</th>${hs.map(h => `<td>${dots(byH[h], 'B')}</td>`).join('')}</tr>
+        <tr><th scope="row">Match</th>${hs.map(h => { const p = byH[h]; if (!p) return '<td></td>';
+          return p.lead === 0 ? '<td class="lead t">AS</td>' : `<td class="lead ${p.lead > 0 ? 'eur' : 'usa'}">${Math.abs(p.lead)}${p.lead > 0 ? 'E' : 'U'}</td>`; }).join('')}</tr>
+        <tr><th scope="row">Time</th>${hs.map(h => { const p = byH[h]; return `<td class="t${p && !p.reliable ? ' approx' : ''}">${p ? tm(p.ts).replace(/\s?[AP]M/, '') : ''}</td>`; }).join('')}</tr>
+      </table></div>
+      <p class="meta">Result shows who won each hole (E, U, or ½ for halved). Match shows the lead after that hole, e.g. 2U is USA 2 up.</p>
+      ${notes.length ? `<ul class="notes">${notes.map(p => `<li>${p.photo ? `<a href="${esc(p.photo)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(p.thumb)}" data-full="${esc(p.photo)}" alt="Photo from hole ${p.hole}"></a>` : ''}
+        <div><b>Hole ${p.hole}</b> <span class="t">${tm(p.ts)}</span><br>${p.note ? esc(p.note) : '<span class="meta">Photo</span>'}</div></li>`).join('')}</ul>` : ''}
+    </div>`;
+  }
+
+  function renderMatches() {
+    const list = A.matches.filter(m => m.round === state.round);
+    $('#v-matches').innerHTML = `
+      <div class="seg" role="group" aria-label="Round">${[1, 2, 3, 4].map(r => `<button data-round="${r}" aria-pressed="${r === state.round}">${K.ROUNDS[r].label}</button>`).join('')}</div>
+      <p class="lede">${K.ROUNDS[state.round].formatLabel}, ${K.ROUNDS[state.round].day}. Europe <b class="eur">${half(A.byRound[state.round].A)}</b>, USA <b class="usa">${half(A.byRound[state.round].B)}</b>. Select a match for hole by hole.</p>
+      ${list.map(m => `<div class="match" id="m-${m.id}">
+        <button aria-expanded="${state.open === m.id}" data-match="${m.id}">
+          <span class="side A">${names(m.a)}<small>${m.a.map(p => K.PLAYERS[p].hcp).join(' / ')}</small></span>
+          <span class="spark">${spark(m)}</span>
+          <span class="side B">${names(m.b)}<small>${m.b.map(p => K.PLAYERS[p].hcp).join(' / ')}</small></span>
+          <span class="res">${m.done ? (m.winner ? `<span class="chip ${m.winner}">${T[m.winner].short} ${esc(m.label)}</span>` : '<span class="chip H">Halved</span>') : `<span class="chip H">Thru ${m.thru}</span>`}</span>
+        </button>
+        ${state.open === m.id ? matchDetail(m) : ''}
+      </div>`).join('')}`;
+  }
+
+  function renderPlayers() {
+    const s = state.sort;
+    const rows = A.players.filter(p => p.matches.length && (state.team === 'all' || p.team === state.team))
+      .sort((a, b) => (typeof a[s.key] === 'string' ? a[s.key].localeCompare(b[s.key]) : (a[s.key] - b[s.key])) * s.dir || (b.pts - a.pts) || (b.net - a.net));
+    const col = (key, label, num) => `<th class="${num ? 'num' : ''}"><button data-sort="${key}" ${s.key === key ? `aria-sort="${s.dir > 0 ? 'ascending' : 'descending'}"` : ''}>${label}${s.key === key ? (s.dir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`;
+    const pairs = A.pairs.filter(p => p.matches.length > 1).sort((a, b) => b.pts - a.pts);
+    $('#v-players').innerHTML = `
+      <div class="seg" role="group" aria-label="Team">${[['all', 'Both teams'], ['A', 'Europe'], ['B', 'USA']].map(([k, l]) => `<button data-team="${k}" aria-pressed="${state.team === k}">${l}</button>`).join('')}</div>
+      <div class="panel scroll"><table>
+        <tr>${col('name', 'Player')}${col('hcp', 'Hcp', 1)}<th>Record</th>${col('pts', 'Points', 1)}<th class="num">Holes W–L–H</th>${col('net', 'Net holes', 1)}<th>Matches</th></tr>
+        ${rows.map(p => `<tr class="team${p.team}"><td>${esc(p.name)}</td><td class="num">${p.hcp}</td><td>${p.W}-${p.L}-${p.H}</td><td class="num"><b>${half(p.pts) || 0}</b></td>
+          <td class="num">${p.hw}-${p.hl}-${p.hh}</td><td class="num">${p.net > 0 ? '+' : ''}${p.net}</td>
+          <td>${p.matches.map(id => `<a class="gold" href="#matches/${id}">${id}</a>`).join(' ')}</td></tr>`).join('')}
+      </table></div>
+      <p class="meta">Holes W–L–H counts every hole of every match the player was in, for his side.</p>
+      <h2>Partnerships that played together more than once</h2>
+      <div class="panel scroll"><table><tr><th>Pair</th><th>Record</th><th class="num">Points</th><th>Matches</th></tr>
+        ${pairs.map(p => `<tr class="team${p.team}"><td>${p.names.map(esc).join(' / ')}</td><td>${p.W}-${p.L}-${p.H}</td><td class="num">${half(p.pts) || 0}</td><td>${p.matches.map(id => `<a class="gold" href="#matches/${id}">${id}</a>`).join(' ')}</td></tr>`).join('')}
+      </table></div>`;
+  }
+
+  function renderHoles() {
+    $('#v-holes').innerHTML = `
+      <p class="lede">Outcomes for every hole across all matches. Decisive means the hole was won rather than halved. Pace is the median time between saves, from saves that look live (3 to 40 minutes after the previous hole).</p>
+      <div class="panel scroll"><table>
+        <tr><th>Hole</th><th class="num">Par</th><th class="num">Yds</th><th class="num">Hcp</th><th class="num">Played</th><th>Outcome</th><th class="num">EUR</th><th class="num">Halved</th><th class="num">USA</th><th class="num">Decisive</th><th class="num">Pace (min)</th></tr>
+        ${A.holeStats.map(s => `<tr${s.hole === 10 ? ' style="border-top:2px solid var(--gold)"' : ''}><td><b>${s.hole}</b></td><td class="num">${s.par}</td><td class="num">${s.yards}</td><td class="num">${s.hcp}</td><td class="num">${s.n}</td>
+          <td style="min-width:160px">${bar(s.A, s.H, s.B)}</td><td class="num">${s.A}</td><td class="num">${s.H}</td><td class="num">${s.B}</td><td class="num">${pct(s.decisive)}</td><td class="num">${s.medianMin == null ? '–' : s.medianMin}</td></tr>`).join('')}
+      </table></div>`;
+  }
+
+  const KIND = { 'lead-change': 'Lead change', run: 'Winning run', final: 'Match over', note: 'Note', photo: 'Photo', clinch: 'Cup decided' };
+  function momentText(e) {
+    const m = A.matches.find(x => x.id === e.match), who = e.side ? `<span class="${e.side === 'A' ? 'eur' : 'usa'}">${names(m[e.side.toLowerCase()])}</span>` : '';
+    switch (e.kind) {
+      case 'lead-change': return `${who} take the lead`;
+      case 'run': return `${who} win ${e.len} straight (holes ${e.from}–${e.from + e.len - 1})`;
+      case 'final': return e.side ? `${who} win ${esc(e.label)}` : 'Match halved';
+      case 'clinch': return `<b class="gold">${e.side === 'A' ? 'Europe win the Cup' : 'USA retain the Cup'}</b>`;
+      case 'note': return esc(e.text);
+      default: return 'Photo';
+    }
+  }
+  function renderTimeline() {
+    const items = A.moments.filter(e => state.kinds.has(e.kind));
+    let lastDay = '', html = '';
+    items.forEach(e => {
+      const d = dayOf(e.ts);
+      if (d !== lastDay) { if (lastDay) html += '</ul>'; html += `<h2>${d}</h2><ul class="tl">`; lastDay = d; }
+      html += `<li><time datetime="${esc(e.ts)}" class="${e.reliable ? '' : 'gold'}" title="${e.reliable ? 'Live save' : 'Approximate: batch or edited save'}">${tm(e.ts)}</time>
+        <div><span class="k">${KIND[e.kind]}</span> <span class="meta">· <a href="#matches/${e.match}">${e.match}</a>, hole ${e.hole}</span><br>${momentText(e)}</div>
+        <div>${e.photo ? `<a href="${esc(e.photo)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(e.thumb)}" data-full="${esc(e.photo)}" alt="Photo, ${e.match} hole ${e.hole}"></a>` : ''}</div></li>`;
+    });
+    if (lastDay) html += '</ul>';
+    $('#v-timeline').innerHTML = `
+      <p class="lede">Every timestamped moment, in CDT. This is the list media and course flyovers will attach to. Gold times come from batch or edited saves and are approximate.</p>
+      <div class="filters">${Object.entries(KIND).map(([k, l]) => `<label><input type="checkbox" data-kind="${k}" ${state.kinds.has(k) ? 'checked' : ''}> ${l}</label>`).join('')}</div>
+      ${html || '<p class="status">Nothing matches these filters. Turn a filter back on to see moments.</p>'}`;
+  }
+
+  /* ---------- routing + events ---------- */
+  function route() {
+    const [view, arg] = (location.hash.slice(1) || 'overview').split('/');
+    const v = ['overview', 'matches', 'players', 'holes', 'timeline'].includes(view) ? view : 'overview';
+    document.querySelectorAll('section.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
+    document.querySelectorAll('nav.tabs a').forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + v) || a.removeAttribute('aria-current'));
+    document.querySelectorAll('nav.tabs a').forEach(a => { if (a.getAttribute('href') === '#' + v) a.setAttribute('aria-current', 'page'); });
+    if (v === 'matches' && arg) {
+      const m = A.matches.find(x => x.id === arg);
+      if (m) { state.round = m.round; state.open = m.id; renderMatches(); requestAnimationFrame(() => document.getElementById('m-' + m.id).scrollIntoView({ block: 'start' })); }
+    } else if (v !== 'matches') window.scrollTo(0, 0);
+  }
+
+  document.addEventListener('click', e => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.round) { state.round = +b.dataset.round; state.open = null; history.replaceState(null, '', '#matches'); renderMatches(); }
+    else if (b.dataset.match) { const id = b.dataset.match; state.open = state.open === id ? null : id; history.replaceState(null, '', state.open ? '#matches/' + id : '#matches'); renderMatches(); }
+    else if (b.dataset.sort) { const k = b.dataset.sort; state.sort = state.sort.key === k ? { key: k, dir: -state.sort.dir } : { key: k, dir: k === 'name' || k === 'hcp' ? 1 : -1 }; renderPlayers(); }
+    else if (b.dataset.team) { state.team = b.dataset.team; renderPlayers(); }
+  });
+  document.addEventListener('change', e => {
+    const k = e.target.dataset && e.target.dataset.kind; if (!k) return;
+    e.target.checked ? state.kinds.add(k) : state.kinds.delete(k); renderTimeline();
+  });
+  // older photos have no -thumb.jpg; fall back to the full image
+  document.addEventListener('error', e => { const i = e.target; if (i.tagName === 'IMG' && i.dataset.full && i.src !== i.dataset.full) i.src = i.dataset.full; }, true);
+  window.addEventListener('hashchange', route);
+
+  load().then(rows => {
+    A = K.analyze(rows);
+    window.KIVA = A; // handy in the console
+    $('#status').remove();
+    renderHeader(); renderOverview(); renderMatches(); renderPlayers(); renderHoles(); renderTimeline(); route();
+  }).catch(err => {
+    $('#status').className = 'status err';
+    $('#status').textContent = `Could not load hole results from Supabase: ${err.message}. Check the project URL and publishable key at the top of the script, and that kiva_holes allows public reads.`;
+    $('#verdict').textContent = 'No data';
+  });
+})();
+</script>
+</body>
+</html>
