@@ -112,6 +112,8 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
 .notes li{display:flex;gap:12px;align-items:flex-start}
 .notes img{width:96px;height:72px;object-fit:cover;border-radius:4px;border:1px solid var(--line);flex:none}
 .meta{color:var(--muted);font-size:14px}
+.chartbox{background:var(--panel-2);border:1px solid var(--line);border-radius:6px;padding:10px 6px 4px;margin-bottom:6px;overflow:hidden}
+.leadchart{display:block;max-width:100%;height:auto;margin:0 auto}
 
 /* timeline */
 .tl{list-style:none;margin:0;padding:0}
@@ -434,6 +436,63 @@ svg text{font-family:var(--display)}
     </svg>`;
   }
 
+  function leadChart(m) {
+    const main = document.querySelector('main');
+    const w = Math.round(Math.max(320, Math.min(1000, (main ? main.clientWidth : 900) - 34)));
+    const narrow = w < 560, h = narrow ? 260 : 320;
+    const pad = { l: narrow ? 34 : 44, r: 14, t: 30, b: 46 };
+    const iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
+    const peak = Math.max(...m.path.map(Math.abs), 0);
+    const max = Math.max(3, peak + (peak >= 3 ? 1 : 0));
+    const x = hole => pad.l + (hole / 18) * iw, y = v => pad.t + ih / 2 - (v / max) * (ih / 2), y0 = y(0);
+    const step = max <= 5 ? 1 : 2;
+    let g = '';
+    // played / unplayed background
+    if (m.done && m.thru < 18) {
+      g += `<rect x="${x(m.thru)}" y="${pad.t}" width="${x(18) - x(m.thru)}" height="${ih}" fill="var(--bg)" opacity=".55"/>`;
+      g += `<text x="${(x(m.thru) + x(18)) / 2}" y="${pad.t + 16}" text-anchor="middle" fill="var(--muted)" font-size="13">Not played</text>`;
+    }
+    // y grid + labels
+    for (let v = -max; v <= max; v++) {
+      if (v % step) continue;
+      const yy = y(v), col = v > 0 ? 'var(--eur)' : v < 0 ? 'var(--usa)' : 'var(--muted)';
+      g += `<line x1="${pad.l}" x2="${w - pad.r}" y1="${yy}" y2="${yy}" stroke="var(--line)" ${v ? '' : 'stroke-width="2"'}/>`;
+      g += `<text x="${pad.l - 8}" y="${yy + 4}" text-anchor="end" fill="${col}" font-size="13">${v === 0 ? 'AS' : Math.abs(v)}</text>`;
+    }
+    g += `<text x="${pad.l + 6}" y="${pad.t - 10}" fill="var(--eur)" font-size="14" font-weight="600" stroke="var(--panel-2)" stroke-width="4" paint-order="stroke">Europe up ▲</text>`;
+    g += `<text x="${pad.l + 6}" y="${pad.t + ih + 0}" dy="-6" fill="var(--usa)" font-size="14" font-weight="600" stroke="var(--panel-2)" stroke-width="4" paint-order="stroke">USA up ▼</text>`;
+    // x ticks
+    for (let hole = 1; hole <= 18; hole++) {
+      g += `<line x1="${x(hole)}" x2="${x(hole)}" y1="${pad.t + ih}" y2="${pad.t + ih + 5}" stroke="var(--muted)"/>`;
+      if (!narrow || hole % 2 === 1) g += `<text x="${x(hole)}" y="${pad.t + ih + 19}" text-anchor="middle" fill="var(--muted)" font-size="13">${hole}</text>`;
+    }
+    g += `<text x="${pad.l + iw / 2}" y="${h - 6}" text-anchor="middle" fill="var(--muted)" font-size="14">Hole</text>`;
+    g += `<line x1="${x(9)}" x2="${x(9)}" y1="${pad.t}" y2="${pad.t + ih}" stroke="var(--line)" stroke-dasharray="4 4"/>`;
+    // lead line with area
+    const pts = [[x(0), y0], ...m.path.map((v, i) => [x(i + 1), y(v)])];
+    const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = `${line} L${pts[pts.length - 1][0].toFixed(1)} ${y0} L${x(0)} ${y0} Z`;
+    const cid = 'lc' + m.id;
+    g += `<defs><clipPath id="${cid}u"><rect x="0" y="0" width="${w}" height="${y0}"/></clipPath><clipPath id="${cid}d"><rect x="0" y="${y0}" width="${w}" height="${h - y0}"/></clipPath></defs>`;
+    g += `<path d="${area}" fill="var(--eur)" opacity=".3" clip-path="url(#${cid}u)"/><path d="${area}" fill="var(--usa)" opacity=".3" clip-path="url(#${cid}d)"/>`;
+    g += `<path d="${line}" fill="none" stroke="var(--text)" stroke-width="2.5" stroke-linejoin="round"/>`;
+    // hole dots
+    const fill = { A: 'var(--eur)', B: 'var(--usa)', H: 'var(--half)' };
+    m.holes.forEach(p => {
+      const status = p.lead === 0 ? 'all square' : `${T[p.lead > 0 ? 'A' : 'B'].name} ${Math.abs(p.lead)} up`;
+      const won = p.result === 'H' ? 'halved' : `${T[p.result].name} won`;
+      g += `<circle cx="${x(p.hole)}" cy="${y(p.lead)}" r="${narrow ? 4.5 : 5.5}" fill="${fill[p.result]}" stroke="var(--bg)" stroke-width="1.5"><title>Hole ${p.hole}: ${won}. ${status}.</title></circle>`;
+    });
+    // final marker
+    if (m.done) {
+      const last = m.holes[m.holes.length - 1], fx = x(last.hole), fy = y(last.lead);
+      const txt = m.winner ? `${T[m.winner].short} ${m.label}` : 'Halved';
+      const anchor = last.hole >= 15 ? 'end' : 'start', dx = anchor === 'end' ? -10 : 10;
+      g += `<text x="${fx + dx}" y="${fy + (last.lead >= 0 ? -10 : 20)}" text-anchor="${anchor}" fill="var(--gold)" font-size="15" font-weight="700">${esc(txt)}</text>`;
+    }
+    return `<svg class="leadchart" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" role="img" aria-label="Match lead after each hole for ${m.id}">${g}</svg>`;
+  }
+
   function raceChart() {
     const r = A.race, w = 900, h = 300, pad = { l: 34, r: 16, t: 14, b: 34 };
     const iw = w - pad.l - pad.r, ih = h - pad.t - pad.b, ymax = 20;
@@ -518,6 +577,9 @@ svg text{font-family:var(--display)}
     const dots = (p, s) => p && p.strokes[s] ? `<span class="dots ${s === 'A' ? 'eur' : 'usa'}">${'●'.repeat(p.strokes[s])}</span>` : '';
     const notes = m.holes.filter(p => p.note || p.photo);
     return `<div class="detail">
+      <h3>Who was ahead, hole by hole</h3>
+      <div class="chartbox">${leadChart(m)}</div>
+      <p class="meta">Above the middle line Europe lead, below it USA lead. Dots are colored by who won the hole: blue Europe, red USA, gray halved.</p>
       <p class="meta">${K.ROUNDS[m.round].formatLabel}. ${pops} Dots show strokes received; times are last save, CDT${m.reliableShare < 1 ? ', gold times are approximate (batch or edited saves)' : ''}.</p>
       <div class="scroll"><table class="holes">
         <tr><th scope="row">Hole</th>${hs.map(h => `<th>${h}</th>`).join('')}</tr>
@@ -640,6 +702,7 @@ svg text{font-family:var(--display)}
   // older photos have no -thumb.jpg; fall back to the full image
   document.addEventListener('error', e => { const i = e.target; if (i.tagName === 'IMG' && i.dataset.full && i.src !== i.dataset.full) i.src = i.dataset.full; }, true);
   window.addEventListener('hashchange', route);
+  let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (A && state.open) renderMatches(); }, 200); });
 
   load().then(rows => {
     A = K.analyze(rows);
