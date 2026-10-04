@@ -17,9 +17,9 @@
   --body:'Barlow',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
 }
 *{box-sizing:border-box}
-html{height:100%;scroll-padding-top:calc(56px + env(safe-area-inset-top,0px))}
+html{height:100%;scroll-padding-top:calc(var(--stick-h,200px) + 8px)}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.5 var(--body);
-  padding:env(safe-area-inset-top,0px) 0 env(safe-area-inset-bottom,0px)}
+  padding:0 0 env(safe-area-inset-bottom,0px)}
 button{font:inherit;color:inherit}
 :focus-visible{outline:3px solid var(--gold);outline-offset:2px}
 .wrap{max-width:1120px;margin:0 auto;padding:0 16px}
@@ -43,7 +43,31 @@ header.board{border-bottom:2px solid var(--line)}
 @media (max-width:620px){.team .pts{font-size:42px}.team .nm{font-size:18px}.score .mid{min-width:0;max-width:110px;padding:6px}.score .mid b{font-size:16px}.team{padding:10px;gap:8px}}
 
 /* tabs */
-nav.tabs{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);border-bottom:2px solid var(--line)}
+.stick{position:sticky;top:0;z-index:10;background:var(--bg);padding-top:env(safe-area-inset-top,0px)}
+nav.tabs{background:var(--bg);border-bottom:2px solid var(--line)}
+.stick .event,.stick .team,.stick .team .pts,.stick .score{transition:all .18s ease}
+.stick.compact .event{display:none}
+.stick.compact .score{margin:8px 0}
+.stick.compact .team{padding:6px 14px}
+.stick.compact .team .pts{font-size:38px}
+.stick.compact .team .nm{font-size:20px}
+.stick.compact .score .mid b{font-size:17px}
+.score.round .mid b{font-size:24px}
+.score .mid span{line-height:1.3}
+@media (prefers-reduced-motion:reduce){.stick .event,.stick .team,.stick .team .pts,.stick .score{transition:none}}
+/* round selector */
+.roundtabs{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px}
+.roundtabs button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:12px 8px;background:var(--panel);border:2px solid var(--line);border-radius:8px;cursor:pointer;color:var(--text)}
+.roundtabs button b{font:700 24px/1 var(--display)}
+.roundtabs .fmt{font-size:14px;color:var(--muted)}
+.roundtabs .rs{font:700 22px/1 var(--display);margin-top:2px;white-space:nowrap}
+.roundtabs .fmt{white-space:nowrap}
+.roundtabs .rs i{font-style:normal;padding:0 3px}
+.roundtabs button:hover{border-color:var(--gold)}
+.roundtabs button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--bg)}
+.roundtabs button[aria-pressed="true"] .fmt{color:var(--bg)}
+.roundtabs button[aria-pressed="true"] .rs i.eur{color:#1647A8}.roundtabs button[aria-pressed="true"] .rs i.usa{color:#A81E24}
+@media (max-width:560px){.roundtabs{gap:6px}.roundtabs button{padding:10px 2px}.roundtabs button b{font-size:18px}.roundtabs .fmt{font-size:12px}.roundtabs .day{display:none}.roundtabs .rs{font-size:18px}.roundtabs .rs i{padding:0 1px}}
 nav.tabs .wrap{display:flex;gap:4px;overflow-x:auto}
 nav.tabs a{flex:none;padding:14px 14px 12px;color:var(--muted);text-decoration:none;font:600 18px/1 var(--display);border-bottom:3px solid transparent}
 nav.tabs a[aria-current="page"]{color:var(--text);border-color:var(--gold)}
@@ -175,7 +199,7 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
 /* timeline (replay) */
 .tl-controls{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px}
 .tl-wrap{display:grid;grid-template-columns:330px 1fr;gap:24px;align-items:start}
-.replay{position:sticky;top:calc(58px + env(safe-area-inset-top,0px));background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:14px;max-height:calc(100vh - 76px);overflow:auto}
+.replay{position:sticky;top:calc(var(--stick-h,200px) + 10px);background:var(--panel);border:2px solid var(--line);border-radius:8px;padding:14px;max-height:calc(100vh - var(--stick-h,200px) - 20px);overflow:auto}
 .rp-top{display:flex;gap:14px;align-items:center}
 .clock{width:84px;height:84px;flex:none}
 .rp-time{display:flex;flex-direction:column;gap:2px}
@@ -238,7 +262,7 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
 .ev.cur .card{box-shadow:0 0 0 3px var(--gold)}
 @media (max-width:900px){
   .tl-wrap{grid-template-columns:1fr;gap:12px}
-  .replay{top:calc(50px + env(safe-area-inset-top,0px));z-index:4;padding:10px;max-height:none;border-radius:6px}
+  .replay{top:calc(var(--stick-h,160px) + 6px);z-index:4;padding:10px;max-height:none;border-radius:6px}
   .clock{width:54px;height:54px}
   .rp-time b{font-size:28px}
   .rp-cup{grid-template-columns:1fr 1fr auto;margin:8px 0 8px}
@@ -281,6 +305,7 @@ svg text{font-family:var(--display)}
 </style>
 </head>
 <body>
+<div class="stick" id="stick">
 <header class="board">
   <div class="wrap">
     <div class="event"><h1 id="evName">Kiva Cup</h1><p id="evMeta"></p></div>
@@ -294,6 +319,7 @@ svg text{font-family:var(--display)}
 <nav class="tabs" aria-label="Sections"><div class="wrap">
   <a href="#overview">Overview</a><a href="#matches">Matches</a><a href="#players">Players</a><a href="#holes">Holes</a><a href="#timeline">Timeline</a>
 </div></nav>
+</div>
 <main class="wrap">
   <div class="status" id="status">Loading hole results from Supabase…</div>
   <section class="view" id="v-overview"></section>
@@ -631,7 +657,7 @@ svg text{font-family:var(--display)}
   const dayOf = ts => new Date(ts).toLocaleDateString('en-US', { timeZone: K.EVENT.tz, weekday: 'long', month: 'short', day: 'numeric' });
   const names = arr => arr.map(esc).join(' / ');
   let A = null; // analysis
-  const state = { model: 'score', hole: {}, round: 4, open: null, sort: { key: 'pts', dir: -1 }, team: 'all', tlRound: 'all', tlAll: true, tlTs: null };
+  const state = { view: 'overview', model: 'score', hole: {}, round: 4, open: null, sort: { key: 'pts', dir: -1 }, team: 'all', tlRound: 'all', tlAll: true, tlTs: null };
 
   /* ---------- data ---------- */
   async function load() {
@@ -755,8 +781,17 @@ svg text{font-family:var(--display)}
     const E = K.EVENT;
     $('#evName').textContent = E.name;
     $('#evMeta').textContent = `${E.venue}, ${E.place}. ${E.dates}. ${E.tees} tees, ${E.yards.toLocaleString()} yds, ${E.rating}`;
-    $('#ptsA').textContent = half(A.total.A); $('#ptsB').textContent = half(A.total.B);
     const allDone = A.matches.every(m => m.done);
+    if (state.view === 'matches') {
+      const r = state.round, sc = A.byRound[r], R = K.ROUNDS[r];
+      $('#ptsA').textContent = half(sc.A) || 0; $('#ptsB').textContent = half(sc.B) || 0;
+      $('#verdict').textContent = R.label;
+      $('#verdictSub').innerHTML = `${R.formatLabel}<br>Cup ${half(A.total.A)}–${half(A.total.B)}`;
+      $('#score').classList.add('round');
+      return;
+    }
+    $('#score').classList.remove('round');
+    $('#ptsA').textContent = half(A.total.A); $('#ptsB').textContent = half(A.total.B);
     if (A.clinch) {
       $('#verdict').textContent = A.clinch.side === 'A' ? 'Europe win the Cup' : 'USA retain the Cup';
       $('#verdictSub').textContent = allDone ? 'Final' : 'In progress';
@@ -941,7 +976,8 @@ svg text{font-family:var(--display)}
   function renderMatches() {
     const list = A.matches.filter(m => m.round === state.round);
     $('#v-matches').innerHTML = `
-      <div class="seg" role="group" aria-label="Round">${[1, 2, 3, 4].map(r => `<button data-round="${r}" aria-pressed="${r === state.round}">${K.ROUNDS[r].label}</button>`).join('')}</div>
+      <div class="roundtabs" role="group" aria-label="Round">${[1, 2, 3, 4].map(r => { const sc = A.byRound[r], R = K.ROUNDS[r];
+        return `<button data-round="${r}" aria-pressed="${r === state.round}"><b>${R.label}</b><span class="fmt">${R.formatLabel}<span class="day">, ${R.day.split(' ')[0]}</span></span><span class="rs"><i class="eur">${half(sc.A) || 0}</i>–<i class="usa">${half(sc.B) || 0}</i></span></button>`; }).join('')}</div>
       <p class="lede">${K.ROUNDS[state.round].formatLabel}, ${K.ROUNDS[state.round].day}. Europe <b class="eur">${half(A.byRound[state.round].A)}</b>, USA <b class="usa">${half(A.byRound[state.round].B)}</b>. Select a match for hole by hole.</p>
       ${list.map(m => `<div class="match" id="m-${m.id}">
         <button aria-expanded="${state.open === m.id}" data-match="${m.id}">
@@ -1185,8 +1221,8 @@ svg text{font-family:var(--display)}
     const [view, arg] = (location.hash.slice(1) || 'overview').split('/');
     const v = ['overview', 'matches', 'players', 'holes', 'timeline'].includes(view) ? view : 'overview';
     document.querySelectorAll('section.view').forEach(s => s.classList.toggle('on', s.id === 'v-' + v));
-    document.querySelectorAll('nav.tabs a').forEach(a => a.toggleAttribute('aria-current', a.getAttribute('href') === '#' + v) || a.removeAttribute('aria-current'));
-    document.querySelectorAll('nav.tabs a').forEach(a => { if (a.getAttribute('href') === '#' + v) a.setAttribute('aria-current', 'page'); });
+    document.querySelectorAll('nav.tabs a').forEach(a => { if (a.getAttribute('href') === '#' + v) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current'); });
+    state.view = v; renderHeader();
     if (v === 'matches' && arg) {
       const m = A.matches.find(x => x.id === arg);
       if (m) { state.round = m.round; state.open = m.id; renderMatches(); requestAnimationFrame(() => document.getElementById('m-' + m.id).scrollIntoView({ block: 'start' })); }
@@ -1202,7 +1238,7 @@ svg text{font-family:var(--display)}
     if (b.dataset.tlround) { const v = b.dataset.tlround; state.tlRound = v === 'all' ? 'all' : +v; state.tlTs = null; renderTimeline(); window.scrollTo(0, document.querySelector('nav.tabs').offsetTop); return; }
     if (b.dataset.tlall) { state.tlAll = b.dataset.tlall === 'true'; state.tlTs = null; renderTimeline(); return; }
     if (b.dataset.model) { state.model = b.dataset.model; renderMatches(); }
-    else if (b.dataset.round) { state.round = +b.dataset.round; state.open = null; history.replaceState(null, '', '#matches'); renderMatches(); }
+    else if (b.dataset.round) { state.round = +b.dataset.round; state.open = null; history.replaceState(null, '', '#matches'); renderMatches(); renderHeader(); }
     else if (b.dataset.match) { const id = b.dataset.match; state.open = state.open === id ? null : id; history.replaceState(null, '', state.open ? '#matches/' + id : '#matches'); renderMatches(); }
     else if (b.dataset.sort) { const k = b.dataset.sort; state.sort = state.sort.key === k ? { key: k, dir: -state.sort.dir } : { key: k, dir: k === 'name' || k === 'hcp' ? 1 : -1 }; renderPlayers(); }
     else if (b.dataset.team) { state.team = b.dataset.team; renderPlayers(); }
@@ -1211,6 +1247,17 @@ svg text{font-family:var(--display)}
   document.addEventListener('error', e => { const i = e.target; if (i.tagName === 'IMG' && i.dataset.full && i.src !== i.dataset.full) i.src = i.dataset.full; }, true);
   window.addEventListener('hashchange', route);
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (A && state.open) renderMatches(); }, 200); });
+
+  // sticky header: compact after scrolling, and publish its height for other sticky elements
+  const stick = document.getElementById('stick');
+  const setStickH = () => document.documentElement.style.setProperty('--stick-h', stick.offsetHeight + 'px');
+  if (window.ResizeObserver) new ResizeObserver(setStickH).observe(stick); else window.addEventListener('resize', setStickH);
+  setStickH();
+  window.addEventListener('scroll', () => {
+    const y = window.scrollY;
+    if (y > 90 && !stick.classList.contains('compact')) stick.classList.add('compact');
+    else if (y < 10 && stick.classList.contains('compact')) stick.classList.remove('compact');
+  }, { passive: true });
 
   load().then(rows => {
     A = K.analyze(rows);
