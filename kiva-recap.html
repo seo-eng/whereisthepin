@@ -52,7 +52,30 @@ nav.tabs{background:var(--bg);border-bottom:2px solid var(--line)}
 .stick.compact .team .pts{font-size:38px}
 .stick.compact .team .nm{font-size:20px}
 .stick.compact .score .mid b{font-size:17px}
-.score.round .mid b{font-size:24px}
+
+
+.rrow{display:none}
+@media (max-width:620px){
+  .score .rstrip{display:none}
+  .rrow{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,1fr);background:var(--panel);border-top:2px solid var(--line)}
+  .rr{display:flex;align-items:baseline;justify-content:center;gap:4px;padding:5px 2px;font:700 16px/1 var(--display);border-left:1px solid var(--line)}
+  .rr:first-child{border-left:0}
+  .rr small{font:600 11px/1 var(--body);color:var(--muted)}
+  .rr i{font-style:normal}
+  .rr.sel{background:var(--gold)}.rr.sel small{color:var(--bg)}.rr.sel i.eur{color:#1647A8}.rr.sel i.usa{color:#A81E24}
+}
+.tcol{display:flex;flex-direction:column;gap:6px}
+.team.B .tcol{align-items:flex-end}
+.rstrip{display:flex;gap:4px}
+.rbox{display:flex;flex-direction:column;align-items:center;min-width:34px;padding:3px 4px;border-radius:4px;background:rgba(10,31,20,.16);font:700 16px/1 var(--display)}
+.rbox small{font:600 10px/1.1 var(--body);opacity:.8}
+.rbox.won{background:rgba(10,31,20,.32)}
+.rbox.sel{background:var(--bg);color:var(--gold);box-shadow:0 0 0 2px var(--gold)}
+.stick.compact .rbox{min-width:28px;font-size:14px;padding:2px 3px}
+.stick.compact .rbox small{display:none}
+.stick.compact .tcol{gap:3px}
+@media (max-width:620px){.rbox{min-width:24px;font-size:13px;padding:2px}.rbox small{font-size:9px}.rstrip{gap:2px}.score .mid span{display:none}}
+
 .score .mid span{line-height:1.3}
 @media (prefers-reduced-motion:reduce){.stick .event,.stick .team,.stick .team .pts,.stick .score{transition:none}}
 /* round selector */
@@ -260,6 +283,14 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
 .ev.clinch time{color:var(--gold);font-size:22px}
 .ev.note .head{font:italic 500 18px/1.35 var(--body)}
 .ev.cur .card{box-shadow:0 0 0 3px var(--gold)}
+.tl-how{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:6px;padding:10px 14px;margin:0 0 12px;color:var(--muted);font-size:15px}
+.tl-how b{color:var(--text)}
+.nowtag{display:inline-block;background:var(--gold);color:var(--bg);font:700 12px/1 var(--display);padding:4px 7px;border-radius:4px;margin-right:6px;vertical-align:1px}
+.ev .card .nowtag{display:none;float:right;margin:0 0 0 8px}
+.ev.cur .card .nowtag{display:inline-block}
+.ev{cursor:pointer}
+.ev.clinch.cur .card .nowtag{background:var(--bg);color:var(--gold)}
+
 @media (max-width:900px){
   .tl-wrap{grid-template-columns:1fr;gap:12px}
   .replay{top:calc(var(--stick-h,160px) + 6px);z-index:4;padding:10px;max-height:none;border-radius:6px}
@@ -277,6 +308,46 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
   .ev .head{font-size:18px}.ev.final .head,.ev.round-end .head{font-size:20px}.ev.clinch .head{font-size:26px}
 }
 .status{padding:40px 0;color:var(--muted)}
+.notile{display:inline-flex;align-items:center;justify-content:center;min-width:56px;min-height:42px;background:var(--panel-2);border:1px dashed var(--gold);border-radius:4px;color:var(--gold);font:700 12px/1.1 var(--display);text-align:center;padding:2px 4px}
+.ev .ph .notile{width:200px;height:60px;margin-top:8px;font-size:15px}
+/* holes table */
+.hkey{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px}
+.hkey p{margin:0;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:6px;padding:10px 12px;font-size:15px;color:var(--muted)}
+.hkey b{color:var(--text)}
+@media (max-width:700px){.hkey{grid-template-columns:1fr}}
+.hcard{overflow-x:auto;background:#FFFFFF;border-radius:8px;border:2px solid #FFFFFF}
+.htable{width:100%;min-width:900px;border-collapse:collapse;color:#0A1F14;font:600 16px/1.2 var(--body)}
+.htable th,.htable td{padding:9px 10px;border-bottom:1px solid #B9C7BE;white-space:nowrap;text-align:left}
+.htable .num{text-align:right;font-variant-numeric:tabular-nums}
+.htable thead th{background:#CFE8D5;color:#0A1F14;font:700 15px/1.2 var(--display);border-bottom:2px solid #7FA58B}
+.htable thead tr.grp th{background:#0A1F14;color:#E6C84A;font:700 14px/1 var(--display);text-align:center;border-bottom:0;border-left:2px solid #FFFFFF}
+.htable thead tr.grp th:first-child{border-left:0}
+.htable tbody tr.hrow:nth-child(even) td{background:#F4F7F5}
+.htable tbody tr.hrow:hover td{background:#FFF6D6}
+.htable tr.hsec td{background:#0A1F14;color:#FFFFFF;font:700 16px/1 var(--display);padding:8px 12px}
+.htable tr.hsub td{background:#E2E5E3;font-weight:700;border-bottom:2px solid #7F8C85}
+.hchip{display:inline-flex;align-items:center;justify-content:center;width:32px;height:32px;border-radius:50%;background:#0A1F14;color:#FFFFFF;font:700 17px/1 var(--display)}
+.par{display:inline-block;padding:3px 8px;border-radius:4px;font:700 14px/1.2 var(--display)}
+.par.p3{background:#D7ECFF;color:#0D3D78}.par.p4{background:#E6E9E7;color:#0A1F14}.par.p5{background:#FFE7C2;color:#6B3A00}
+.htable .ceu{color:#1647A8}.htable .cus{color:#A81E24}.htable .chh{color:#4A5A50}
+.htable td.ceu{background:#E3EDFD!important;font-weight:700}
+.htable td.cus{background:#FDE6E7!important;font-weight:700}
+.htable td.chh{background:#EEF1EF!important}
+.htable thead th.ceu{background:#C7DAFA}.htable thead th.cus{background:#F8CDD0}.htable thead th.chh{background:#DDE3DF}
+.htable .barcell{min-width:150px}
+.htable .bar{height:18px;border:1px solid #9AA8A0}
+.htable .bar .A{background:#1F5FD6}.htable .bar .B{background:#D2272E}.htable .bar .H{background:#C2CCC6}
+.edge{display:inline-block;min-width:68px;text-align:center;padding:4px 8px;border-radius:4px;font:700 15px/1 var(--display)}
+.edge.eu{background:#1F5FD6;color:#FFFFFF}.edge.us{background:#D2272E;color:#FFFFFF}.edge.evn{background:#E6C84A;color:#0A1F14}
+.obar{height:5px;background:#E2E5E3;border-radius:3px;margin-top:4px;min-width:70px}
+.obar i{display:block;height:100%;background:#0A1F14;border-radius:3px}
+.htable .parcell{white-space:normal;min-width:120px}
+.htable .tags{margin-top:4px}
+.htag{white-space:nowrap;display:inline-block;margin:2px 4px 2px 0;padding:3px 7px;border-radius:12px;font:700 12px/1 var(--body)}
+.htag.hot{background:#0A1F14;color:#E6C84A}.htag.cool{background:#E6E9E7;color:#0A1F14;border:1px solid #9AA8A0}
+.htag.eu{background:#1F5FD6;color:#fff}.htag.us{background:#D2272E;color:#fff}
+.htag.slow{background:#FFE7C2;color:#6B3A00}.htag.fast{background:#D7ECFF;color:#0D3D78}
+
 .msum{margin-top:22px;border-top:2px solid var(--line);padding-top:16px}
 .msum h3{font-size:22px}
 .msum-lede{background:var(--panel-2);border:1px solid var(--line);border-left:6px solid var(--gold);border-radius:6px;padding:10px 14px;margin-bottom:12px}
@@ -310,9 +381,10 @@ svg text{font-family:var(--display)}
   <div class="wrap">
     <div class="event"><h1 id="evName">Kiva Cup</h1><p id="evMeta"></p></div>
     <div class="score" id="score" aria-live="polite">
-      <div class="team A"><span class="pts" id="ptsA">–</span><span class="nm"><span class="full">Europe</span><span class="abbr">EUR</span></span></div>
+      <div class="team A"><span class="pts" id="ptsA">–</span><span class="tcol"><span class="nm"><span class="full">Europe</span><span class="abbr">EUR</span></span><span class="rstrip" id="stripA"></span></span></div>
       <div class="mid"><b id="verdict">Loading</b><span id="verdictSub"></span></div>
-      <div class="team B"><span class="nm">USA</span><span class="pts" id="ptsB">–</span></div>
+      <div class="team B"><span class="tcol"><span class="nm">USA</span><span class="rstrip" id="stripB"></span></span><span class="pts" id="ptsB">–</span></div>
+      <div class="rrow" id="roundRow"></div>
     </div>
   </div>
 </header>
@@ -781,22 +853,30 @@ svg text{font-family:var(--display)}
     const E = K.EVENT;
     $('#evName').textContent = E.name;
     $('#evMeta').textContent = `${E.venue}, ${E.place}. ${E.dates}. ${E.tees} tees, ${E.yards.toLocaleString()} yds, ${E.rating}`;
+    // big numbers: Cup total; small boxes: each round's points, selected round highlighted on Matches
+    $('#ptsA').textContent = half(A.total.A) || 0; $('#ptsB').textContent = half(A.total.B) || 0;
+    const sel = state.view === 'matches' ? state.round : null;
+    ['A', 'B'].forEach(sd => {
+      $('#strip' + sd).innerHTML = [1, 2, 3, 4].map(r => {
+        const v = A.byRound[r][sd], o = A.byRound[r][sd === 'A' ? 'B' : 'A'];
+        return `<span class="rbox${r === sel ? ' sel' : ''}${v > o ? ' won' : ''}" title="${K.ROUNDS[r].label}: ${T[sd].name} ${half(v) || 0}"><small>R${r}</small>${half(v) || 0}</span>`;
+      }).join('');
+    });
+    $('#roundRow').innerHTML = [1, 2, 3, 4].map(r => { const v = A.byRound[r];
+      return `<span class="rr${r === sel ? ' sel' : ''}"><small>R${r}</small><i class="eur">${half(v.A) || 0}</i>–<i class="usa">${half(v.B) || 0}</i></span>`; }).join('');
     const allDone = A.matches.every(m => m.done);
-    if (state.view === 'matches') {
-      const r = state.round, sc = A.byRound[r], R = K.ROUNDS[r];
-      $('#ptsA').textContent = half(sc.A) || 0; $('#ptsB').textContent = half(sc.B) || 0;
-      $('#verdict').textContent = R.label;
-      $('#verdictSub').innerHTML = `${R.formatLabel}<br>Cup ${half(A.total.A)}–${half(A.total.B)}`;
-      $('#score').classList.add('round');
+    if (sel) {
+      const sc = A.byRound[sel], R = K.ROUNDS[sel];
+      $('#verdict').textContent = `${R.label}: ${half(sc.A) || 0}–${half(sc.B) || 0}`;
+      $('#verdictSub').textContent = R.formatLabel;
       return;
     }
-    $('#score').classList.remove('round');
-    $('#ptsA').textContent = half(A.total.A); $('#ptsB').textContent = half(A.total.B);
     if (A.clinch) {
       $('#verdict').textContent = A.clinch.side === 'A' ? 'Europe win the Cup' : 'USA retain the Cup';
       $('#verdictSub').textContent = allDone ? 'Final' : 'In progress';
-    } else { $('#verdict').textContent = allDone ? 'Final' : 'In progress'; }
+    } else { $('#verdict').textContent = allDone ? 'Final' : 'In progress'; $('#verdictSub').textContent = ''; }
   }
+
 
   function renderOverview() {
     const c = A.clinch, cm = c && c.match;
@@ -1019,14 +1099,61 @@ svg text{font-family:var(--display)}
   }
 
   function renderHoles() {
+    const HS = A.holeStats;
+    const mmss = v => { if (v == null) return '–'; const t = Math.round(v * 60), mi = Math.floor(t / 60), se = t % 60; return se ? `${mi}m ${se}s` : `${mi}m`; };
+    const hm = v => { const t = Math.round(v); return `${Math.floor(t / 60)}h ${String(t % 60).padStart(2, '0')}m`; };
+    const pace = HS.filter(s => s.medianMin != null);
+    const maxBy = (arr, f) => arr.reduce((a, b) => f(b) > f(a) ? b : a), minBy = (arr, f) => arr.reduce((a, b) => f(b) < f(a) ? b : a);
+    const tags = {};
+    const tag = (h, t, cls) => { (tags[h] = tags[h] || []).push(`<span class="htag ${cls}">${t}</span>`); };
+    // ties go to the hole played more often
+    tag(maxBy(HS, s => s.decisive + s.n * 1e-6).hole, 'Fewest halves', 'hot');
+    tag(minBy(HS, s => s.decisive - s.n * 1e-6).hole, 'Most halves', 'cool');
+    tag(maxBy(HS, s => s.A - s.B).hole, 'Best for Europe', 'eu');
+    tag(maxBy(HS, s => s.B - s.A).hole, 'Best for USA', 'us');
+    if (pace.length) { tag(maxBy(pace, s => s.medianMin).hole, 'Slowest', 'slow'); tag(minBy(pace, s => s.medianMin).hole, 'Quickest', 'fast'); }
+    const edge = (a, b) => a === b ? '<span class="edge evn">Even</span>' : `<span class="edge ${a > b ? 'eu' : 'us'}">${a > b ? 'EUR' : 'USA'} +${Math.abs(a - b)}</span>`;
+    const outBar = d => `<div class="obar" aria-hidden="true"><i style="width:${d * 100}%"></i></div>`;
+    const row = s => `<tr class="hrow p${s.par}">
+        <td class="hn"><span class="hchip">${s.hole}</span></td>
+        <td class="parcell"><span class="par p${s.par}">Par ${s.par}</span>${tags[s.hole] ? `<div class="tags">${tags[s.hole].join('')}</div>` : ''}</td><td class="num">${s.yards}</td><td class="num">${s.hcp}</td>
+        <td class="num">${s.n}</td>
+        <td class="num ceu">${s.A}</td><td class="num chh">${s.H}</td><td class="num cus">${s.B}</td>
+        <td class="barcell">${bar(s.A, s.H, s.B)}</td>
+        <td>${edge(s.A, s.B)}</td>
+        <td class="num"><b>${pct(s.decisive)}</b>${outBar(s.decisive)}</td>
+        <td class="num">${mmss(s.medianMin)}</td></tr>`;
+    const sub = (label, hs) => {
+      const t = hs.reduce((o, s) => ({ A: o.A + s.A, H: o.H + s.H, B: o.B + s.B, n: o.n + s.n, y: o.y + s.yards, p: o.p + s.par, m: o.m + (s.medianMin || 0) }), { A: 0, H: 0, B: 0, n: 0, y: 0, p: 0, m: 0 });
+      return `<tr class="hsub"><td colspan="2">${label}</td><td class="num">${t.y.toLocaleString()}</td><td></td><td class="num">${t.n}</td>
+        <td class="num ceu">${t.A}</td><td class="num chh">${t.H}</td><td class="num cus">${t.B}</td><td class="barcell">${bar(t.A, t.H, t.B)}</td>
+        <td>${edge(t.A, t.B)}</td><td class="num"><b>${pct((t.A + t.B) / t.n)}</b></td><td class="num">${hm(t.m)}</td></tr>`;
+    };
     $('#v-holes').innerHTML = `
-      <p class="lede">Outcomes for every hole across all matches. Decisive means the hole was won rather than halved. Pace is the median time between saves, from saves that look live (3 to 40 minutes after the previous hole).</p>
-      <div class="panel scroll"><table>
-        <tr><th>Hole</th><th class="num">Par</th><th class="num">Yds</th><th class="num">Hcp</th><th class="num">Played</th><th>Outcome</th><th class="num">EUR</th><th class="num">Halved</th><th class="num">USA</th><th class="num">Decisive</th><th class="num">Pace (min)</th></tr>
-        ${A.holeStats.map(s => `<tr${s.hole === 10 ? ' style="border-top:2px solid var(--gold)"' : ''}><td><b>${s.hole}</b></td><td class="num">${s.par}</td><td class="num">${s.yards}</td><td class="num">${s.hcp}</td><td class="num">${s.n}</td>
-          <td style="min-width:160px">${bar(s.A, s.H, s.B)}</td><td class="num">${s.A}</td><td class="num">${s.H}</td><td class="num">${s.B}</td><td class="num">${pct(s.decisive)}</td><td class="num">${s.medianMin == null ? '–' : s.medianMin}</td></tr>`).join('')}
-      </table></div>`;
+      <p class="lede">How every hole played across all 30 matches.</p>
+      <div class="hkey">
+        <p><b>Won outright</b> is the share of times someone won the hole instead of halving it. High means the hole usually decided something; low means it was usually halved.</p>
+        <p><b>Edge</b> is holes won by Europe minus holes won by USA. <b>Time per hole</b> is the typical (median) gap between saving one hole and the next, using only saves that look live. Nine totals add those up.</p>
+      </div>
+      <div class="hcard"><table class="htable">
+        <thead>
+          <tr class="grp"><th colspan="4">The hole</th><th colspan="6">Results</th><th colspan="2">How it played</th></tr>
+          <tr><th>Hole</th><th>Par</th><th class="num">Yds</th><th class="num">Hcp</th><th class="num">Played</th>
+            <th class="num ceu">EUR won</th><th class="num chh">Halved</th><th class="num cus">USA won</th><th>Split</th><th>Edge</th>
+            <th class="num">Won outright</th><th class="num">Time per hole</th></tr>
+        </thead>
+        <tbody>
+          <tr class="hsec"><td colspan="12">Front nine</td></tr>
+          ${HS.slice(0, 9).map(row).join('')}
+          ${sub('Front nine total', HS.slice(0, 9))}
+          <tr class="hsec"><td colspan="12">Back nine</td></tr>
+          ${HS.slice(9).map(row).join('')}
+          ${sub('Back nine total', HS.slice(9))}
+        </tbody>
+      </table></div>
+      <p class="meta">Played counts matches that reached the hole; later holes have fewer because matches ended early. Hole 1 has no time per hole because there is no earlier save to measure from. Saves are recorded to the minute, so times are to the half minute.</p>`;
   }
+
 
   /* ---------- timeline (replay) ---------- */
   const KIND = { 'round-start': 'Round underway', 'round-end': 'Round complete', 'lead-change': 'Lead change', run: 'Hot streak',
@@ -1099,7 +1226,7 @@ svg text{font-family:var(--display)}
     const photo = e.photo && (e.kind === 'note' || e.kind === 'photo') ? `<a class="ph" href="${esc(e.photo)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(e.thumb)}" data-full="${esc(e.photo)}" alt="Photo, ${esc(e.match)} hole ${e.hole}"></a>` : '';
     return `<li class="ev ${cls} ${side ? 's' + side : ''} ${BIG.has(e.kind) ? 'big' : 'small'}" data-ts="${esc(e.ts)}" data-round="${e.round || (m && m.round)}">
       <div class="when">${time}</div>
-      <div class="card"><span class="pill">${KIND[e.kind]}</span><div class="head">${head}</div><div class="sub">${sub}</div>${extra}${photo}</div></li>`;
+      <div class="card"><span class="nowtag">Now showing</span><span class="pill">${KIND[e.kind]}</span><div class="head">${head}</div><div class="sub">${sub}</div>${extra}${photo}</div></li>`;
   }
 
   function clockSVG(ts) {
@@ -1156,7 +1283,7 @@ svg text{font-family:var(--display)}
     });
     if (lastDay) html += '</ol>';
     $('#v-timeline').innerHTML = `
-      <p class="lede">Replay the Cup as it happened. Scroll and the clock, Cup score and on-course matches follow along. Times are CDT; ~ marks an approximate time.</p>
+      <div class="tl-how"><b>How this works:</b> the panel shows the Cup at the moment outlined in gold, marked <span class="nowtag">Now showing</span>. Scroll the list to move through time, or tap any moment to jump to it. Times are CDT; ~ marks an approximate time.</div>
       <div class="tl-controls">
         <div class="seg" role="group" aria-label="Round">${[['all', 'All rounds'], [1, 'Round 1'], [2, 'Round 2'], [3, 'Round 3'], [4, 'Round 4']].map(([k, l]) => `<button data-tlround="${k}" aria-pressed="${state.tlRound === k}">${l}</button>`).join('')}</div>
         <div class="seg" role="group" aria-label="Show">${[[false, 'Big moments'], [true, 'Everything']].map(([k, l]) => `<button data-tlall="${k}" aria-pressed="${state.tlAll === k}">${l}</button>`).join('')}</div>
@@ -1165,7 +1292,7 @@ svg text{font-family:var(--display)}
         <aside id="replay" class="replay" aria-live="polite"></aside>
         <div class="tl-stream">${html || '<p class="status">No moments for this round with the current setting. Choose Everything to include notes and photos.</p>'}</div>
       </div>`;
-    syncReplay();
+    state.tlCur = null; syncReplay();
   }
 
   function syncReplay() {
@@ -1175,7 +1302,9 @@ svg text{font-family:var(--display)}
     const line = window.innerHeight * (window.innerWidth < 900 ? .55 : .4);
     let cur = items[0];
     for (const it of items) { if (it.getBoundingClientRect().top <= line) cur = it; else break; }
-    items.forEach(it => it.classList.toggle('cur', it === cur));
+    if (cur === state.tlCur && cur.dataset.ts === state.tlTs) return;
+    if (state.tlCur && state.tlCur !== cur) state.tlCur.classList.remove('cur');
+    cur.classList.add('cur'); state.tlCur = cur;
     if (cur.dataset.ts !== state.tlTs) { state.tlTs = cur.dataset.ts; renderReplay(cur.dataset.ts); }
   }
   let tlRaf = 0;
@@ -1227,10 +1356,16 @@ svg text{font-family:var(--display)}
       const m = A.matches.find(x => x.id === arg);
       if (m) { state.round = m.round; state.open = m.id; renderMatches(); requestAnimationFrame(() => document.getElementById('m-' + m.id).scrollIntoView({ block: 'start' })); }
     } else if (v !== 'matches') window.scrollTo(0, 0);
-    if (v === 'timeline') { state.tlTs = null; syncReplay(); }
+    if (v === 'timeline') { if (!state.tlBuilt) { state.tlBuilt = true; renderTimeline(); } state.tlTs = null; state.tlCur = null; syncReplay(); }
   }
 
   document.addEventListener('click', e => {
+    const evc = e.target.closest && e.target.closest('.tl2 .ev');
+    if (evc && !e.target.closest('a')) {
+      const line = window.innerHeight * (window.innerWidth < 900 ? .55 : .4);
+      window.scrollBy({ top: evc.getBoundingClientRect().top - line + 2, behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+      return;
+    }
     const hit = e.target.closest && e.target.closest('.leadchart .hit');
     if (hit) { showHole(hit.closest('svg').dataset.match, +hit.dataset.i); return; }
     const b = e.target.closest('button');
@@ -1244,7 +1379,14 @@ svg text{font-family:var(--display)}
     else if (b.dataset.team) { state.team = b.dataset.team; renderPlayers(); }
   });
   // older photos have no -thumb.jpg; fall back to the full image
-  document.addEventListener('error', e => { const i = e.target; if (i.tagName === 'IMG' && i.dataset.full && i.src !== i.dataset.full) i.src = i.dataset.full; }, true);
+  // Some older photos have no -thumb.jpg. Instead of downloading the full-size photo (~0.4 MB each)
+  // just to show a small preview, swap in a lightweight tile; the link still opens the full photo.
+  document.addEventListener('error', e => {
+    const i = e.target; if (i.tagName !== 'IMG' || !i.dataset.full) return;
+    const tile = document.createElement('span'); tile.className = 'notile'; tile.style.width = i.offsetWidth ? i.offsetWidth + 'px' : '';
+    tile.style.height = i.offsetHeight ? i.offsetHeight + 'px' : ''; tile.textContent = 'View photo';
+    i.replaceWith(tile);
+  }, true);
   window.addEventListener('hashchange', route);
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (A && state.open) renderMatches(); }, 200); });
 
@@ -1263,7 +1405,7 @@ svg text{font-family:var(--display)}
     A = K.analyze(rows);
     window.KIVA = A; // handy in the console
     $('#status').remove();
-    renderHeader(); renderOverview(); renderMatches(); renderPlayers(); renderHoles(); renderTimeline(); route();
+    renderHeader(); renderOverview(); renderMatches(); renderPlayers(); renderHoles(); route();
   }).catch(err => {
     $('#status').className = 'status err';
     $('#status').textContent = `Could not load hole results from Supabase: ${err.message}. Check the project URL and publishable key at the top of the script, and that kiva_holes allows public reads.`;
