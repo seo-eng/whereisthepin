@@ -314,6 +314,24 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
 .notile{display:inline-flex;align-items:center;justify-content:center;min-width:56px;min-height:42px;background:var(--panel-2);border:1px dashed var(--gold);border-radius:4px;color:var(--gold);font:700 12px/1.1 var(--display);text-align:center;padding:2px 4px}
 .ev .ph .notile{width:200px;height:60px;margin-top:8px;font-size:15px}
 
+
+.winp{display:grid;grid-template-columns:1fr auto 1fr;gap:8px}
+.wp{border-radius:8px;padding:14px 18px;display:flex;flex-direction:column;gap:4px;color:var(--bg)}
+.wp b{font:700 52px/1 var(--display)}
+.wp span{font:600 16px/1.2 var(--body)}
+.wp.A{background:var(--eur)}.wp.B{background:var(--usa);text-align:right;align-items:flex-end}.wp.H{background:var(--gold);align-items:center;text-align:center;min-width:130px}
+.winbar{display:flex;height:16px;border-radius:4px;overflow:hidden;margin-top:8px;border:1px solid var(--line)}
+.winbar i{display:block;height:100%}.winbar .A{background:var(--eur)}.winbar .H{background:var(--gold)}.winbar .B{background:var(--usa)}
+.ptable.kfmt{min-width:640px}
+.ptable.kfmt td.cw{background:#E3EDFD!important;color:#1647A8}.ptable.kfmt thead th.cw{background:#C7DAFA;color:#1647A8}
+.ptable.kfmt td.cl{background:#FDE6E7!important;color:#A81E24}.ptable.kfmt thead th.cl{background:#F8CDD0;color:#A81E24}
+.kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+.kpi{background:#FFFFFF;color:#0A1F14;border-radius:8px;padding:14px 16px;border-top:6px solid #E6C84A;display:flex;flex-direction:column;gap:4px}
+.kpi b{font:700 38px/1 var(--display)}
+.kpi .kl{font:700 16px/1.2 var(--display)}
+.kpi .kd{font-size:14px;color:#33433A}
+.kpi .kd a.gold{color:#0A1F14;text-decoration:underline}
+@media (max-width:560px){.wp b{font-size:36px}.wp{padding:10px 12px}.wp.H{min-width:80px}.wp span{font-size:13px}}
 /* players table */
 .ptable{width:100%;min-width:1080px;border-collapse:collapse;color:#0A1F14;font:600 16px/1.2 var(--body)}
 .ptable.pairs{min-width:720px}
@@ -928,12 +946,63 @@ svg text{font-family:var(--display)}
   }
 
 
+  function kpiSection() {
+    const M = A.matches.filter(m => m.done), n = M.length || 1;
+    const wins = sd => M.filter(m => m.winner === sd).length, halves = M.filter(m => !m.winner).length;
+    const fmts = [['fourball', 'Fourball'], ['foursomes', 'Foursomes'], ['singles', 'Singles']];
+    const byFmt = fmts.map(([k, l]) => { const ms = M.filter(m => K.ROUNDS[m.round].format === k);
+      return { l, n: ms.length, A: ms.filter(m => m.winner === 'A').length, B: ms.filter(m => m.winner === 'B').length, H: ms.filter(m => !m.winner).length }; });
+    const link = m => `<a class="gold" href="#matches/${m.id}">${names(m.a)} v ${names(m.b)}</a>`;
+    // leader after 9 converted
+    const led9 = M.filter(m => m.holes[8] && m.holes[8].lead !== 0);
+    const conv9 = led9.filter(m => m.winner === (m.holes[8].lead > 0 ? 'A' : 'B')).length;
+    // upsets: winner's lowest win chance before the finish (score-only model)
+    const low = m => { const pr = m.probs.score, sd = m.winner; let v = 1, i = 0; for (let k = 0; k < pr.length - 1; k++) { const x = sd === 'A' ? pr[k].share : 1 - pr[k].share; if (x < v) { v = x; i = k; } } return { v, i }; };
+    const upset = M.filter(m => m.winner).map(m => ({ m, ...low(m) })).sort((x, y) => x.v - y.v)[0];
+    const swing = M.filter(m => m.swings.score).map(m => ({ m, ...m.swings.score })).sort((x, y) => Math.abs(y.swing) - Math.abs(x.swing))[0];
+    const wire = M.filter(m => m.winner && m.maxLead[m.winner === 'A' ? 'B' : 'A'] === 0);
+    const to18 = M.filter(m => m.thru === 18).length;
+    const fastest = M.slice().sort((x, y) => x.thru - y.thru)[0];
+    const lc = M.reduce((t, m) => t + m.leadChanges, 0);
+    const comebacks = A.comebacks.length, big = A.comebacks[0];
+    const holes = A.holeStats.reduce((t, h) => ({ A: t.A + h.A, B: t.B + h.B, H: t.H + h.H }), { A: 0, B: 0, H: 0 });
+    const hn = holes.A + holes.B + holes.H;
+    const card = (big, label, detail, cls = '') => `<div class="kpi ${cls}"><b>${big}</b><span class="kl">${label}</span>${detail ? `<span class="kd">${detail}</span>` : ''}</div>`;
+    return `
+      <h2>Win percentages</h2>
+      <p class="lede">Share of the ${M.length} matches each team won.</p>
+      <div class="winp">
+        <div class="wp A"><b>${pct(wins('A') / n)}</b><span>Europe won ${wins('A')} matches</span></div>
+        <div class="wp H"><b>${pct(halves / n)}</b><span>${halves} halved</span></div>
+        <div class="wp B"><b>${pct(wins('B') / n)}</b><span>USA won ${wins('B')} matches</span></div>
+      </div>
+      <div class="winbar" role="img" aria-label="Europe ${wins('A')}, halved ${halves}, USA ${wins('B')}"><i class="A" style="width:${wins('A') / n * 100}%"></i><i class="H" style="width:${halves / n * 100}%"></i><i class="B" style="width:${wins('B') / n * 100}%"></i></div>
+      <div class="hcard" style="margin-top:12px"><table class="ptable kfmt">
+        <thead><tr><th>Format</th><th class="num">Matches</th><th class="num cw">Europe won</th><th class="num chh">Halved</th><th class="num cl">USA won</th><th class="num">Europe win %</th><th class="num">USA win %</th></tr></thead>
+        <tbody>${byFmt.map(f => `<tr class="prow"><td class="pname">${f.l}</td><td class="num">${f.n}</td><td class="num cw">${f.A}</td><td class="num chh">${f.H}</td><td class="num cl">${f.B}</td>
+          <td class="num"><span class="tbadge A">${pct(f.A / (f.n || 1))}</span></td><td class="num"><span class="tbadge B">${pct(f.B / (f.n || 1))}</span></td></tr>`).join('')}</tbody>
+      </table></div>
+
+      <h2>Key numbers</h2>
+      <div class="kpis">
+        ${card(pct(holes.A / hn) + ' – ' + pct(holes.B / hn), 'Holes won, Europe – USA', `${hn} holes played, ${pct(holes.H / hn)} halved`)}
+        ${card(`${conv9} of ${led9.length}`, 'Leaders after 9 who won', `${pct(conv9 / (led9.length || 1))} held on to win the match`)}
+        ${card(comebacks, 'Comeback wins', big ? `Biggest: ${big.winnerDeficit} down after ${big.deficitHole}, ${link(big)}` : 'Won from 2 or more down')}
+        ${card(upset ? pct(upset.v) : '–', 'Biggest upset', upset ? `${link(upset.m)}: winner's chance ${upset.i ? `after hole ${upset.i}` : 'at the start'}` : '')}
+        ${card(swing ? `${Math.round(Math.abs(swing.swing) * 100)} pts` : '–', 'Biggest one-hole swing', swing ? `Hole ${swing.hole}, ${link(swing.m)}` : '')}
+        ${card(lc, 'Lead changes', `${M.filter(m => m.leadChanges).length} matches changed leader at least once`)}
+        ${card(wire.length, 'Never trailed', 'Winners who were never behind at any point')}
+        ${card(to18, 'Went to 18', `${M.length - to18} were closed out early. Quickest: ${fastest.label} after ${fastest.thru} holes, ${link(fastest)}`)}
+      </div>
+      <p class="meta">Win chances use the score-only model from the match pages: every match starts at 50% and moves with the score and holes left.</p>`;
+  }
+
   function renderOverview() {
     const c = A.clinch, cm = c && c.match;
     const fx = A.strokeFx, fxRow = (k, label) => fx[k] ? `<tr><td>${label}</td><td class="num">${fx[k].win}</td><td class="num">${fx[k].half}</td><td class="num">${fx[k].loss}</td><td class="num">${fx[k].n ? pct(fx[k].win / fx[k].n) : '–'}</td></tr>` : '';
     const tot = ['fourball', 'foursomes', 'singles'].reduce((t, k) => fx[k] ? { win: t.win + fx[k].win, half: t.half + fx[k].half, loss: t.loss + fx[k].loss, n: t.n + fx[k].n } : t, { win: 0, half: 0, loss: 0, n: 0 });
     const nn = A.nines;
-    $('#v-overview').innerHTML = `
+    $('#v-overview').innerHTML = `${kpiSection()}
       <h2>Points race</h2>
       <p class="lede">Cumulative points in the order matches finished, using the save time of each match's closing hole.
       ${c ? `The deciding point was <a class="gold" href="#matches/${cm.id}">${names(cm.a)} v ${names(cm.b)}</a> (${esc(cm.id)}, ${esc(cm.label)}) at about ${tm(c.end)} CDT on ${dayOf(c.end)}.` : ''}</p>
