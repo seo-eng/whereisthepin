@@ -109,10 +109,10 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
 .scorecard table{border-collapse:collapse;width:100%;min-width:900px;table-layout:fixed;background:#FFFFFF;color:#0A1F14;font:600 17px/1 var(--display)}
 .scorecard th,.scorecard td{border:1px solid #6F8778;padding:8px 2px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:clip;position:relative}
 .scorecard th[scope=row]{position:sticky;left:0;z-index:1;background:#FFFFFF;text-align:left;padding:8px 10px;width:124px;white-space:normal;line-height:1.15;font:700 16px/1.1 var(--display);color:#0A1F14}
-.scorecard tr.sc-hdr th{background:#0A1F14;color:#FFFFFF;font-weight:700;border-color:#0A1F14}
+
 .scorecard .sum{background:#E3ECE6;font-weight:700;width:58px;white-space:normal;line-height:1.15}
 .scorecard .tot{width:84px}
-.scorecard tr.sc-hdr .sum{background:#1C3A28;color:#E6C84A}
+
 .scorecard tr.sc-yds td{font-weight:500}
 .scorecard tr.sc-hcp td{font-weight:500;font-size:15px}
 .scorecard tr.sc-par td{font-weight:700}
@@ -134,6 +134,20 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
 .scorecard tr.sc-time td{font:600 13px/1 var(--display);letter-spacing:-.01em}
 .scorecard tr.sc-time td.approx{font-style:italic}
 .scorecard tr.sc-time td.c-np.approx{color:#7A4E00}
+/* scorecard row colors */
+.scorecard tr.sc-hdr th,.scorecard tr.sc-hdr th[scope=row]{background:#CFE8D5;color:#0A1F14;font-weight:700}
+.scorecard tr.sc-hdr .sum{background:#A8D4B3;color:#0A1F14}
+.scorecard tr.sc-yds td,.scorecard tr.sc-yds th[scope=row]{background:#A9CBF2;color:#0A1F14}
+.scorecard tr.sc-yds .sum{background:#86B4EA}
+.scorecard tr.sc-par td,.scorecard tr.sc-par th[scope=row]{background:#E2E5E3;color:#0A1F14}
+.scorecard tr.sc-par .sum{background:#CBD0CD}
+.scorecard tr.sc-hcp td,.scorecard tr.sc-hcp th[scope=row]{background:#FFFFFF;color:#0A1F14}
+.scorecard tr.sc-hcp .sum{background:#F0F2F1}
+.scorecard tr.sc-time td,.scorecard tr.sc-time th[scope=row]{background:#FFFFFF}
+.scorecard tr.sc-time td.approx{color:#7A4E00}
+.scorecard tr.sc-team .sum{background:#E3ECE6}
+.scorecard tr.sc-team td.c-np{background:#F7F9F8}
+
 @media (max-width:640px){.scorecard table{min-width:1240px}.scorecard th[scope=row]{width:110px}}
 
 .cell{display:block;border-radius:3px;font:700 14px/26px var(--display)}
@@ -239,6 +253,28 @@ tr.teamB td:first-child{box-shadow:inset 4px 0 0 var(--usa)}
   .ev .head{font-size:18px}.ev.final .head,.ev.round-end .head{font-size:20px}.ev.clinch .head{font-size:26px}
 }
 .status{padding:40px 0;color:var(--muted)}
+.msum{margin-top:22px;border-top:2px solid var(--line);padding-top:16px}
+.msum h3{font-size:22px}
+.msum-lede{background:var(--panel-2);border:1px solid var(--line);border-left:6px solid var(--gold);border-radius:6px;padding:10px 14px;margin-bottom:12px}
+.msum-lede p{margin:4px 0;font-size:16px;max-width:none}
+.msum-t{width:100%;border-collapse:collapse}
+.msum-t td,.msum-t th{padding:9px 12px;border-bottom:1px solid var(--line);white-space:normal}
+.msum-t th{text-align:center;color:var(--muted);font:600 15px/1.2 var(--display);width:30%}
+.msum-t th small{display:block;font:400 12px/1.3 var(--body);color:var(--muted);opacity:.85}
+.msum-t td{width:35%;font:600 18px/1.2 var(--display)}
+.msum-t td.sA{text-align:right;color:var(--eur)}
+.msum-t td.sB{text-align:left;color:var(--usa)}
+.msum-t td .t{font:500 13px/1 var(--body);color:var(--muted)}
+.msum-t tr.hd td{font-size:20px;border-bottom:2px solid var(--line)}
+.msum-t tr.hd td.sA{box-shadow:inset 0 -4px 0 var(--eur)}.msum-t tr.hd td.sB{box-shadow:inset 0 -4px 0 var(--usa)}
+.msum-h{margin-top:16px}
+
+td.media{white-space:normal;min-width:260px;max-width:420px}
+td.media .mcount{display:block;font:600 14px/1.2 var(--display);color:var(--muted);margin-bottom:4px}
+td.media .thumbs{display:flex;flex-wrap:wrap;gap:6px}
+td.media a{display:flex;flex-direction:column;align-items:center;text-decoration:none;color:var(--muted);font:600 11px/1.2 var(--display)}
+td.media img{width:56px;height:42px;object-fit:cover;border-radius:4px;border:1px solid var(--line);margin-bottom:2px}
+td.media a:hover img,td.media a:focus-visible img{border-color:var(--gold)}
 .status.err{color:var(--usa)}
 svg text{font-family:var(--display)}
 @media (prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}}
@@ -777,7 +813,7 @@ svg text{font-family:var(--display)}
     const colCls = h => { const p = byH[h]; return !p ? 'c-np' : p.lead > 0 ? 'c-A' : p.lead < 0 ? 'c-B' : 'c-AS'; };
     const row = (label, cls, cell, tot, total) =>
       `<tr class="${cls}"><th scope="row">${label}</th>${front.map(h => cell(h, colCls(h))).join('')}<td class="sum">${tot(front)}</td>${back.map(h => cell(h, colCls(h))).join('')}<td class="sum">${tot(back)}</td><td class="sum tot">${total()}</td></tr>`;
-    const plain = f => (h, c) => `<td class="${c}">${f(h)}</td>`;
+    const plain = f => h => `<td>${f(h)}</td>`;
     const lastIn = hs => { const ps = hs.map(h => byH[h]).filter(Boolean); return ps.length ? ps[ps.length - 1] : null; };
     const sideRow = side => {
       const name = m[side.toLowerCase()].map(p => `${esc(p)} <small>${K.PLAYERS[p].hcp}</small>`).join(' / ');
@@ -800,8 +836,82 @@ svg text{font-family:var(--display)}
       ${row('Handicap', 'sc-hcp', plain(h => C.hcp[h - 1]), () => '', () => '')}
       ${sideRow('A')}
       ${sideRow('B')}
-      ${row('Time', 'sc-time', (h, c) => { const p = byH[h]; return p ? `<td class="${c}${p.reliable ? '' : ' approx'}">${p.reliable ? '' : '~'}${tm(p.ts).replace(/\s?[AP]M/, '')}</td>` : `<td class="${c}"></td>`; }, () => '', () => '')}
+      ${row('Time', 'sc-time', (h, c) => { const p = byH[h]; return p ? `<td class="${p.reliable ? '' : 'approx'}">${p.reliable ? '' : '~'}${tm(p.ts).replace(/\s?[AP]M/, '')}</td>` : '<td></td>'; }, () => '', () => '')}
     </table></div>`;
+  }
+
+  function matchSummary(m) {
+    const sides = ['A', 'B'], other = sd => sd === 'A' ? 'B' : 'A';
+    const nm = sd => names(m[sd.toLowerCase()]);
+    const pl = m.a.length > 1, were = pl ? 'were' : 'was', they = pl ? 'They' : 'He';
+    const sv = (lead, sd) => sd === 'A' ? lead : -lead;
+    const H = m.holes, W = m.winner;
+    const stat = {};
+    sides.forEach(sd => {
+      const o = other(sd);
+      const won = H.filter(p => p.result === sd).length;
+      const f = H.filter(p => p.hole <= 9 && p.result === sd).length, b = H.filter(p => p.hole > 9 && p.result === sd).length;
+      const ahead = H.filter(p => sv(p.lead, sd) > 0).length;
+      let maxL = 0, maxH = 0; H.forEach(p => { const v = sv(p.lead, sd); if (v > maxL) { maxL = v; maxH = p.hole; } });
+      const run = m.longestRun[sd];
+      const edge = H.filter(p => (p.strokes[sd] - p.strokes[o]) > 0);
+      const ew = edge.filter(p => p.result === sd).length, eh = edge.filter(p => p.result === 'H').length;
+      // win chance before the finish (exclude the final state, which is 0 or 100)
+      const pr = m.probs[state.model], upto = m.done ? pr.length - 1 : pr.length;
+      let hi = { v: -1, i: 0 }, lo = { v: 2, i: 0 };
+      for (let i = 0; i < upto; i++) { const v = sd === 'A' ? pr[i].share : 1 - pr[i].share; if (v > hi.v) hi = { v, i }; if (v < lo.v) lo = { v, i }; }
+      stat[sd] = { won, f, b, ahead, maxL, maxH, run, edgeN: edge.length, ew, eh, el: edge.length - ew - eh, hi, lo };
+    });
+    const at = i => i === 0 ? 'before the first tee' : `after hole ${i}`;
+    const pctS = v => fmtPct(v);
+    // narrative
+    const lines = [];
+    const firstLead = sd => { const p = H.find(x => sv(x.lead, sd) > 0); return p ? p.hole : null; };
+    if (W) {
+      const L = other(W), def = m.winnerDeficit;
+      const close = m.thru === 18 ? 'on the 18th' : `on the ${m.thru}th`;
+      if (def >= 2) lines.push(`${nm(W)} ${were} ${def} down after hole ${m.deficitHole} and came back to win ${esc(m.label)}, closing it out ${close}.`);
+      else if (m.leadChanges >= 2) lines.push(`A back-and-forth match with ${m.leadChanges} lead changes. ${nm(W)} won ${esc(m.label)}, closing it out ${close}.`);
+      else if (stat[L].ahead === 0) lines.push(`${nm(W)} never trailed. ${they} went ahead on hole ${firstLead(W)} and won ${esc(m.label)} ${close}.`);
+      else lines.push(`${nm(W)} won ${esc(m.label)}, closing it out ${close}.`);
+    } else if (m.done) {
+      lines.push(`Halved. All square after 18${m.leadChanges ? ` with ${m.leadChanges} lead change${m.leadChanges > 1 ? 's' : ''}` : ''}.`);
+      let sq = null; H.forEach((p, i) => { if (p.lead === 0 && i && H[i - 1].lead !== 0) sq = p; });
+      const big = sides.map(sd => stat[sd]).reduce((x, y) => y.maxL > x.maxL ? y : x);
+      const bigSide = stat.A === big ? 'A' : 'B';
+      if (big.maxL && sq) lines.push(`${nm(bigSide)} ${were} ${big.maxL} up after hole ${big.maxH}, but ${nm(sq.result)} squared it on hole ${sq.hole}${sq.hole < 18 ? ` and ${18 - sq.hole === 1 ? 'the last was' : `the last ${18 - sq.hole} were`} halved` : ''}.`);
+    }
+    sides.forEach(sd => { const r = stat[sd].run; if (r.len >= 3) lines.push(`${nm(sd)} won ${r.len} straight holes (${r.from}–${r.from + r.len - 1}).`); });
+    const bs = m.swings[state.model];
+    if (bs) lines.push(`Biggest swing: hole ${bs.hole}, when ${bs.swing > 0 ? nm('A') : nm('B')} gained ${Math.round(Math.abs(bs.swing) * 100)} points of win chance.`);
+    // underdog story
+    if (W) { const lo = stat[W].lo; if (lo.v < .25) lines.push(`${nm(W)} ${were} as low as ${pctS(lo.v)} to win ${at(lo.i)}.`); }
+
+    const row = (label, a, b, note) => `<tr><td class="sA">${a}</td><th scope="row">${label}${note ? `<small>${note}</small>` : ''}</th><td class="sB">${b}</td></tr>`;
+    const runTxt = r => r.len ? `${r.len}${r.len > 1 ? ` (holes ${r.from}–${r.from + r.len - 1})` : ` (hole ${r.from})`}` : '–';
+    const leadTxt = x => x.maxL ? `${x.maxL}UP after ${x.maxH}` : 'Never led';
+    const edgeTxt = x => x.edgeN ? `${x.ew}-${x.el}-${x.eh} <span class="t">of ${x.edgeN}</span>` : 'None';
+    const notes = H.filter(p => p.note || p.photo);
+    const dur = H.length > 1 ? Math.round((new Date(H[H.length - 1].ts) - new Date(H[0].ts)) / 60000) : 0;
+    const halves = H.filter(p => p.result === 'H').length;
+    return `<section class="msum" aria-label="Match summary">
+      <h3>Match summary</h3>
+      <div class="msum-lede">${lines.map(l => `<p>${l}</p>`).join('')}</div>
+      <div class="scroll"><table class="msum-t">
+        <tr class="hd"><td class="sA">${nm('A')}</td><th scope="col">Europe v USA</th><td class="sB">${nm('B')}</td></tr>
+        ${row('Holes won', stat.A.won, stat.B.won, `${halves} halved`)}
+        ${row('Front 9 / back 9', `${stat.A.f} / ${stat.A.b}`, `${stat.B.f} / ${stat.B.b}`, 'holes won')}
+        ${row('Biggest lead', leadTxt(stat.A), leadTxt(stat.B))}
+        ${row('Holes in the lead', stat.A.ahead, stat.B.ahead, `${H.length - stat.A.ahead - stat.B.ahead} all square`)}
+        ${row('Longest winning run', runTxt(stat.A.run), runTxt(stat.B.run))}
+        ${row('Best win chance', `<b>${pctS(stat.A.hi.v)}</b> <span class="t">${at(stat.A.hi.i)}</span>`, `<b>${pctS(stat.B.hi.v)}</b> <span class="t">${at(stat.B.hi.i)}</span>`, 'before the finish')}
+        ${row('Lowest win chance', `<b>${pctS(stat.A.lo.v)}</b> <span class="t">${at(stat.A.lo.i)}</span>`, `<b>${pctS(stat.B.lo.v)}</b> <span class="t">${at(stat.B.lo.i)}</span>`)}
+        ${row('On holes with a stroke edge', edgeTxt(stat.A), edgeTxt(stat.B), 'won-lost-halved')}
+      </table></div>
+      <p class="meta">${m.leadChanges} lead change${m.leadChanges === 1 ? '' : 's'}. Win chances use the ${state.model === 'strokes' ? 'Score + strokes' : 'Score only'} setting above (halves count as half a win).${dur && m.reliableShare >= .8 ? ` About ${Math.floor(dur / 60)}h ${String(dur % 60).padStart(2, '0')}m from the first to the last hole saved.` : ''}</p>
+      ${notes.length ? `<h3 class="msum-h">Highlights from the course</h3><ul class="notes">${notes.map(p => `<li>${p.photo ? `<a href="${esc(p.photo)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(p.thumb)}" data-full="${esc(p.photo)}" alt="Photo from hole ${p.hole}"></a>` : ''}
+        <div><b>Hole ${p.hole}</b> <span class="t">${tm(p.ts)}, ${p.result === 'H' ? 'halved' : T[p.result].name + ' won the hole'}, ${p.lead === 0 ? 'AS' : `${T[p.lead > 0 ? 'A' : 'B'].short} ${Math.abs(p.lead)}UP`}</span><br>${p.note ? esc(p.note) : '<span class="meta">Photo</span>'}</div></li>`).join('')}</ul>` : ''}
+    </section>`;
   }
 
   function matchDetail(m) {
@@ -810,7 +920,6 @@ svg text{font-family:var(--display)}
     const pops = al.kind === 'side'
       ? `Team pops ${al.pops.A} v ${al.pops.B}. ${al.A ? `Europe get ${al.A}` : al.B ? `USA get ${al.B}` : 'No strokes'}.`
       : 'Strokes: ' + [...m.a, ...m.b].map(p => `${esc(p)} ${al.per[p]}`).join(', ') + '.';
-    const notes = m.holes.filter(p => p.note || p.photo);
     return `<div class="detail">
       <h3>Who was ahead, hole by hole</h3>
       <div class="seg model" role="group" aria-label="Win % based on">${[['score', 'Score only'], ['strokes', 'Score + strokes']].map(([k, l]) => `<button data-model="${k}" aria-pressed="${state.model === k}">${l}</button>`).join('')}</div>
@@ -824,9 +933,8 @@ svg text{font-family:var(--display)}
       <h3 style="margin-top:18px">Scorecard</h3>
       <p class="meta">${K.ROUNDS[m.round].formatLabel}. ${pops}</p>
       ${scorecard(m)}
-      <p class="meta">Each column is colored by who leads the match after that hole: blue Europe, red USA, gold all square. Dots in the corner are strokes received. Times are the last save in CDT${m.reliableShare < 1 ? '; times marked ~ are approximate (batch or edited saves)' : ''}.</p>
-      ${notes.length ? `<ul class="notes">${notes.map(p => `<li>${p.photo ? `<a href="${esc(p.photo)}" target="_blank" rel="noopener"><img loading="lazy" src="${esc(p.thumb)}" data-full="${esc(p.photo)}" alt="Photo from hole ${p.hole}"></a>` : ''}
-        <div><b>Hole ${p.hole}</b> <span class="t">${tm(p.ts)}</span><br>${p.note ? esc(p.note) : '<span class="meta">Photo</span>'}</div></li>`).join('')}</ul>` : ''}
+      <p class="meta">Player rows are colored by who leads the match after that hole: blue Europe, red USA, gold all square. Dots in the corner are strokes received. Times are the last save in CDT${m.reliableShare < 1 ? '; times marked ~ are approximate (batch or edited saves)' : ''}.</p>
+      ${matchSummary(m)}
     </div>`;
   }
 
@@ -849,6 +957,11 @@ svg text{font-family:var(--display)}
 
   function renderPlayers() {
     const s = state.sort;
+    // photos from every match (group) the player was in
+    A.players.forEach(p => {
+      p.media = p.matches.flatMap(id => { const m = A.matches.find(x => x.id === id); return m.holes.filter(h => h.photo).map(h => ({ ...h, match: m })); });
+      p.mediaCount = p.media.length;
+    });
     const rows = A.players.filter(p => p.matches.length && (state.team === 'all' || p.team === state.team))
       .sort((a, b) => (typeof a[s.key] === 'string' ? a[s.key].localeCompare(b[s.key]) : (a[s.key] - b[s.key])) * s.dir || (b.pts - a.pts) || (b.net - a.net));
     const col = (key, label, num) => `<th class="${num ? 'num' : ''}"><button data-sort="${key}" ${s.key === key ? `aria-sort="${s.dir > 0 ? 'ascending' : 'descending'}"` : ''}>${label}${s.key === key ? (s.dir > 0 ? ' ▲' : ' ▼') : ''}</button></th>`;
@@ -856,12 +969,13 @@ svg text{font-family:var(--display)}
     $('#v-players').innerHTML = `
       <div class="seg" role="group" aria-label="Team">${[['all', 'Both teams'], ['A', 'Europe'], ['B', 'USA']].map(([k, l]) => `<button data-team="${k}" aria-pressed="${state.team === k}">${l}</button>`).join('')}</div>
       <div class="panel scroll"><table>
-        <tr>${col('name', 'Player')}${col('hcp', 'Hcp', 1)}<th>Record</th>${col('pts', 'Points', 1)}<th class="num">Holes W–L–H</th>${col('net', 'Net holes', 1)}<th>Matches</th></tr>
+        <tr>${col('name', 'Player')}${col('hcp', 'Hcp', 1)}<th>Record</th>${col('pts', 'Points', 1)}<th class="num">Holes W–L–H</th>${col('net', 'Net holes', 1)}<th>Matches</th>${col('mediaCount', 'Media')}</tr>
         ${rows.map(p => `<tr class="team${p.team}"><td>${esc(p.name)}</td><td class="num">${p.hcp}</td><td>${p.W}-${p.L}-${p.H}</td><td class="num"><b>${half(p.pts) || 0}</b></td>
           <td class="num">${p.hw}-${p.hl}-${p.hh}</td><td class="num">${p.net > 0 ? '+' : ''}${p.net}</td>
-          <td>${p.matches.map(id => `<a class="gold" href="#matches/${id}">${id}</a>`).join(' ')}</td></tr>`).join('')}
+          <td>${p.matches.map(id => `<a class="gold" href="#matches/${id}">${id}</a>`).join(' ')}</td>
+          <td class="media">${p.media.length ? `<span class="mcount">${p.media.length} photo${p.media.length > 1 ? 's' : ''}</span><span class="thumbs">${p.media.map(h => `<a href="${esc(h.photo)}" target="_blank" rel="noopener" title="${esc(h.match.id)}, hole ${h.hole}: ${names(h.match.a)} v ${names(h.match.b)}"><img loading="lazy" src="${esc(h.thumb)}" data-full="${esc(h.photo)}" alt="Photo from ${esc(h.match.id)}, hole ${h.hole}"><span>${esc(h.match.id)} · ${h.hole}</span></a>`).join('')}</span>` : '<span class="meta">None</span>'}</td></tr>`).join('')}
       </table></div>
-      <p class="meta">Holes W–L–H counts every hole of every match the player was in, for his side.</p>
+      <p class="meta">Holes W–L–H counts every hole of every match the player was in, for his side. Media lists every photo saved in those matches; each opens full size in a new tab.</p>
       <h2>Partnerships that played together more than once</h2>
       <div class="panel scroll"><table><tr><th>Pair</th><th>Record</th><th class="num">Points</th><th>Matches</th></tr>
         ${pairs.map(p => `<tr class="team${p.team}"><td>${p.names.map(esc).join(' / ')}</td><td>${p.W}-${p.L}-${p.H}</td><td class="num">${half(p.pts) || 0}</td><td>${p.matches.map(id => `<a class="gold" href="#matches/${id}">${id}</a>`).join(' ')}</td></tr>`).join('')}
