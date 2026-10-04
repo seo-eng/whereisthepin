@@ -85,6 +85,8 @@ nav.tabs{background:var(--bg);border-bottom:2px solid var(--line)}
 .roundtabs .fmt{font-size:14px;color:var(--muted)}
 .roundtabs .rs{font:700 22px/1 var(--display);margin-top:2px;white-space:nowrap}
 .roundtabs .fmt{white-space:nowrap}
+.roundtabs .rt{font:600 13px/1.2 var(--body);color:var(--muted);white-space:nowrap}
+.roundtabs button[aria-pressed="true"] .rt{color:var(--bg)}
 .roundtabs .rs i{font-style:normal;padding:0 3px}
 .roundtabs button:hover{border-color:var(--gold)}
 .roundtabs button[aria-pressed="true"]{background:var(--gold);border-color:var(--gold);color:var(--bg)}
@@ -849,13 +851,16 @@ svg text{font-family:var(--display)}
   const bar = (a, hh, b) => { const n = a + hh + b || 1; return `<div class="bar" role="img" aria-label="Europe ${a}, halved ${hh}, USA ${b}"><i class="A" style="width:${a / n * 100}%"></i><i class="H" style="width:${hh / n * 100}%"></i><i class="B" style="width:${b / n * 100}%"></i></div>`; };
 
   /* ---------- views ---------- */
+  const cumThrough = r => { const t = { A: 0, B: 0 }; for (let i = 1; i <= r; i++) { t.A += A.byRound[i].A; t.B += A.byRound[i].B; } return t; };
   function renderHeader() {
     const E = K.EVENT;
     $('#evName').textContent = E.name;
     $('#evMeta').textContent = `${E.venue}, ${E.place}. ${E.dates}. ${E.tees} tees, ${E.yards.toLocaleString()} yds, ${E.rating}`;
     // big numbers: Cup total; small boxes: each round's points, selected round highlighted on Matches
-    $('#ptsA').textContent = half(A.total.A) || 0; $('#ptsB').textContent = half(A.total.B) || 0;
     const sel = state.view === 'matches' ? state.round : null;
+    // big numbers: running Cup total — through the selected round on Matches, otherwise the final total
+    const tot = sel ? cumThrough(sel) : A.total;
+    $('#ptsA').textContent = half(tot.A) || 0; $('#ptsB').textContent = half(tot.B) || 0;
     ['A', 'B'].forEach(sd => {
       $('#strip' + sd).innerHTML = [1, 2, 3, 4].map(r => {
         const v = A.byRound[r][sd], o = A.byRound[r][sd === 'A' ? 'B' : 'A'];
@@ -867,8 +872,8 @@ svg text{font-family:var(--display)}
     const allDone = A.matches.every(m => m.done);
     if (sel) {
       const sc = A.byRound[sel], R = K.ROUNDS[sel];
-      $('#verdict').textContent = `${R.label}: ${half(sc.A) || 0}–${half(sc.B) || 0}`;
-      $('#verdictSub').textContent = R.formatLabel;
+      $('#verdict').textContent = `Total after ${R.label}`;
+      $('#verdictSub').textContent = `${R.label} alone: ${half(sc.A) || 0}–${half(sc.B) || 0}`;
       return;
     }
     if (A.clinch) {
@@ -1057,8 +1062,8 @@ svg text{font-family:var(--display)}
     const list = A.matches.filter(m => m.round === state.round);
     $('#v-matches').innerHTML = `
       <div class="roundtabs" role="group" aria-label="Round">${[1, 2, 3, 4].map(r => { const sc = A.byRound[r], R = K.ROUNDS[r];
-        return `<button data-round="${r}" aria-pressed="${r === state.round}"><b>${R.label}</b><span class="fmt">${R.formatLabel}<span class="day">, ${R.day.split(' ')[0]}</span></span><span class="rs"><i class="eur">${half(sc.A) || 0}</i>–<i class="usa">${half(sc.B) || 0}</i></span></button>`; }).join('')}</div>
-      <p class="lede">${K.ROUNDS[state.round].formatLabel}, ${K.ROUNDS[state.round].day}. Europe <b class="eur">${half(A.byRound[state.round].A)}</b>, USA <b class="usa">${half(A.byRound[state.round].B)}</b>. Select a match for hole by hole.</p>
+        return `<button data-round="${r}" aria-pressed="${r === state.round}"><b>${R.label}</b><span class="fmt">${R.formatLabel}<span class="day">, ${R.day.split(' ')[0]}</span></span><span class="rs"><i class="eur">${half(sc.A) || 0}</i>–<i class="usa">${half(sc.B) || 0}</i></span><span class="rt">Total ${half(cumThrough(r).A) || 0}–${half(cumThrough(r).B) || 0}</span></button>`; }).join('')}</div>
+      <p class="lede">${K.ROUNDS[state.round].formatLabel}, ${K.ROUNDS[state.round].day}. This round: Europe <b class="eur">${half(A.byRound[state.round].A) || 0}</b>, USA <b class="usa">${half(A.byRound[state.round].B) || 0}</b>. Total after the round: Europe <b class="eur">${half(cumThrough(state.round).A) || 0}</b>, USA <b class="usa">${half(cumThrough(state.round).B) || 0}</b>. Select a match for hole by hole.</p>
       ${list.map(m => `<div class="match" id="m-${m.id}">
         <button aria-expanded="${state.open === m.id}" data-match="${m.id}">
           <span class="side A">${names(m.a)}<small>${m.a.map(p => K.PLAYERS[p].hcp).join(' / ')}</small></span>
